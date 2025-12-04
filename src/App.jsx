@@ -1,12 +1,13 @@
-import './App.css'
+import { BrowserRouter } from "react-router-dom";
+
+import AppRoutes from "./routes/AppRoutes";
 
 function App() {
-
   return (
-    <>
-      <h1>SIGEX</h1>
-    </>
-  )
+    <BrowserRouter>
+      <AppRoutes />
+    </BrowserRouter>
+  );
 }
 
-export default App
+export default App;
