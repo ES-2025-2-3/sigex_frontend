@@ -4,16 +4,18 @@ import { Evento } from '../../types/event/EventType';
 import './EventCard.css';
 
 interface EventCardProps extends Evento {
-  onClick?: () => void;
+  onClickDetails?: (evento: Evento) => void;  
 }
 
 const EventCard: React.FC<EventCardProps> = ({ 
+  id,
   titulo, 
   data, 
+  descricao,
   imagemUrl, 
   local, 
   tags = [], 
-  onClick 
+  onClickDetails 
 }) => {
   const [dia, mes] = data.split(' ');
 
@@ -38,7 +40,14 @@ const EventCard: React.FC<EventCardProps> = ({
         </div>
         
         <div className="card-footer">
-          <Button variant="primary" size="small" onClick={onClick} style={{width: '100%'}}>
+          <Button 
+            variant="primary" 
+            size="small" 
+            onClick={() =>
+              onClickDetails?.({ id, titulo, data, descricao, imagemUrl, local, tags })
+            }
+            style={{ width: '100%' }}
+          >
             Ver Detalhes
           </Button>
         </div>

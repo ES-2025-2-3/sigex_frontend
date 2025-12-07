@@ -13,11 +13,25 @@ import { FaSearch } from "react-icons/fa";
 
 import "./HomePage.css";
 import Footer from "../../commons/footer/Footer";
+import Modal from "../../commons/components/Modal/Modal";
 
 const HomePage = observer(() => {
   const navigate = useNavigate();
   const { upcomingEvents, isLoading, fetchEvents } = eventStore;
   const [searchTerm, setSearchTerm] = useState("");
+
+  const [modalOpen, setModalOpen] = useState(false);
+  const [eventoSelecionado, setEventoSelecionado] = useState(null);
+
+  const handleOpenModal = (evento: any) => {
+    setEventoSelecionado(evento);
+    setModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setModalOpen(false);
+    setEventoSelecionado(null);
+  };
 
   useEffect(() => {
     fetchEvents();
@@ -77,9 +91,11 @@ const HomePage = observer(() => {
                   id={evento.id}
                   titulo={evento.titulo}
                   data={evento.data}
+                  descricao={evento.descricao}
                   imagemUrl={evento.imagemUrl}
                   local={evento.local}
                   tags={evento.tags}
+                  onClickDetails={handleOpenModal}
                 />
               ))}
             </div>
@@ -108,7 +124,50 @@ const HomePage = observer(() => {
           </div>
         </div>
       </section>
-      <Footer/>
+      <Footer />
+
+      <Modal
+        isOpen={modalOpen}
+        title={eventoSelecionado?.titulo ?? "Detalhes do Evento"}
+        onClose={handleCloseModal}
+      >
+        {eventoSelecionado && (
+          <div>
+            <img 
+              src={eventoSelecionado.imagemUrl} 
+              alt={eventoSelecionado.titulo} 
+              className="modal-content"
+            />
+
+            <p><strong>Data:</strong> {eventoSelecionado.data}</p>
+            <p><strong>Local:</strong> {eventoSelecionado.local}</p>
+            <p><strong>Descrição:</strong> {eventoSelecionado.descricao}</p>
+
+            {eventoSelecionado.tags?.length > 0 && (
+              <div style={{ marginTop: 10 }}>
+                <strong>Tags:</strong>
+                <div style={{ marginTop: 5 }}>
+                  {eventoSelecionado.tags.map((t) => (
+                    <span key={t} className="tag-pill">
+                      {t}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+            <div style={{ marginTop: 20 }}>
+              <Button
+                variant="primary"
+                size="large"
+                style={{ width: "100%" }}
+                onClick={() => navigate(`/eventos/${eventoSelecionado.id}/inscricao`)}
+                >
+                  Inscreva-se
+                </Button>
+              </div>
+            </div>
+          )}
+      </Modal>
     </div>
   );
 });
