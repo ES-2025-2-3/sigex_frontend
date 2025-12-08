@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { observer } from "mobx-react-lite";
 import { useNavigate } from "react-router-dom";
 import { eventStore } from "../../store/event/EventStore";
+import { Evento } from '../../types/event/EventType';
 
 import Header from "../../commons/header/Header";
 import EventCard from "../../commons/eventCard/EventCard";
@@ -21,9 +22,9 @@ const HomePage = observer(() => {
   const [searchTerm, setSearchTerm] = useState("");
 
   const [modalOpen, setModalOpen] = useState(false);
-  const [eventoSelecionado, setEventoSelecionado] = useState(null);
+  const [eventoSelecionado, setEventoSelecionado] = useState<Evento | null>(null);
 
-  const handleOpenModal = (evento: any) => {
+  const handleOpenModal = (evento: Evento) => {
     setEventoSelecionado(evento);
     setModalOpen(true);
   };
