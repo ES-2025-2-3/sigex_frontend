@@ -1,7 +1,7 @@
 import React from 'react';
 import './Footer.css';
 
-import logoPropex from '../../assets/images/PROPEX.png'; 
+import logoPropex from '../../assets/icons/PROPEX.png'; 
 
 const Footer: React.FC = () => {
   return (
