@@ -1,7 +1,5 @@
 import React from "react";
-import "./Header.css";
 import Button from "../button/Button";
-
 import logoSigex from "../../assets/icons/logo.png";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 
@@ -9,60 +7,62 @@ const Header: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
+  const getLinkClass = (path: string, exact = false) => {
+    const isActive = exact
+      ? location.pathname === path
+      : location.pathname.startsWith(path);
+
+    return `text-[0.95rem] font-medium transition-colors duration-200 ${
+      isActive ? "text-white" : "text-[#b0b3b8] hover:text-white"
+    }`;
+  };
+
   return (
-    <header className="header-container">
-      <div className="header-content container">
-        <Link to="/" className="header-logo logo-click">
-          <img src={logoSigex} alt="Logo SIGEX" className="logo-img" />
-          <span className="logo-text">SIGEX</span>
+    <header className="bg-brand-dark py-4 sticky top-0 z-[1000] shadow-lg font-inter">
+      <div className="flex items-center justify-between max-w-[1200px] mx-auto px-5">
+        <Link
+          to="/"
+          className="flex items-center gap-3 no-underline cursor-pointer transition-all duration-400 hover:scale-105 hover:opacity-90"
+        >
+          <img
+            src={logoSigex}
+            alt="Logo SIGEX"
+            className="h-10 w-auto object-contain"
+          />
+          <span className="text-white text-2xl font-bold tracking-wider">
+            SIGEX
+          </span>
         </Link>
 
-        <nav className="header-nav">
-          <Link
-            to="/"
-            className={`nav-link ${location.pathname === "/" ? "active" : ""}`}
-          >
+        <nav className="hidden md:flex gap-8">
+          <Link to="/" className={getLinkClass("/", true)}>
             Início
           </Link>
-
-          <Link
-            to="/eventos"
-            className={`nav-link ${
-              location.pathname.startsWith("/eventos") ? "active" : ""
-            }`}
-          >
+          <Link to="/eventos" className={getLinkClass("/eventos")}>
             Eventos
           </Link>
-
-          <Link
-            to="/reserva"
-            className={`nav-link ${
-              location.pathname.startsWith("/reserva") ? "active" : ""
-            }`}
-          >
+          <Link to="/reserva" className={getLinkClass("/reserva")}>
             Solicitar Reserva
           </Link>
-
-          <Link
-            to="/sobre"
-            className={`nav-link ${
-              location.pathname === "/sobre" ? "active" : ""
-            }`}
-          >
+          <Link to="/sobre" className={getLinkClass("/sobre", true)}>
             Sobre
           </Link>
         </nav>
 
-        <div className="header-actions">
+        <div className="flex items-center gap-4">
           <Button
             onClick={() => navigate("/login")}
             variant="outline"
             size="small"
-            style={{ borderColor: "white", color: "white" }}
+            className="!border-white !text-white hover:!bg-white hover:!text-[#212A3E] transition-all"
           >
             Entrar
           </Button>
-          <Button variant="primary" size="small">
+          <Button
+            variant="primary"
+            size="small"
+            onClick={() => navigate("/cadastro")}
+          >
             Cadastrar-se
           </Button>
         </div>
