@@ -2,13 +2,13 @@ import { useEffect, useState } from "react";
 import { observer } from "mobx-react-lite";
 import { useNavigate } from "react-router-dom";
 import { eventStore } from "../../store/event/EventStore";
-import { Evento } from '../../types/event/EventType';
+import { Evento } from "../../types/event/EventType";
 
 import Header from "../../commons/header/Header";
 import EventCard from "../../commons/eventCard/EventCard";
 import Button from "../../commons/button/Button";
 
-import heroBackground from '../../assets/images/jose_farias.jpg';
+import heroBackground from "../../assets/images/jose_farias.jpg";
 
 import { FaSearch } from "react-icons/fa";
 
@@ -22,11 +22,16 @@ const HomePage = observer(() => {
   const [searchTerm, setSearchTerm] = useState("");
 
   const [modalOpen, setModalOpen] = useState(false);
-  const [eventoSelecionado, setEventoSelecionado] = useState<Evento | null>(null);
+  const [eventoSelecionado, setEventoSelecionado] = useState<Evento | null>(
+    null
+  );
 
-  const handleOpenModal = (evento: Evento) => {
-    setEventoSelecionado(evento);
-    setModalOpen(true);
+  const handleOpenModal = (id: number) => {
+    const evento = upcomingEvents.find((e) => e.id === id);
+    if (evento) {
+      setEventoSelecionado(evento);
+      setModalOpen(true);
+    }
   };
 
   const handleCloseModal = () => {
@@ -36,7 +41,7 @@ const HomePage = observer(() => {
 
   useEffect(() => {
     fetchEvents();
-  }, []);
+  }, [fetchEvents]);
 
   const handleSearch = () => {
     navigate(`/eventos?busca=${searchTerm}`);
@@ -134,21 +139,34 @@ const HomePage = observer(() => {
       >
         {eventoSelecionado && (
           <div>
-            <img 
-              src={eventoSelecionado.imagemUrl} 
-              alt={eventoSelecionado.titulo} 
+            <img
+              src={eventoSelecionado.imagemUrl}
+              alt={eventoSelecionado.titulo}
               className="modal-content"
             />
 
-            <p><strong>Data:</strong> {eventoSelecionado.data}</p>
-            <p><strong>Local:</strong> {eventoSelecionado.local}</p>
-            <p><strong>Descrição:</strong> {eventoSelecionado.descricao}</p>
+            <p>
+              <strong>Data:</strong> {eventoSelecionado.data}
+            </p>
+            <p>
+              <strong>Local:</strong> {eventoSelecionado.local}
+            </p>
+            <p>
+              <strong>Descrição:</strong> {eventoSelecionado.descricao}
+            </p>
 
-            {eventoSelecionado.tags?.length > 0 && (
-              <div style={{ marginTop: 10 }}>
+            {(eventoSelecionado.tags ?? []).length > 0 && (
+              <div style={{ marginTop: 15 }}>
                 <strong>Tags:</strong>
-                <div style={{ marginTop: 5 }}>
-                  {eventoSelecionado.tags.map((t) => (
+                <div
+                  style={{
+                    display: "flex",
+                    gap: "8px",
+                    flexWrap: "wrap",
+                    marginTop: 8,
+                  }}
+                >
+                  {(eventoSelecionado.tags ?? []).map((t) => (
                     <span key={t} className="tag-pill">
                       {t}
                     </span>
@@ -156,18 +174,21 @@ const HomePage = observer(() => {
                 </div>
               </div>
             )}
+
             <div style={{ marginTop: 20 }}>
               <Button
                 variant="primary"
                 size="large"
                 style={{ width: "100%" }}
-                onClick={() => navigate(`/eventos/${eventoSelecionado.id}/inscricao`)}
-                >
-                  Inscreva-se
-                </Button>
-              </div>
+                onClick={() =>
+                  navigate(`/eventos/${eventoSelecionado.id}/inscricao`)
+                }
+              >
+                Inscreva-se
+              </Button>
             </div>
-          )}
+          </div>
+        )}
       </Modal>
     </div>
   );
