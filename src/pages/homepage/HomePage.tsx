@@ -2,23 +2,43 @@ import { useEffect, useState } from "react";
 import { observer } from "mobx-react-lite";
 import { useNavigate } from "react-router-dom";
 import { eventStore } from "../../store/event/EventStore";
+import { Evento } from "../../types/event/EventType";
+import { FaSearch } from "react-icons/fa";
 
 import Header from "../../commons/header/Header";
 import EventCard from "../../commons/eventCard/EventCard";
 import Button from "../../commons/button/Button";
+import Modal from "../../commons/modal/Modal";
 import Footer from "../../commons/footer/Footer";
 
 import heroBackground from "../../assets/images/jose_farias.jpg";
-import { FaSearch } from "react-icons/fa";
 
 const HomePage = observer(() => {
   const navigate = useNavigate();
   const { upcomingEvents, isLoading, fetchEvents } = eventStore;
   const [searchTerm, setSearchTerm] = useState("");
 
+  const [modalOpen, setModalOpen] = useState(false);
+  const [eventoSelecionado, setEventoSelecionado] = useState<Evento | null>(
+    null
+  );
+
+  const handleOpenModal = (id: number) => {
+    const evento = upcomingEvents.find((e) => e.id === id);
+    if (evento) {
+      setEventoSelecionado(evento);
+      setModalOpen(true);
+    }
+  };
+
+  const handleCloseModal = () => {
+    setModalOpen(false);
+    setEventoSelecionado(null);
+  };
+
   useEffect(() => {
     fetchEvents();
-  }, []);
+  }, [fetchEvents]);
 
   const handleSearch = () => {
     navigate(`/eventos?busca=${searchTerm}`);
@@ -81,9 +101,11 @@ const HomePage = observer(() => {
                   id={evento.id}
                   titulo={evento.titulo}
                   data={evento.data}
+                  descricao={evento.descricao}
                   imagemUrl={evento.imagemUrl}
                   local={evento.local}
                   tags={evento.tags}
+                  onClickDetails={handleOpenModal}
                 />
               ))}
             </div>
@@ -112,8 +134,71 @@ const HomePage = observer(() => {
           </div>
         </div>
       </section>
-
       <Footer />
+
+      <Modal
+        isOpen={modalOpen}
+        title={eventoSelecionado?.titulo ?? "Detalhes do Evento"}
+        onClose={handleCloseModal}
+      >
+        {eventoSelecionado && (
+          <div className="space-y-4">
+            <img
+              src={eventoSelecionado.imagemUrl}
+              alt={eventoSelecionado.titulo}
+              className="w-full h-auto max-h-[250px] object-cover rounded-lg shadow-sm"
+            />
+
+            <div className="space-y-2 text-base md:text-lg">
+              <p>
+                <strong className="text-gray-900 font-semibold">Data:</strong>{" "}
+                {eventoSelecionado.data}
+              </p>
+              <p>
+                <strong className="text-gray-900 font-semibold">Local:</strong>{" "}
+                {eventoSelecionado.local}
+              </p>
+              <p>
+                <strong className="text-gray-900 font-semibold">
+                  Descrição:
+                </strong>{" "}
+                {eventoSelecionado.descricao}
+              </p>
+            </div>
+
+            {(eventoSelecionado.tags ?? []).length > 0 && (
+              <div className="pt-4">
+                <span className="block text-sm font-bold text-gray-900 mb-2 font-system">
+                  Tags do Evento
+                </span>
+                <div className="flex flex-wrap gap-2">
+                  {(eventoSelecionado.tags ?? []).map((t) => (
+                    <span
+                      key={t}
+                      className="px-3 py-1 bg-brand-blue/10 text-brand-blue text-xs font-bold rounded-full border border-brand-blue/20 transition-all hover:bg-brand-blue/20 font-system"
+                    >
+                      {t}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div className="pt-4">
+              <Button
+                variant="primary"
+                size="large"
+                className="w-full py-3 text-base font-semibold"
+                onClick={() =>
+                  navigate(`/eventos/${eventoSelecionado.id}/inscricao`)
+                }
+              >
+                Inscreva-se Agora
+              </Button>
+            </div>
+          </div>
+        )}
+      </Modal>
     </div>
   );
 });
