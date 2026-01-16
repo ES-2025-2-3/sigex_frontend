@@ -20,28 +20,42 @@ const EventCard: React.FC<EventCardProps> = ({
   const [dia, mes] = data.split(" ");
 
   return (
-    <div className="event-card">
-      <div className="card-image-wrapper">
-        <img src={imagemUrl} alt={titulo} className="card-image" />
-        <div className="date-badge">
-          <span className="date-day">{dia}</span>
-          <span className="date-month">{mes}</span>
+    <div className="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 flex flex-col group">
+      
+      <div className="relative h-[180px] overflow-hidden">
+        <img 
+          src={imagemUrl} 
+          alt={titulo} 
+          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" 
+        />
+        
+        <div className="absolute top-4 left-4 bg-brand-blue text-white py-2 px-3 rounded-lg flex flex-col items-center shadow-md border border-white/10">
+          <span className="text-xl font-bold leading-none">{dia}</span>
+          <span className="text-[0.7rem] uppercase font-semibold tracking-wider">{mes}</span>
         </div>
       </div>
-
-      <div className="card-content">
-        <h3 className="card-title">{titulo}</h3>
-        <p className="card-local">{local}</p>
-
-        <div className="card-tags">
+      
+      <div className="p-5 flex flex-col flex-1">
+        <h3 className="text-lg font-bold text-text-primary mb-2 line-clamp-2 leading-tight font-montserrat">
+          {titulo}
+        </h3>
+        
+        <p className="text-sm text-gray-500 mb-4 flex-1">
+          {local}
+        </p>
+        
+        <div className="flex flex-wrap gap-2 mb-5">
           {tags.map((tag, index) => (
-            <span key={index} className="tag-pill">
+            <span 
+              key={index} 
+              className="bg-blue-50 text-brand-blue text-[0.75rem] px-3 py-1 rounded-full font-bold uppercase tracking-tight"
+            >
               {tag}
             </span>
           ))}
         </div>
 
-        <div className="card-footer">
+        <div className="mt-auto">
           <Button
             variant="primary"
             size="small"
