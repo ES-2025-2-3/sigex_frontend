@@ -1,7 +1,6 @@
 import React from "react";
 import Button from "../button/Button";
 import { Evento } from "../../types/event/EventType";
-import "./EventCard.css";
 
 interface EventCardProps extends Evento {
   onClickDetails?: (id: number) => void;

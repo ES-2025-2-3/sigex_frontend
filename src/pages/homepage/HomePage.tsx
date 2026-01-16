@@ -3,18 +3,16 @@ import { observer } from "mobx-react-lite";
 import { useNavigate } from "react-router-dom";
 import { eventStore } from "../../store/event/EventStore";
 import { Evento } from "../../types/event/EventType";
+import { FaSearch } from "react-icons/fa";
 
 import Header from "../../commons/header/Header";
 import EventCard from "../../commons/eventCard/EventCard";
 import Button from "../../commons/button/Button";
+import Modal from "../../commons/modal/Modal";
+import Footer from "../../commons/footer/Footer";
 
 import heroBackground from "../../assets/images/jose_farias.jpg";
 
-import { FaSearch } from "react-icons/fa";
-import Modal from "../../commons/components/Modal/Modal";
-
-import "./HomePage.css";
-import Footer from "../../commons/footer/Footer";
 const HomePage = observer(() => {
   const navigate = useNavigate();
   const { upcomingEvents, isLoading, fetchEvents } = eventStore;
@@ -144,36 +142,41 @@ const HomePage = observer(() => {
         onClose={handleCloseModal}
       >
         {eventoSelecionado && (
-          <div>
+          <div className="space-y-4">
             <img
               src={eventoSelecionado.imagemUrl}
               alt={eventoSelecionado.titulo}
-              className="modal-content"
+              className="w-full h-auto max-h-[250px] object-cover rounded-lg shadow-sm"
             />
 
-            <p>
-              <strong>Data:</strong> {eventoSelecionado.data}
-            </p>
-            <p>
-              <strong>Local:</strong> {eventoSelecionado.local}
-            </p>
-            <p>
-              <strong>Descrição:</strong> {eventoSelecionado.descricao}
-            </p>
+            <div className="space-y-2 text-base md:text-lg">
+              <p>
+                <strong className="text-gray-900 font-semibold">Data:</strong>{" "}
+                {eventoSelecionado.data}
+              </p>
+              <p>
+                <strong className="text-gray-900 font-semibold">Local:</strong>{" "}
+                {eventoSelecionado.local}
+              </p>
+              <p>
+                <strong className="text-gray-900 font-semibold">
+                  Descrição:
+                </strong>{" "}
+                {eventoSelecionado.descricao}
+              </p>
+            </div>
 
             {(eventoSelecionado.tags ?? []).length > 0 && (
-              <div style={{ marginTop: 15 }}>
-                <strong>Tags:</strong>
-                <div
-                  style={{
-                    display: "flex",
-                    gap: "8px",
-                    flexWrap: "wrap",
-                    marginTop: 8,
-                  }}
-                >
+              <div className="pt-4">
+                <span className="block text-sm font-bold text-gray-900 mb-2 font-system">
+                  Tags do Evento
+                </span>
+                <div className="flex flex-wrap gap-2">
                   {(eventoSelecionado.tags ?? []).map((t) => (
-                    <span key={t} className="tag-pill">
+                    <span
+                      key={t}
+                      className="px-3 py-1 bg-brand-blue/10 text-brand-blue text-xs font-bold rounded-full border border-brand-blue/20 transition-all hover:bg-brand-blue/20 font-system"
+                    >
                       {t}
                     </span>
                   ))}
@@ -181,16 +184,16 @@ const HomePage = observer(() => {
               </div>
             )}
 
-            <div style={{ marginTop: 20 }}>
+            <div className="pt-4">
               <Button
                 variant="primary"
                 size="large"
-                style={{ width: "100%" }}
+                className="w-full py-3 text-base font-semibold"
                 onClick={() =>
                   navigate(`/eventos/${eventoSelecionado.id}/inscricao`)
                 }
               >
-                Inscreva-se
+                Inscreva-se Agora
               </Button>
             </div>
           </div>

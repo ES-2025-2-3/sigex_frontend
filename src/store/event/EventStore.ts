@@ -1,5 +1,5 @@
 import { makeAutoObservable, runInAction } from "mobx";
-import { event_mock } from "../../../mock/event"; 
+import { event_mock } from "../../../mock/event"
 
 class EventStore {
   upcomingEvents: any[] = []; 
