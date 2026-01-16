@@ -8,7 +8,7 @@ import Header from "../../commons/header/Header";
 import EventCard from "../../commons/eventCard/EventCard";
 import Button from "../../commons/button/Button";
 
-import heroBackground from '../../assets/images/jose_farias.jpg';
+import heroBackground from "../../assets/images/jose_farias.jpg";
 
 import { FaSearch } from "react-icons/fa";
 import Modal from "../../commons/components/Modal/Modal";
