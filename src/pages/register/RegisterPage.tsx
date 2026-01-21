@@ -28,7 +28,7 @@ const RegisterPage: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-blue-50">
+    <div className="flex flex-col min-h-screen bg-bg-main">
       <HeaderRegister />
 
       <main className="flex-1 flex items-center justify-center py-12 px-5">
