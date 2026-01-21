@@ -1,11 +1,15 @@
-import React from "react";
+import React, { useState } from "react";
 import Button from "../button/Button";
 import logoSigex from "../../assets/icons/logo.png";
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import UserDropdown from "../user/UserDropdown";
 
 const Header: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
+
+  const [isLoggedIn, setIsLoggedIn] = useState(false); //como deve ficar no código (com lógica do back)
+  //const [isLoggedIn] = useState(true); //para testar casos com usuário logado
 
   const getLinkClass = (path: string, exact = false) => {
     const isActive = exact
@@ -50,21 +54,27 @@ const Header: React.FC = () => {
         </nav>
 
         <div className="flex items-center gap-4">
-          <Button
-            onClick={() => navigate("/login")}
-            variant="outline"
-            size="small"
-            className="!border-white !text-white hover:!bg-white hover:!text-[#212A3E] transition-all"
-          >
-            Entrar
-          </Button>
-          <Button
-            variant="primary"
-            size="small"
-            onClick={() => navigate("/cadastro")}
-          >
-            Cadastrar-se
-          </Button>
+          {isLoggedIn ? (
+            <UserDropdown />
+          ) : (
+            <>
+              <Button
+                onClick={() => navigate("/login")}
+                variant="outline"
+                size="small"
+                className="!border-white !text-white hover:!bg-white hover:!text-brand-dark transition-all"
+              >
+                Entrar
+              </Button>
+              <Button
+                variant="primary"
+                size="small"
+                onClick={() => navigate("/cadastro")}
+              >
+                Cadastrar-se
+              </Button>
+            </>
+          )}
         </div>
       </div>
     </header>
