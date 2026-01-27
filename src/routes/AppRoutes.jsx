@@ -1,10 +1,11 @@
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 
 import HomePage from "../pages/homepage/HomePage";
 import LoginPage from "../pages/login/LoginPage";
 import AboutPage from "../pages/about/AboutPage";
 import RegisterPage from "../pages/register/RegisterPage";
 import EventsPage from '../pages/events/EventsPage';
+import NotFoundPage from "../pages/notfoundpage/NotFoundPage";
 
 const AppRoutes = () => {
   return (
@@ -14,7 +15,7 @@ const AppRoutes = () => {
       <Route path="/sobre" element={<AboutPage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/cadastro" element={<RegisterPage />} />
-      <Route path="*" element={<Navigate to="/" replace />} />
+      <Route path="*" element={<NotFoundPage />} />
     </Routes>
   );
 };
