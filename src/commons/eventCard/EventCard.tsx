@@ -23,7 +23,7 @@ const EventCard: React.FC<EventCardProps> = ({
         <img
           src={imagemUrl}
           alt={titulo}
-          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+          className="w-full h-full object-cover transition-transform duration-500"
         />
         <div className="absolute top-4 left-4 bg-brand-blue text-white py-2 px-3 rounded-lg flex flex-col items-center">
           <span className="text-xl font-bold leading-none">{dia}</span>

@@ -1,8 +1,9 @@
-import { makeAutoObservable, runInAction } from "mobx";
-import { event_mock } from "../../../mock/event"
+import { computed, makeAutoObservable, runInAction } from "mobx";
+import { event_mock } from "../../../mock/event";
+import EventDomain from "../../domain/event/EventDomain";
 
 class EventStore {
-  upcomingEvents: any[] = []; 
+  upcomingEvents: EventDomain[] = []; 
   isLoading = false;
 
   constructor() {
@@ -14,10 +15,16 @@ class EventStore {
 
     setTimeout(() => {
         runInAction(() => {
-            this.upcomingEvents = event_mock; 
+            this.upcomingEvents = event_mock.map(
+              (eventData) => new EventDomain(eventData)
+            ); 
             this.isLoading = false;
         });
     }, 1000);
+  }
+
+  getEventById(id: number): EventDomain | undefined {
+    return this.upcomingEvents.find(event => event.id === id);
   }
 }
 

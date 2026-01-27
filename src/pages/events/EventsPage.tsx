@@ -8,10 +8,10 @@ import EventCard from "../../commons/eventCard/EventCard";
 import Footer from "../../commons/footer/Footer";
 import Pagination from "../../commons/pagination/Pagination";
 
-import { FaSearch, FaChevronLeft } from "react-icons/fa";
+import { FaSearch, FaArrowLeft } from "react-icons/fa";
 import Button from "../../commons/button/Button";
 import Modal from "../../commons/modal/Modal";
-import { Evento } from "../../types/event/EventType";
+import EventDomain from "../../domain/event/EventDomain";
 
 const EventosPage = observer(() => {
   const navigate = useNavigate();
@@ -23,9 +23,9 @@ const EventosPage = observer(() => {
   const eventsPerPage = 9;
 
   const [modalOpen, setModalOpen] = useState(false);
-  const [eventoSelecionado, setEventoSelecionado] = useState<Evento | null>(
-    null
-  );
+
+  const [eventoSelecionado, setEventoSelecionado] =
+    useState<EventDomain | null>(null);
 
   useEffect(() => {
     fetchEvents();
@@ -60,8 +60,8 @@ const EventosPage = observer(() => {
       (evento) =>
         evento.titulo.toLowerCase().includes(filterTerm.toLowerCase()) ||
         evento.tags.some((tag) =>
-          tag.toLowerCase().includes(filterTerm.toLowerCase())
-        )
+          tag.toLowerCase().includes(filterTerm.toLowerCase()),
+        ),
     );
   }, [upcomingEvents, filterTerm]);
 
@@ -70,7 +70,7 @@ const EventosPage = observer(() => {
   const indexOfFirstEvent = indexOfLastEvent - eventsPerPage;
   const currentEvents = filteredEvents.slice(
     indexOfFirstEvent,
-    indexOfLastEvent
+    indexOfLastEvent,
   );
 
   const handlePageChange = (pageNumber: number) => {
@@ -86,9 +86,13 @@ const EventosPage = observer(() => {
         <div className="flex justify-between items-center mb-8">
           <button
             onClick={() => navigate("/")}
-            className="flex items-center gap-2 text-brand-blue font-semibold hover:underline transition-all"
+            className="flex items-center gap-2 text-gray-400 hover:text-brand-blue font-bold transition-all group"
           >
-            <FaChevronLeft /> Voltar para o Início
+            <FaArrowLeft
+              size={14}
+              className="group-hover:-translate-x-1 transition-transform"
+            />
+            Voltar para o Início
           </button>
 
           <button
@@ -112,7 +116,7 @@ const EventosPage = observer(() => {
           </div>
 
           <div className="flex gap-2 w-full md:w-auto">
-            {["CATEGORIA", "DATA", "HORA"].map((label) => (
+            {["CATEGORIA", "DATA"].map((label) => (
               <select
                 key={label}
                 className="bg-white border border-gray-200 rounded-md px-4 py-2 text-sm font-medium text-gray-700 shadow-sm outline-none focus:ring-1 focus:ring-brand-blue cursor-pointer hover:bg-gray-50 transition"
@@ -142,7 +146,17 @@ const EventosPage = observer(() => {
               <>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
                   {currentEvents.map((evento) => (
-                    <EventCard key={evento.id} {...evento} onClickDetails={handleOpenModal}/>
+                    <EventCard
+                      key={evento.id}
+                      id={evento.id!}
+                      titulo={evento.titulo}
+                      data={evento.data}
+                      descricao={evento.descricao}
+                      imagemUrl={evento.imagemUrl}
+                      local={evento.local}
+                      tags={evento.tags}
+                      onClickDetails={handleOpenModal}
+                    />
                   ))}
                 </div>
 
@@ -185,17 +199,17 @@ const EventosPage = observer(() => {
               className="w-full h-auto max-h-[250px] object-cover rounded-lg shadow-sm"
             />
 
-            <div className="space-y-2 text-base md:text-lg">
-              <p>
-                <strong className="text-gray-900 font-semibold">Data:</strong>{" "}
+            <div className="space-y-2 text-base">
+              <p className="text-gray-600">
+                <strong className="text-brand-dark font-bold">Data:</strong>{" "}
                 {eventoSelecionado.data}
               </p>
-              <p>
-                <strong className="text-gray-900 font-semibold">Local:</strong>{" "}
+              <p className="text-gray-600">
+                <strong className="text-brand-dark font-bold">Local:</strong>{" "}
                 {eventoSelecionado.local}
               </p>
-              <p>
-                <strong className="text-gray-900 font-semibold">
+              <p className="text-gray-600 line-clamp-3">
+                <strong className="text-brand-dark font-bold">
                   Descrição:
                 </strong>{" "}
                 {eventoSelecionado.descricao}
@@ -204,14 +218,11 @@ const EventosPage = observer(() => {
 
             {(eventoSelecionado.tags ?? []).length > 0 && (
               <div className="pt-2">
-                <strong className="block text-sm font-bold text-gray-900 mb-2 font-system">
-                  Tags:
-                </strong>
                 <div className="flex flex-wrap gap-2">
                   {(eventoSelecionado.tags ?? []).map((t) => (
                     <span
                       key={t}
-                      className="px-3 py-1 bg-gray-100 text-gray-700 text-xs font-medium rounded-md border border-gray-200 font-system"
+                      className="px-2 py-1 bg-brand-blue/10 text-brand-blue text-[10px] font-bold uppercase rounded-md"
                     >
                       {t}
                     </span>
@@ -220,16 +231,17 @@ const EventosPage = observer(() => {
               </div>
             )}
 
-            <div className="pt-4">
+            <div className="pt-6 border-t border-gray-100">
               <Button
                 variant="primary"
                 size="large"
-                style={{ width: "100%" }}
-                onClick={() =>
-                  navigate(`/eventos/${eventoSelecionado.id}/inscricao`)
-                }
+                className="w-full font-bold py-4 rounded-xl shadow-lg shadow-brand-blue/20"
+                onClick={() => {
+                  handleCloseModal();
+                  navigate(`/eventos/${eventoSelecionado.id}`);
+                }}
               >
-                Inscreva-se Agora
+                Ver mais detalhes
               </Button>
             </div>
           </div>

@@ -6,4 +6,6 @@ export interface Evento {
   imagemUrl: string;
   local: string;
   tags?: string[];
+  linkInscricao?: string;       
+  informacoesAdicionais?: string;
 }

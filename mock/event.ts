@@ -7,6 +7,8 @@ export const event_mock = [
     imagemUrl: "https://images.unsplash.com/photo-1544531586-fde5298cdd40?auto=format&fit=crop&w=500",
     local: "Centro de Vivência",
     tags: ["Cultura", "Palestra"],
+    linkInscricao: "https://geas.ufcg.edu.br",
+    informacoesAdicionais: "Os participantes devem levar 1kg de alimento não perecível para doação no dia do evento. Haverá certificação de 20h." // NOVO CAMPO
   },
   {
     id: 2,
