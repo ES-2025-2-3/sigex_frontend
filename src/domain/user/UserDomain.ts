@@ -1,18 +1,18 @@
-import { observable, action, makeObservable, computed } from 'mobx';
-import DomainBase from '../DomainBase';
+import { observable, action, makeObservable, computed } from "mobx";
+import DomainBase from "../DomainBase";
+import { UserType } from "../enums/UserType";
 
 class UserDomain extends DomainBase {
-  @observable accessor username = '';        
-  @observable accessor name = '';           
-  @observable accessor email = '';           
-  @observable accessor registrationNumber = '';        
-  @observable accessor photoUrl = '';        
-  @observable accessor affiliation = '';     
+  @observable accessor id: number | null = null;
+  @observable accessor name = "";
+  @observable accessor email = "";
+  @observable accessor registrationNumber = "";
+  @observable accessor type: UserType | null = null;
 
   constructor(user?: Record<string, unknown>) {
     super();
     makeObservable(this);
-    
+
     if (user) {
       this.setData(user);
     }
@@ -20,8 +20,8 @@ class UserDomain extends DomainBase {
 
   @computed
   get initials(): string {
-    if (!this.name) return '??';
-    
+    if (!this.name) return "??";
+
     const names = this.name.trim().split(/\s+/);
     if (names.length > 1) {
       const firstLetter = names[0][0];
@@ -35,16 +35,15 @@ class UserDomain extends DomainBase {
   validate(field?: string) {
     if (field) {
       super.validate(field);
-      
-      if (field === 'email' && this.email) {
+
+      if (field === "email" && this.email) {
         this.validateEmail(this.email);
       }
     } else {
       super.validate(undefined, () => {
-        if (!this.username) this.errors['username'] = 'Campo obrigatório';
-        if (!this.name) this.errors['name'] = 'Campo obrigatório';
+        if (!this.name) this.errors["name"] = "Campo obrigatório";
         if (!this.email) {
-          this.errors['email'] = 'Campo obrigatório';
+          this.errors["email"] = "Campo obrigatório";
         } else {
           this.validateEmail(this.email);
         }
@@ -55,13 +54,12 @@ class UserDomain extends DomainBase {
   private validateEmail(email: string) {
     const re = /\S+@\S+\.\S+/;
     if (!re.test(email)) {
-      this.errors['email'] = 'E-mail inválido';
+      this.errors["email"] = "E-mail inválido";
     }
   }
 
   getBackendObject() {
     const obj = super.getBackendObject();
-    obj.login = this.username;    
     return obj;
   }
 }

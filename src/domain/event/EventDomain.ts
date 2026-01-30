@@ -3,14 +3,14 @@ import DomainBase from '../DomainBase';
 
 class EventDomain extends DomainBase {
   @observable accessor id: number | null = null;
-  @observable accessor titulo = '';
-  @observable accessor data = '';
-  @observable accessor descricao = '';
-  @observable accessor imagemUrl = '';
-  @observable accessor local = '';
+  @observable accessor title = '';
+  @observable accessor date = '';
+  @observable accessor description = '';
+  @observable accessor imageUrl = '';
+  @observable accessor location = '';
   @observable accessor tags: string[] = [];
-  @observable accessor linkInscricao = '';
-  @observable accessor informacoesAdicionais = '';
+  @observable accessor registrationLink = '';
+  @observable accessor additionalInfo = '';
 
   constructor(event?: Record<string, unknown>) {
     super();
@@ -21,46 +21,39 @@ class EventDomain extends DomainBase {
     }
   }
 
-  /**
-   * Computado para verificar se o evento possui link de inscrição
-   */
   @computed
   get hasExternalRegistration(): boolean {
-    return !!this.linkInscricao && this.linkInscricao.trim().length > 0;
+    return !!this.registrationLink && this.registrationLink.trim().length > 0;
   }
 
-  /**
-   * Validação dos campos de evento
-   */
   @action
   validate(field?: string) {
     if (field) {
       super.validate(field);
-      if (field === 'linkInscricao' && this.linkInscricao) {
-        this.validateUrl(this.linkInscricao);
+
+      if (field === 'registrationLink' && this.registrationLink) {
+        this.validateUrl(this.registrationLink);
       }
-    } else {
-      super.validate(undefined, () => {
-        if (!this.titulo) this.errors['titulo'] = 'Título é obrigatório';
-        if (!this.data) this.errors['data'] = 'Data é obrigatória';
-        if (!this.local) this.errors['local'] = 'Local é obrigatório';
-        if (!this.descricao) this.errors['descricao'] = 'Descrição é obrigatória';
-        
-        if (this.linkInscricao) {
-          this.validateUrl(this.linkInscricao);
-        }
-      });
+      return;
     }
+
+    super.validate(undefined, () => {
+      if (!this.title) this.errors['title'] = 'Title is required';
+      if (!this.date) this.errors['date'] = 'Date is required';
+      if (!this.location) this.errors['location'] = 'Location is required';
+      if (!this.description) this.errors['description'] = 'Description is required';
+
+      if (this.registrationLink) {
+        this.validateUrl(this.registrationLink);
+      }
+    });
   }
 
-  /**
-   * Valida se o link de inscrição é uma URL válida
-   */
   private validateUrl(url: string) {
     try {
       new URL(url);
     } catch (_) {
-      this.errors['linkInscricao'] = 'URL inválida';
+      this.errors['registrationLink'] = 'Invalid URL';
     }
   }
 

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { observer } from "mobx-react-lite";
 import { useNavigate } from "react-router-dom";
-import { eventStore } from "../../store/event/EventStore";
+import { eventIndexStore } from "../../store/event/EventIndexStore";
 import EventDomain from "../../domain/event/EventDomain";
 import { FaSearch } from "react-icons/fa";
 
@@ -15,7 +15,7 @@ import heroBackground from "../../assets/images/jose_farias.jpg";
 
 const HomePage = observer(() => {
   const navigate = useNavigate();
-  const { upcomingEvents, isLoading, fetchEvents } = eventStore;
+  const { upcomingEvents, loading } = eventIndexStore;
   const [searchTerm, setSearchTerm] = useState("");
 
   const [modalOpen, setModalOpen] = useState(false);
@@ -37,7 +37,7 @@ const HomePage = observer(() => {
   };
 
   useEffect(() => {
-    fetchEvents();
+    eventIndexStore.fetch();
   }, []);
 
   const handleSearch = () => {
@@ -89,7 +89,7 @@ const HomePage = observer(() => {
             Próximos Eventos
           </h2>
 
-          {isLoading ? (
+          {loading ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                {[...Array(3)].map((_, i) => (
                   <div key={i} className="h-80 bg-gray-200 animate-pulse rounded-xl" />
@@ -101,11 +101,11 @@ const HomePage = observer(() => {
                 <EventCard
                   key={evento.id}
                   id={evento.id!}
-                  titulo={evento.titulo}
-                  data={evento.data}
-                  descricao={evento.descricao}
-                  imagemUrl={evento.imagemUrl}
-                  local={evento.local}
+                  titulo={evento.title}
+                  data={evento.date}
+                  descricao={evento.description}
+                  imagemUrl={evento.imageUrl}
+                  local={evento.location}
                   tags={evento.tags}
                   onClickDetails={handleOpenModal}
                 />
@@ -138,14 +138,14 @@ const HomePage = observer(() => {
 
       <Modal
         isOpen={modalOpen}
-        title={eventoSelecionado?.titulo ?? "Detalhes do Evento"}
+        title={eventoSelecionado?.title ?? "Detalhes do Evento"}
         onClose={handleCloseModal}
       >
         {eventoSelecionado && (
           <div className="space-y-5">
             <img
-              src={eventoSelecionado.imagemUrl}
-              alt={eventoSelecionado.titulo}
+              src={eventoSelecionado.imageUrl}
+              alt={eventoSelecionado.title}
               className="w-full h-auto max-h-[250px] object-cover rounded-2xl shadow-sm"
             />
 
@@ -159,9 +159,9 @@ const HomePage = observer(() => {
               </div>
 
               <div className="space-y-2 text-base text-gray-600">
-                <p><strong>Data:</strong> {eventoSelecionado.data}</p>
-                <p><strong>Local:</strong> {eventoSelecionado.local}</p>
-                <p className="line-clamp-3"><strong>Descrição:</strong> {eventoSelecionado.descricao}</p>
+                <p><strong>Data:</strong> {eventoSelecionado.date}</p>
+                <p><strong>Local:</strong> {eventoSelecionado.location}</p>
+                <p className="line-clamp-3"><strong>Descrição:</strong> {eventoSelecionado.description}</p>
               </div>
             </div>
 

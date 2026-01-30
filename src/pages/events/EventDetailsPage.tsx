@@ -55,8 +55,8 @@ const EventDetailsPage: React.FC = () => {
             <div className="w-full md:w-[300px] shrink-0">
               <div className="aspect-square rounded-[32px] overflow-hidden shadow-inner bg-gray-100 border border-gray-100">
                 <img 
-                  src={event.imagemUrl} 
-                  alt={event.titulo} 
+                  src={event.imageUrl} 
+                  alt={event.title} 
                   className="w-full h-full object-cover" 
                 />
               </div>
@@ -71,7 +71,7 @@ const EventDetailsPage: React.FC = () => {
               </div>
 
               <h1 className="text-3xl md:text-4xl font-black text-brand-dark mb-8 leading-tight tracking-tight">
-                {event.titulo}
+                {event.title}
               </h1>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
@@ -81,7 +81,7 @@ const EventDetailsPage: React.FC = () => {
                   </div>
                   <div>
                     <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Data do Evento</p>
-                    <p className="text-base font-bold text-brand-dark">{event.data}</p>
+                    <p className="text-base font-bold text-brand-dark">{event.date}</p>
                   </div>
                 </div>
 
@@ -91,7 +91,7 @@ const EventDetailsPage: React.FC = () => {
                   </div>
                   <div>
                     <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Localização</p>
-                    <p className="text-base font-bold text-brand-dark">{event.local}</p>
+                    <p className="text-base font-bold text-brand-dark">{event.location}</p>
                   </div>
                 </div>
               </div>
@@ -108,10 +108,10 @@ const EventDetailsPage: React.FC = () => {
                   Sobre o Evento
                 </h3>
                 <p className="text-gray-600 leading-relaxed text-lg whitespace-pre-line">
-                  {event.descricao}
+                  {event.description}
                 </p>
               </div>
-              {event.informacoesAdicionais && (
+              {event.additionalInfo && (
                 <div className="bg-blue-50/50 p-8 rounded-[32px] border border-blue-100 flex gap-5">
                   <div className="bg-blue-100 p-2.5 h-fit rounded-lg text-brand-blue">
                     <FaInfoCircle size={20} />
@@ -119,7 +119,7 @@ const EventDetailsPage: React.FC = () => {
                   <div>
                     <h4 className="text-sm font-bold text-brand-dark uppercase mb-2">Informações Importantes</h4>
                     <p className="text-sm text-gray-600 leading-relaxed font-medium">
-                      {event.informacoesAdicionais}
+                      {event.additionalInfo}
                     </p>
                   </div>
                 </div>
@@ -127,7 +127,7 @@ const EventDetailsPage: React.FC = () => {
             </div>
 
             <div className="lg:col-span-1">
-              {event.linkInscricao ? (
+              {event.registrationLink ? (
                 <div className="sticky top-10">
                   <div className="bg-gray-50/50 p-6 rounded-[32px] border border-gray-100">
                     <h4 className="text-xs font-bold text-gray-400 uppercase text-center mb-6 tracking-widest">
@@ -136,7 +136,7 @@ const EventDetailsPage: React.FC = () => {
                     <Button 
                       variant="primary" 
                       className="w-full py-5 rounded-2xl flex items-center justify-center gap-3 shadow-xl shadow-brand-blue/30 font-bold text-lg"
-                      onClick={() => window.open(event.linkInscricao, "_blank")}
+                      onClick={() => window.open(event.registrationLink, "_blank")}
                     >
                       Fazer Inscrição
                       <FaExternalLinkAlt size={14} />

@@ -1,94 +1,137 @@
 export const event_mock = [
   {
     id: 1,
-    titulo: "XVIII Encontro de Extensão (ENEX)",
-    data: "18 MAR",
-    descricao: "O maior evento de extensão da universidade, reunindo projetos de diversas áreas para compartilhar resultados e experiências com a comunidade acadêmica e externa.",
-    imagemUrl: "https://images.unsplash.com/photo-1544531586-fde5298cdd40?auto=format&fit=crop&w=500",
-    local: "Centro de Vivência",
+    title: "XVIII Encontro de Extensão (ENEX)",
+    date: "2026-03-18",
+    description:
+      "O maior evento de extensão da universidade, reunindo projetos de diversas áreas para compartilhar resultados e experiências com a comunidade acadêmica e externa.",
+    imageUrl:
+      "https://images.unsplash.com/photo-1544531586-fde5298cdd40?auto=format&fit=crop&w=500",
+    location: "Centro de Vivência",
     tags: ["Cultura", "Palestra"],
-    linkInscricao: "https://geas.ufcg.edu.br",
-    informacoesAdicionais: "Os participantes devem levar 1kg de alimento não perecível para doação no dia do evento. Haverá certificação de 20h." // NOVO CAMPO
+    registrationLink: "https://geas.ufcg.edu.br",
+    additionalInfo:
+      "Os participantes devem levar 1kg de alimento não perecível para doação no dia do evento. Haverá certificação de 20h.",
   },
   {
     id: 2,
-    titulo: "II Encontro de Ecopedagogias",
-    data: "11 NOV",
-    descricao: "Um espaço de reflexão sobre práticas educativas voltadas à sustentabilidade e à conexão entre o ser humano e o meio ambiente no contexto escolar.",
-    imagemUrl: "https://images.unsplash.com/photo-1515187029135-18ee286d815b?auto=format&fit=crop&w=500",
-    local: "Auditório de Psicologia",
+    title: "II Encontro de Ecopedagogias",
+    date: "2026-11-11",
+    description:
+      "Um espaço de reflexão sobre práticas educativas voltadas à sustentabilidade e à conexão entre o ser humano e o meio ambiente no contexto escolar.",
+    imageUrl:
+      "https://images.unsplash.com/photo-1515187029135-18ee286d815b?auto=format&fit=crop&w=500",
+    location: "Auditório de Psicologia",
     tags: ["Workshop", "Educação"],
   },
   {
     id: 3,
-    titulo: "Apresentação Cultural - Coro Unificado",
-    data: "05 JUN",
-    descricao: "Uma noite de celebração musical com o Coro Unificado da UFCG, trazendo um repertório que mescla música popular brasileira e erudita.",
-    imagemUrl: "https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?auto=format&fit=crop&w=500",
-    local: "Bloco Humanas",
+    title: "Apresentação Cultural - Coro Unificado",
+    date: "2026-06-05",
+    description:
+      "Uma noite de celebração musical com o Coro Unificado da UFCG, trazendo um repertório que mescla música popular brasileira e erudita.",
+    imageUrl:
+      "https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?auto=format&fit=crop&w=500",
+    location: "Bloco Humanas",
     tags: ["Cultura", "Música"],
   },
   {
     id: 4,
-    titulo: "Semana de Tecnologia (SuaTec)",
-    data: "12 OUT",
-    descricao: "Evento focado em tendências tecnológicas, inovação e o impacto das novas ferramentas digitais no mercado de trabalho e na sociedade.",
-    imagemUrl: "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=500",
-    local: "Central de Aulas",
+    title: "Semana de Tecnologia (SuaTec)",
+    date: "2026-10-12",
+    description:
+      "Evento focado em tendências tecnológicas, inovação e o impacto das novas ferramentas digitais no mercado de trabalho e na sociedade.",
+    imageUrl:
+      "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=500",
+    location: "Central de Aulas",
     tags: ["Tecnologia", "Inovação"],
   },
   {
     id: 5,
-    titulo: "Fórum de Sustentabilidade Ambiental",
-    data: "22 SET",
-    descricao: "Debates com especialistas sobre gestão de recursos naturais, políticas públicas e soluções práticas para o desenvolvimento sustentável regional.",
-    imagemUrl: "https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&w=500",
-    local: "Auditório Central",
+    title: "Fórum de Sustentabilidade Ambiental",
+    date: "2026-09-22",
+    description:
+      "Debates com especialistas sobre gestão de recursos naturais, políticas públicas e soluções práticas para o desenvolvimento sustentável regional.",
+    imageUrl:
+      "https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&w=500",
+    location: "Auditório Central",
     tags: ["Meio Ambiente", "Debate"],
   },
   {
     id: 6,
-    titulo: "Curso de Verão: Python para Dados",
-    data: "15 JAN",
-    descricao: "Curso intensivo focado em bibliotecas essenciais para análise de dados, como Pandas, NumPy e Matplotlib, ideal para iniciantes na área de TI.",
-    imagemUrl: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=500",
-    local: "LCC3",
+    title: "Curso de Verão: Python para Dados",
+    date: "2026-01-15",
+    description:
+      "Curso intensivo focado em bibliotecas essenciais para análise de dados, como Pandas, NumPy e Matplotlib, ideal para iniciantes na área de TI.",
+    imageUrl:
+      "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=500",
+    location: "LCC3",
     tags: ["Educação", "TI"],
   },
   {
     id: 7,
-    titulo: "Festival de Talentos da UFCG",
-    data: "30 JUL",
-    descricao: "Mostra competitiva de artes cênicas, música e dança, revelando os talentos artísticos da nossa comunidade universitária.",
-    imagemUrl: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=500",
-    local: "Praça de Alimentação",
+    title: "Festival de Talentos da UFCG",
+    date: "2026-07-30",
+    description:
+      "Mostra competitiva de artes cênicas, música e dança, revelando os talentos artísticos da nossa comunidade universitária.",
+    imageUrl:
+      "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=500",
+    location: "Praça de Alimentação",
     tags: ["Cultura", "Arte"],
   },
   {
     id: 8,
-    titulo: "Palestra: Saúde Mental na Academia",
-    data: "10 MAI",
-    descricao: "Discussão necessária sobre o bem-estar psicológico de estudantes e servidores, abordando estratégias de prevenção e acolhimento.",
-    imagemUrl: "https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?auto=format&fit=crop&w=500",
-    local: "Mini Auditório",
+    title: "Palestra: Saúde Mental na Academia",
+    date: "2026-05-10",
+    description:
+      "Discussão necessária sobre o bem-estar psicológico de estudantes e servidores, abordando estratégias de prevenção e acolhimento.",
+    imageUrl:
+      "https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?auto=format&fit=crop&w=500",
+    location: "Mini Auditório",
     tags: ["Saúde", "Palestra"],
   },
   {
     id: 9,
-    titulo: "Exposição Fotográfica Itinerante",
-    data: "02 DEZ",
-    descricao: "Uma jornada visual pela história da nossa região através de registros fotográficos raros e obras de artistas locais contemporâneos.",
-    imagemUrl: "https://images.unsplash.com/photo-1452421822248-d4c2b47f0c81?auto=format&fit=crop&w=500",
-    local: "Biblioteca Central",
+    title: "Exposição Fotográfica Itinerante",
+    date: "2026-12-02",
+    description:
+      "Uma jornada visual pela história da nossa região através de registros fotográficos raros e obras de artistas locais contemporâneos.",
+    imageUrl:
+      "https://images.unsplash.com/photo-1452421822248-d4c2b47f0c81?auto=format&fit=crop&w=500",
+    location: "Biblioteca Central",
     tags: ["Exposição", "História"],
   },
   {
     id: 10,
-    titulo: "Workshop de Design UI/UX",
-    data: "03 MAR",
-    descricao: "Oficina prática sobre criação de interfaces centradas no usuário, abrangendo desde wireframes até protótipos de alta fidelidade.",
-    imagemUrl: "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&w=600&q=80",
-    local: "LCC4",
+    title: "Workshop de Design UI/UX",
+    date: "2026-03-03",
+    description:
+      "Oficina prática sobre criação de interfaces centradas no usuário, abrangendo desde wireframes até protótipos de alta fidelidade.",
+    imageUrl:
+      "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&w=500",
+    location: "LCC4",
     tags: ["Design", "Workshop"],
+  },
+  {
+    id: 11,
+    title: "Conferência de Inteligência Artificial",
+    date: "2026-08-14",
+    description:
+      "Um mergulho profundo nas aplicações de IA na ciência e na indústria, com palestrantes internacionais e demonstrações ao vivo.",
+    imageUrl:
+      "https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&w=500",
+    location: "Centro de Convenções",
+    tags: ["Tecnologia", "IA"],
+  },
+  {
+    id: 12,
+    title: "Hackathon Solidário UFCG",
+    date: "2026-04-20",
+    description:
+      "48 horas de codificação intensa para criar soluções tecnológicas voltadas a ONGs locais e projetos de impacto social.",
+    imageUrl:
+      "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=500",
+    location: "Laboratórios Integrados",
+    tags: ["TI", "Social"],
   },
 ];

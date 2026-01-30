@@ -1,0 +1,58 @@
+import { observable, action, computed, makeObservable } from "mobx";
+import DomainBase from "../DomainBase";
+import { BookingStatus } from "../enums/BookingStatus";
+import { BookingShift } from "../enums/BookingShift";
+
+class BookingDomain extends DomainBase {
+  @observable accessor id: number | null = null;
+  @observable accessor bookerId: number | null = null;
+  @observable accessor instituteId: number | null = null;
+  @observable accessor roomIds: number[] = [];
+  @observable accessor eventId: number | null = null;
+  @observable accessor date = "";
+  @observable accessor shift: BookingShift | null = null;
+  @observable accessor status: BookingStatus = BookingStatus.REQUESTED;
+
+  constructor(b?: Record<string, unknown>) {
+    super();
+    makeObservable(this);
+    if (b) this.setData(b);
+  }
+
+  @action
+  validate(field?: string) {
+    if (field) {
+      super.validate(field);
+      return;
+    }
+
+    super.validate(undefined, () => {
+      if (!this.bookerId) this.errors["bookerId"] = "Usuário obrigatório";
+      if (!this.instituteId)
+        this.errors["instituteId"] = "Instituto obrigatório";
+      if (!this.roomIds.length)
+        this.errors["roomIds"] = "Selecione pelo menos uma sala";
+      if (!this.date) this.errors["date"] = "Data obrigatória";
+      if (!this.shift) {
+        this.errors["shift"] = "Turno obrigatório";
+      }
+      if (!this.eventId) this.errors["eventId"] = "Evento obrigatório";
+    });
+  }
+
+  getBackendObject() {
+    return {
+      id: this.id,
+      date: this.date,
+      shift: this.shift,
+      status: this.status,
+
+      booker: this.bookerId ? { id: this.bookerId } : null,
+      institute: this.instituteId ? { id: this.instituteId } : null,
+      rooms: this.roomIds.map((id) => ({ id })),
+      event: this.eventId ? { id: this.eventId } : null,
+    };
+  }
+}
+
+export default BookingDomain;
