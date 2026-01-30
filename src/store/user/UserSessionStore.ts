@@ -1,29 +1,34 @@
-import { makeObservable, observable, action, computed } from "mobx";
+import { makeAutoObservable } from "mobx";
 import UserDomain from "../../domain/user/UserDomain";
 import { UserType } from "../../domain/enums/UserType";
 
 class UserSessionStore {
-  @observable currentUser: UserDomain | null = null;
+  currentUser: UserDomain | null = null;
 
   constructor() {
-    makeObservable(this);
+    makeAutoObservable(this, {}, { autoBind: true });
   }
 
-  @action loginMock(userData: Record<string, unknown>) {
-    this.currentUser = new UserDomain(userData);
+  loginMock(user: UserDomain) {
+    this.currentUser = user;
   }
 
-  @action logout() {
+  logout() {
     this.currentUser = null;
   }
 
-  @computed get isLoggedIn() {
+  get isLoggedIn() {
     return !!this.currentUser;
   }
 
-  @computed get isAdmin() {
-    return this.currentUser?.type=== UserType.ADMIN;
+  get isAdmin() {
+    return this.currentUser?.type === UserType.ADMIN;
+  }
+
+  get user() {
+    return this.currentUser;
   }
 }
 
 export const userSessionStore = new UserSessionStore();
+

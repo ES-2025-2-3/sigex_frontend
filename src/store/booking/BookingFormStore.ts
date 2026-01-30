@@ -27,7 +27,7 @@ class BookingFormStore extends FormStoreBase<BookingDomain> {
     setTimeout(() => {
       runInAction(() => {
         if (!this.domain.id) {
-          (this.domain as any).id = Date.now();
+          (this.domain as BookingDomain).id = Date.now();
           bookingIndexStore["allRecords"].push(this.domain);
           bookingIndexStore.setData([...bookingIndexStore["allRecords"]]);
         }

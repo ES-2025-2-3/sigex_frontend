@@ -9,7 +9,5 @@ export const mockUser = new UserDomain({
   email: "nicole.brito.maracaja@ccc.ufcg.edu.br",
   username: "nicole.maracaja",
   registrationNumber: "123111413",
-  photoUrl:
-    "https://raw.githubusercontent.com/Ashwinvalento/cartoon-avatar/master/lib/images/female/68.png",
   affiliation: "Aluno",
 });

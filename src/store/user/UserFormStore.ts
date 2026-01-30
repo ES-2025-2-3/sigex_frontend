@@ -12,7 +12,8 @@ class UserFormStore extends FormStoreBase<UserDomain> {
       setTimeout(() => {
         runInAction(() => {
           if (!this.domain.id) {
-            (this.domain as any).id = Date.now();
+            (this.domain as UserDomain
+            ).id = Date.now();
           }
         });
         resolve(true);
