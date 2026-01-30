@@ -5,6 +5,7 @@ import LoginPage from "../pages/login/LoginPage";
 import AboutPage from "../pages/about/AboutPage";
 import RegisterPage from "../pages/register/RegisterPage";
 import EventsPage from '../pages/events/EventsPage';
+import EventDetailsPage from "../pages/events/EventDetailsPage";
 
 const AppRoutes = () => {
   return (
@@ -14,6 +15,7 @@ const AppRoutes = () => {
       <Route path="/sobre" element={<AboutPage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/cadastro" element={<RegisterPage />} />
+      <Route path="/eventos/:id" element={<EventDetailsPage />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );

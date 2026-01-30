@@ -1,15 +1,16 @@
-import React, { useState } from "react";
+import React from "react";
+import { observer } from "mobx-react-lite";
 import Button from "../button/Button";
 import logoSigex from "../../assets/icons/logo.png";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import UserDropdown from "../user/UserDropdown";
+import { userSessionStore } from "../../store/user/UserSessionStore";
 
-const Header: React.FC = () => {
+const Header: React.FC = observer(() => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const [isLoggedIn, setIsLoggedIn] = useState(false); //como deve ficar no código (com lógica do back)
-  //const [isLoggedIn] = useState(true); //para testar casos com usuário logado
+  const isLoggedIn = userSessionStore.isLoggedIn;
 
   const getLinkClass = (path: string, exact = false) => {
     const isActive = exact
@@ -79,6 +80,7 @@ const Header: React.FC = () => {
       </div>
     </header>
   );
-};
+});
 
 export default Header;
+

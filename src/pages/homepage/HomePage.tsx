@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { observer } from "mobx-react-lite";
 import { useNavigate } from "react-router-dom";
-import { eventStore } from "../../store/event/EventStore";
-import { Evento } from "../../types/event/EventType";
+import { eventIndexStore } from "../../store/event/EventIndexStore";
+import EventDomain from "../../domain/event/EventDomain";
 import { FaSearch } from "react-icons/fa";
 
 import Header from "../../commons/header/Header";
@@ -15,11 +15,11 @@ import heroBackground from "../../assets/images/jose_farias.jpg";
 
 const HomePage = observer(() => {
   const navigate = useNavigate();
-  const { upcomingEvents, isLoading, fetchEvents } = eventStore;
+  const { upcomingEvents, loading } = eventIndexStore;
   const [searchTerm, setSearchTerm] = useState("");
 
   const [modalOpen, setModalOpen] = useState(false);
-  const [eventoSelecionado, setEventoSelecionado] = useState<Evento | null>(
+  const [eventoSelecionado, setEventoSelecionado] = useState<EventDomain | null>(
     null
   );
 
@@ -37,8 +37,8 @@ const HomePage = observer(() => {
   };
 
   useEffect(() => {
-    fetchEvents();
-  }, [fetchEvents]);
+    eventIndexStore.fetch();
+  }, []);
 
   const handleSearch = () => {
     navigate(`/eventos?busca=${searchTerm}`);
@@ -89,21 +89,23 @@ const HomePage = observer(() => {
             Próximos Eventos
           </h2>
 
-          {isLoading ? (
-            <p className="text-center text-gray-600 animate-pulse">
-              Carregando eventos...
-            </p>
+          {loading ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+               {[...Array(3)].map((_, i) => (
+                  <div key={i} className="h-80 bg-gray-200 animate-pulse rounded-xl" />
+               ))}
+            </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
               {upcomingEvents.slice(0, 3).map((evento) => (
                 <EventCard
                   key={evento.id}
-                  id={evento.id}
-                  titulo={evento.titulo}
-                  data={evento.data}
-                  descricao={evento.descricao}
-                  imagemUrl={evento.imagemUrl}
-                  local={evento.local}
+                  id={evento.id!}
+                  titulo={evento.title}
+                  data={evento.date}
+                  descricao={evento.description}
+                  imagemUrl={evento.imageUrl}
+                  local={evento.location}
                   tags={evento.tags}
                   onClickDetails={handleOpenModal}
                 />
@@ -119,81 +121,61 @@ const HomePage = observer(() => {
         </div>
       </section>
 
-      <section className="bg-gradient-to-br from-brand-blue-light to-brand-blue py-20 text-center text-white shadow-none border-none ring-0">
-        <div className="max-w-[700px] mx-auto px-5 flex flex-col items-center shadow-none border-none">
+      <section className="bg-gradient-to-br from-brand-blue-light to-brand-blue py-20 text-center text-white">
+        <div className="max-w-[700px] mx-auto px-5 flex flex-col items-center">
           <h2 className="text-4xl font-bold mb-4">Você é um organizador?</h2>
           <p className="text-lg mb-8 opacity-95 leading-relaxed">
             Precisa de um local para seu evento? Verifique a disponibilidade dos
-            auditórios e salas de extensão e solicite sua reserva online de
-            forma rápida.
+            auditórios e salas de extensão e solicite sua reserva online.
           </p>
-          <div>
-            <Button variant="primary" size="large" onClick={handleGoToReserva}>
-              Solicitar Reserva
-            </Button>
-          </div>
+          <Button variant="primary" size="large" onClick={handleGoToReserva}>
+            Solicitar Reserva
+          </Button>
         </div>
       </section>
+
       <Footer />
 
       <Modal
         isOpen={modalOpen}
-        title={eventoSelecionado?.titulo ?? "Detalhes do Evento"}
+        title={eventoSelecionado?.title ?? "Detalhes do Evento"}
         onClose={handleCloseModal}
       >
         {eventoSelecionado && (
-          <div className="space-y-4">
+          <div className="space-y-5">
             <img
-              src={eventoSelecionado.imagemUrl}
-              alt={eventoSelecionado.titulo}
-              className="w-full h-auto max-h-[250px] object-cover rounded-lg shadow-sm"
+              src={eventoSelecionado.imageUrl}
+              alt={eventoSelecionado.title}
+              className="w-full h-auto max-h-[250px] object-cover rounded-2xl shadow-sm"
             />
 
-            <div className="space-y-2 text-base md:text-lg">
-              <p>
-                <strong className="text-gray-900 font-semibold">Data:</strong>{" "}
-                {eventoSelecionado.data}
-              </p>
-              <p>
-                <strong className="text-gray-900 font-semibold">Local:</strong>{" "}
-                {eventoSelecionado.local}
-              </p>
-              <p>
-                <strong className="text-gray-900 font-semibold">
-                  Descrição:
-                </strong>{" "}
-                {eventoSelecionado.descricao}
-              </p>
+            <div className="space-y-3">
+              <div className="flex flex-wrap gap-2">
+                {(eventoSelecionado.tags ?? []).map((t) => (
+                  <span key={t} className="px-2 py-1 bg-brand-blue/10 text-brand-blue text-[10px] font-bold uppercase rounded-md">
+                    {t}
+                  </span>
+                ))}
+              </div>
+
+              <div className="space-y-2 text-base text-gray-600">
+                <p><strong>Data:</strong> {eventoSelecionado.date}</p>
+                <p><strong>Local:</strong> {eventoSelecionado.location}</p>
+                <p className="line-clamp-3"><strong>Descrição:</strong> {eventoSelecionado.description}</p>
+              </div>
             </div>
 
-            {(eventoSelecionado.tags ?? []).length > 0 && (
-              <div className="pt-4">
-                <span className="block text-sm font-bold text-gray-900 mb-2 font-system">
-                  Tags do Evento
-                </span>
-                <div className="flex flex-wrap gap-2">
-                  {(eventoSelecionado.tags ?? []).map((t) => (
-                    <span
-                      key={t}
-                      className="px-3 py-1 bg-brand-blue/10 text-brand-blue text-xs font-bold rounded-full border border-brand-blue/20 transition-all hover:bg-brand-blue/20 font-system"
-                    >
-                      {t}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            <div className="pt-4">
+            <div className="pt-4 border-t border-gray-100">
               <Button
                 variant="primary"
                 size="large"
-                className="w-full py-3 text-base font-semibold"
-                onClick={() =>
-                  navigate(`/eventos/${eventoSelecionado.id}/inscricao`)
-                }
+                className="w-full py-4 font-bold rounded-xl shadow-lg shadow-brand-blue/20"
+                onClick={() => {
+                  handleCloseModal();
+                  navigate(`/eventos/${eventoSelecionado.id}`);
+                }}
               >
-                Inscreva-se Agora
+                Ver mais detalhes
               </Button>
             </div>
           </div>

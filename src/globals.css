@@ -1,46 +1,82 @@
 @import "tailwindcss";
 
 @theme {
-  --font-system: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  
-  --font-montserrat: var(--font-system);
-  --font-inter: var(--font-system);
-
-  --color-brand-blue: #007BFF;
+  --font-system:
+    system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --color-brand-blue: #007bff;
   --color-brand-blue-hover: #0056b3;
-  --color-brand-blue-light: #7FB5E9; 
-  --color-brand-dark: #212A3E;
-  --color-bg-main: #F0F2F5;
+  --color-brand-blue-light: #7fb5e9;
+  --color-brand-dark: #212a3e;
+  --color-bg-main: #f0f2f5;
   --color-text-primary: #333333;
 }
 
+:root {
+  color-scheme: light !important;
+}
+
 @layer base {
-  html, body {
+  html,
+  body {
     font-family: var(--font-system) !important;
-    @apply antialiased;
     background-color: var(--color-bg-main);
     color: var(--color-text-primary);
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
+    margin: 0;
+    padding: 0;
+  }
+}
+
+@layer components {
+  .react-datepicker__day--selected,
+  .react-datepicker__day--selected:hover,
+  .react-datepicker__day--today.react-datepicker__day--selected {
+    background-color: var(--color-brand-blue) !important;
+    color: #ffffff !important;
+    font-weight: 800 !important;
+    opacity: 1 !important;
   }
 
-  h1, h2, h3, h4, h5, h6 {
-    font-family: var(--font-system) !important;
-    font-weight: 700;
-    letter-spacing: -0.025em; 
+  .react-datepicker__day--outside-month {
+    visibility: hidden !important;
+    pointer-events: none !important;
   }
 
-  button, input, select, textarea, span, p, div {
-    font-family: inherit;
+  .react-datepicker__day--keyboard-selected:not(
+    .react-datepicker__day--selected
+  ) {
+    background-color: transparent !important;
+    color: var(--color-brand-blue) !important;
   }
 
-  section {
-    box-shadow: none;
+  .react-datepicker__day--today:not(.react-datepicker__day--selected) {
+    color: var(--color-brand-blue) !important;
+    background-color: transparent !important;
+    border: 1px solid var(--color-brand-blue-light) !important;
   }
 
-  .transition-all {
-    transition-property: all;
-    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-    transition-duration: 500ms;
+  .react-datepicker__day--outside-month.react-datepicker__day--today {
+    color: inherit !important;
+    background-color: transparent !important;
+    border: none !important;
+    font-weight: normal !important;
+  }
+
+  .react-datepicker__navigation {
+    margin-top: 15px;
+  }
+
+  .react-datepicker__header {
+    background-color: transparent !important;
+    border-bottom: none !important;
+  }
+
+  .react-datepicker__navigation-icon::before {
+    border-color: var(--color-brand-blue) !important;
+    transition: border-color 0.25s ease;
+  }
+
+  .react-datepicker__navigation:hover
+    .react-datepicker__navigation-icon::before {
+    border-color: var(--color-brand-blue-dark) !important;
   }
 }
