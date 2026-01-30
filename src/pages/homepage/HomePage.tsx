@@ -10,6 +10,7 @@ import EventCard from "../../commons/eventCard/EventCard";
 import Button from "../../commons/button/Button";
 import Modal from "../../commons/modal/Modal";
 import Footer from "../../commons/footer/Footer";
+import LoadingSpinner from "../../commons/components/LoadingSpinner";
 
 import heroBackground from "../../assets/images/jose_farias.jpg";
 
@@ -90,10 +91,8 @@ const HomePage = observer(() => {
           </h2>
 
           {loading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-               {[...Array(3)].map((_, i) => (
-                  <div key={i} className="h-80 bg-gray-200 animate-pulse rounded-xl" />
-               ))}
+            <div className="flex justify-center items-center py-20">
+                <LoadingSpinner />
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
