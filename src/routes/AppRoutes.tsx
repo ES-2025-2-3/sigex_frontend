@@ -6,12 +6,14 @@ import AboutPage from "../pages/about/AboutPage";
 import RegisterPage from "../pages/register/RegisterPage";
 import EventsPage from '../pages/events/EventsPage';
 import EventDetailsPage from "../pages/events/EventDetailsPage";
+import BookingRequestPage from "../pages/booking/BookingRequestPage";
 
 const AppRoutes = () => {
   return (
     <Routes>
       <Route path="/" element={<HomePage />} />
       <Route path="/eventos" element={<EventsPage/>} />
+      <Route path="/reserva" element={<BookingRequestPage />} />
       <Route path="/sobre" element={<AboutPage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/cadastro" element={<RegisterPage />} />
