@@ -100,7 +100,7 @@ const BookingRequestPage = observer(() => {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-[#f8fafc] font-system selection:bg-brand-blue selection:text-white">
+    <div className="flex flex-col min-h-screen bg-bg-main font-system selection:bg-brand-blue selection:text-white">
       <Header />
 
       {toastConfig && (
