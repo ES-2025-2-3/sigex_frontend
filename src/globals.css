@@ -28,9 +28,15 @@
 
 @layer components {
   .react-datepicker__day--selected {
-    background-color: transparent !important;
-    color: inherit !important;
-    font-weight: inherit !important;
+    background-color: var(--color-brand-blue) !important;
+    color: #fff !important;
+    font-weight: 800 !important;
+    border-radius: 0.75rem;
+    box-shadow: 0 6px 18px rgba(0, 123, 255, 0.35);
+  }
+
+  .react-datepicker__day--selected:hover {
+    background-color: var(--color-brand-blue-hover) !important;
   }
 
   .react-datepicker__day--outside-month {
@@ -48,6 +54,7 @@
     color: var(--color-brand-blue) !important;
     background-color: transparent !important;
     border: 1px solid var(--color-brand-blue-light) !important;
+    border-radius: 0.75rem;
   }
 
   .react-datepicker__day--outside-month.react-datepicker__day--today {
@@ -104,5 +111,10 @@
       focus:ring-4
       focus:ring-brand-blue/10
       hover:border-slate-200;
+  }
+
+  .day-has-event {
+    font-weight: 700;
+    color: var(--color-brand-blue);
   }
 }
