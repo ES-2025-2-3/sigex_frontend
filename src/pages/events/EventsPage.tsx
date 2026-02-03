@@ -9,6 +9,7 @@ import Footer from "../../commons/footer/Footer";
 import Pagination from "../../commons/pagination/Pagination";
 import Button from "../../commons/button/Button";
 import Modal from "../../commons/modal/Modal";
+import LoadingSpinner from "../../commons/components/LoadingSpinner";
 
 import {
   FaSearch,
@@ -304,13 +305,8 @@ const EventosPage = observer(() => {
         </h2>
 
         {loading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            {[...Array(6)].map((_, i) => (
-              <div
-                key={i}
-                className="h-80 bg-gray-100 animate-pulse rounded-[32px]"
-              />
-            ))}
+          <div className="flex justify-center items-center py-20">
+              <LoadingSpinner size="medium"/>
           </div>
         ) : (
           <>
