@@ -47,7 +47,7 @@ const Header: React.FC = observer(() => {
             Eventos
           </Link>
           <Link to="/reserva" className={getLinkClass("/reserva")}>
-            Solicitar Reserva
+            Reservas
           </Link>
           <Link to="/sobre" className={getLinkClass("/sobre", true)}>
             Sobre

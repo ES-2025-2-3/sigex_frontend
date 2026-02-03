@@ -6,6 +6,7 @@ import AboutPage from "../pages/about/AboutPage";
 import RegisterPage from "../pages/register/RegisterPage";
 import EventsPage from '../pages/events/EventsPage';
 import EventDetailsPage from "../pages/events/EventDetailsPage";
+import ReservationPage from "../pages/user/ReservationPage";
 
 const AppRoutes = () => {
   return (
@@ -16,6 +17,7 @@ const AppRoutes = () => {
       <Route path="/login" element={<LoginPage />} />
       <Route path="/cadastro" element={<RegisterPage />} />
       <Route path="/eventos/:id" element={<EventDetailsPage />} />
+      <Route path= "/reserva" element={<ReservationPage />}/>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
