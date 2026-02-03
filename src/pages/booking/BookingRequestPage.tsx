@@ -20,7 +20,7 @@ import { room_mock } from "../../../mock/room";
 import { event_mock } from "../../../mock/event";
 import { userSessionStore } from "../../store/user/UserSessionStore";
 
-const isLoggedIn = !!userSessionStore.user;
+const isLoggedIn = userSessionStore.user;
 
 const occupationData = event_mock.reduce<Record<string, string>>(
   (acc, event) => {
