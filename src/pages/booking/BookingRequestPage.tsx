@@ -18,21 +18,37 @@ import MediaStep from "./steps/MediaStep";
 
 import { room_mock } from "../../../mock/room";
 import { event_mock } from "../../../mock/event";
+import { userSessionStore } from "../../store/user/UserSessionStore";
 
-const occupationData = event_mock.reduce<Record<string, string>>((acc, event) => {
-  acc[event.date] = `${event.title} • ${event.location}`;
-  return acc;
-}, {});
+const isLoggedIn = !!userSessionStore.user;
+
+const occupationData = event_mock.reduce<Record<string, string>>(
+  (acc, event) => {
+    acc[event.date] = `${event.title} • ${event.location}`;
+    return acc;
+  },
+  {},
+);
 
 const BookingRequestPage = observer(() => {
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
-  const [toastConfig, setToastConfig] = useState<{ type: ToastType; message: string } | null>(null);
+  const [toastConfig, setToastConfig] = useState<{
+    type: ToastType;
+    message: string;
+  } | null>(null);
 
   const bDomain = bookingFormStore.domain;
   const eDomain = eventFormStore.domain;
 
-  const availableTags = ["Acadêmico", "Cultura", "Tecnologia", "Humanidades", "Workshop", "Palestra"];
+  const availableTags = [
+    "Acadêmico",
+    "Cultura",
+    "Tecnologia",
+    "Humanidades",
+    "Workshop",
+    "Palestra",
+  ];
 
   useEffect(() => {
     bookingFormStore.reset();
@@ -99,6 +115,38 @@ const BookingRequestPage = observer(() => {
     }
   };
 
+  if (!isLoggedIn) {
+    return (
+      <div className="flex flex-col min-h-screen bg-bg-main">
+        <Header />
+
+        <main className="flex-1 flex items-center justify-center px-6">
+          <div className="bg-white max-w-md w-full rounded-[2.5rem] p-10 text-center shadow-lg border border-gray-100">
+            <div className="text-5xl mb-6">🔒</div>
+
+            <h1 className="text-2xl font-black text-brand-dark mb-4">
+              Faça login para continuar
+            </h1>
+
+            <p className="text-slate-400 text-sm mb-8">
+              É necessário estar logado para solicitar uma reserva de evento.
+            </p>
+
+            <Button
+              variant="primary"
+              className="rounded-3xl px-10 py-4 font-black text-xs uppercase tracking-widest shadow-lg shadow-brand-blue/20"
+              onClick={() => navigate("/login")}
+            >
+              Ir para login
+            </Button>
+          </div>
+        </main>
+
+        <Footer />
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col min-h-screen bg-bg-main font-system selection:bg-brand-blue selection:text-white">
       <Header />
@@ -113,7 +161,6 @@ const BookingRequestPage = observer(() => {
 
       <main className="flex-1 flex items-center justify-center py-12 px-5">
         <div className="bg-white w-full max-w-[1100px] rounded-[3rem] shadow-[0_32px_64px_-15px_rgba(0,0,0,0.07)] overflow-hidden border border-white/50 flex flex-col md:flex-row min-h-[700px]">
-          
           <div className="bg-[#1e293b] w-full md:w-[320px] p-10 flex flex-col justify-between relative overflow-hidden">
             <div className="absolute -top-20 -left-20 w-64 h-64 bg-brand-blue/10 rounded-full blur-3xl"></div>
             <div className="relative z-10">
@@ -122,35 +169,42 @@ const BookingRequestPage = observer(() => {
               </h2>
 
               <div className="space-y-8">
-                {["Agenda", "Local", "Detalhes", "Finalizar"].map((label, i) => {
-                  const stepNum = i + 1;
-                  return (
-                    <div key={stepNum} className="flex items-center gap-4 group">
+                {["Agenda", "Local", "Detalhes", "Finalizar"].map(
+                  (label, i) => {
+                    const stepNum = i + 1;
+                    return (
                       <div
-                        className={`w-10 h-10 rounded-2xl flex items-center justify-center font-bold transition-all border-2 
-                        ${step >= stepNum ? "bg-white border-white text-slate-900 shadow-xl" : "border-slate-700 text-slate-600"}`}
+                        key={stepNum}
+                        className="flex items-center gap-4 group"
                       >
-                        {stepNum}
-                      </div>
-                      <div className="flex flex-col">
-                        <span
-                          className={`text-[10px] font-black uppercase tracking-[0.2em] ${
-                            step >= stepNum ? "text-brand-blue" : "text-slate-600"
-                          }`}
+                        <div
+                          className={`w-10 h-10 rounded-2xl flex items-center justify-center font-bold transition-all border-2 
+                        ${step >= stepNum ? "bg-white border-white text-slate-900 shadow-xl" : "border-slate-700 text-slate-600"}`}
                         >
-                          Etapa 0{stepNum}
-                        </span>
-                        <span
-                          className={`text-sm font-bold ${
-                            step >= stepNum ? "text-white" : "text-slate-500"
-                          }`}
-                        >
-                          {label}
-                        </span>
+                          {stepNum}
+                        </div>
+                        <div className="flex flex-col">
+                          <span
+                            className={`text-[10px] font-black uppercase tracking-[0.2em] ${
+                              step >= stepNum
+                                ? "text-brand-blue"
+                                : "text-slate-600"
+                            }`}
+                          >
+                            Etapa 0{stepNum}
+                          </span>
+                          <span
+                            className={`text-sm font-bold ${
+                              step >= stepNum ? "text-white" : "text-slate-500"
+                            }`}
+                          >
+                            {label}
+                          </span>
+                        </div>
                       </div>
-                    </div>
-                  );
-                })}
+                    );
+                  },
+                )}
               </div>
             </div>
           </div>
@@ -186,7 +240,9 @@ const BookingRequestPage = observer(() => {
             {step < 5 && (
               <div className="mt-auto pt-10 flex justify-between items-center border-t border-slate-50">
                 <button
-                  onClick={() => (step === 1 ? navigate("/") : setStep((s) => s - 1))}
+                  onClick={() =>
+                    step === 1 ? navigate("/") : setStep((s) => s - 1)
+                  }
                   className="flex items-center gap-3 text-slate-400 hover:text-brand-dark font-black transition-all text-xs uppercase tracking-widest"
                 >
                   <FaArrowLeft size={10} /> {step === 1 ? "Cancelar" : "Voltar"}
