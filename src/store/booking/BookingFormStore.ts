@@ -8,6 +8,13 @@ class BookingFormStore extends FormStoreBase<BookingDomain> {
     return new BookingDomain();
   }
 
+  reset() {
+    runInAction(() => {
+      this.domain = this.initializeDomain();
+      this.clearError();
+    });
+  }
+
   async persist(): Promise<boolean> {
   const { date, shift, roomIds } = this.domain;
 
