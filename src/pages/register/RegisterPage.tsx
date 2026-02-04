@@ -183,7 +183,7 @@ const RegisterPage: React.FC = () => {
             
             <p className="text-center text-gray-500 mt-6">
               Já faz parte do SIGEX?{" "}
-              <button type="button" onClick={() => navigate("/login")} className="text-brand-blue font-bold hover:underline">
+              <button type="button" onClick={() => navigate("/login")} className="cursor-pointer text-brand-blue font-bold hover:underline">
                 Entrar agora
               </button>
             </p>
