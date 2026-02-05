@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import AppRoutes from "./routes/AppRoutes";
 import { userSessionStore } from "./store/user/UserSessionStore";
 import { mockUser } from "../mock/user";
+import ScrollToTop from "./commons/components/ScrollToTop";
 
 function App() {
   useEffect(() => {
@@ -12,6 +13,7 @@ function App() {
 
   return (
     <BrowserRouter>
+      <ScrollToTop />
       <AppRoutes />
     </BrowserRouter>
   );
