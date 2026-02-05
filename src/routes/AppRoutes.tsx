@@ -1,4 +1,4 @@
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 
 import HomePage from "../pages/homepage/HomePage";
 import LoginPage from "../pages/login/LoginPage";
@@ -7,6 +7,7 @@ import RegisterPage from "../pages/register/RegisterPage";
 import EventsPage from '../pages/events/EventsPage';
 import EventDetailsPage from "../pages/events/EventDetailsPage";
 import BookingRequestPage from "../pages/booking/BookingRequestPage";
+import NotFoundPage from "../pages/notfound/NotFoundPage";
 
 const AppRoutes = () => {
   return (
@@ -18,7 +19,7 @@ const AppRoutes = () => {
       <Route path="/login" element={<LoginPage />} />
       <Route path="/cadastro" element={<RegisterPage />} />
       <Route path="/eventos/:id" element={<EventDetailsPage />} />
-      <Route path="*" element={<Navigate to="/" replace />} />
+      <Route path="*" element={<NotFoundPage />} />
     </Routes>
   );
 };
