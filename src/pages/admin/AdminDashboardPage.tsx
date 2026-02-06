@@ -1,14 +1,24 @@
 import { observer } from 'mobx-react-lite';
-import { FaHourglassHalf, FaCheckCircle } from 'react-icons/fa';
+import { FaHourglassHalf, FaCalendarDay } from 'react-icons/fa'; // Troquei o ícone de Check por CalendarDay
 import Header from "../../commons/header/Header";
 import MetricCard from '../../commons/components/MetricCard';
 import AdminSidebar from '../../commons/admin/AdminSidebar';
 import AdminCalendarView from '../../commons/admin/AdminCalendarView';
 import { booking_mock } from '../../../mock/booking';
+import { BookingStatus } from '../../domain/enums/BookingStatus';
+import Footer from '../../commons/footer/Footer';
 
 const AdminDashboardPage = observer(() => {
-  const totalSolicitadas = booking_mock.filter(b => b.status === "SOLICITADA").length;
-  const totalAprovadas = booking_mock.filter(b => b.status === "APROVADA").length;
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, '0');
+  const day = String(today.getDate()).padStart(2, '0');
+  const todayString = `${year}-${month}-${day}`;
+
+  const totalSolicitadas = booking_mock.filter(b => b.status === BookingStatus.SOLICITADA).length;
+  const totalEventosHoje = booking_mock.filter(b => 
+    b.date === todayString && b.status === BookingStatus.APROVADA
+  ).length;
 
   return (
     <div className="flex min-h-screen bg-[#f8fafc] w-full font-inter">
@@ -33,9 +43,9 @@ const AdminDashboardPage = observer(() => {
                 colorClass="amber" 
               />
               <MetricCard 
-                label="Reservas Confirmadas" 
-                value={totalAprovadas.toString().padStart(2, '0')} 
-                icon={FaCheckCircle} 
+                label="Eventos para Hoje"
+                value={totalEventosHoje.toString().padStart(2, '0')} 
+                icon={FaCalendarDay}
                 colorClass="blue" 
               />
             </div>
@@ -46,6 +56,7 @@ const AdminDashboardPage = observer(() => {
             </section>
           </div>
         </main>
+        <Footer/>
       </div>
     </div>
   );
