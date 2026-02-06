@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import HeaderRegister from "../../commons/header/HeaderRegister";
 import Footer from "../../commons/footer/Footer";
-import Button from "../../commons/button/Button";
+import Button from "../../commons/components/Button";
 import Toast, { ToastType } from "../../commons/toast/Toast";
 
 const LoginPage: React.FC = () => {

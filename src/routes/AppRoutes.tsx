@@ -8,6 +8,8 @@ import EventsPage from '../pages/events/EventsPage';
 import EventDetailsPage from "../pages/events/EventDetailsPage";
 import BookingRequestPage from "../pages/booking/BookingRequestPage";
 import NotFoundPage from "../pages/notfound/NotFoundPage";
+import ProtectedRoute from "./ProtectedRoute";
+import AdminDashboardPage from "../pages/admin/AdminDashboardPage";
 
 const AppRoutes = () => {
   return (
@@ -20,6 +22,11 @@ const AppRoutes = () => {
       <Route path="/cadastro" element={<RegisterPage />} />
       <Route path="/eventos/:id" element={<EventDetailsPage />} />
       <Route path="*" element={<NotFoundPage />} />
+
+      <Route element={<ProtectedRoute />}>
+        <Route path="/admin" element={<AdminDashboardPage />} />
+        {/* outras rotas do admin aqui */}
+      </Route>
     </Routes>
   );
 };

@@ -9,7 +9,7 @@ import {
 } from "react-icons/fa";
 
 import { event_mock } from "../../../mock/event"; 
-import Button from "../../commons/button/Button";
+import Button from "../../commons/components/Button";
 import Footer from "../../commons/footer/Footer";
 import Header from "../../commons/header/Header";
 

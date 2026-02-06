@@ -11,6 +11,7 @@ class EventDomain extends DomainBase {
   @observable accessor tags: string[] = [];
   @observable accessor registrationLink = '';
   @observable accessor additionalInfo = '';
+  @observable accessor isPublic: boolean = true;
 
   constructor(event?: Record<string, unknown>) {
     super();

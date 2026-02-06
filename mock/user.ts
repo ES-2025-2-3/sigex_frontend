@@ -1,8 +1,8 @@
+import { UserType } from "../src/domain/enums/UserType";
 import UserDomain from "../src/domain/user/UserDomain";
 
 /**
  * Mock de um usuário logado para fins de desenvolvimento e testes de UI.
- * Este objeto utiliza o UserDomain oficial para garantir consistência de tipos.
  */
 export const mockUser = new UserDomain({
   name: "Nicole Brito Maracajá",
@@ -10,4 +10,5 @@ export const mockUser = new UserDomain({
   username: "nicole.maracaja",
   registrationNumber: "123111413",
   affiliation: "Aluno",
+  type: UserType.ADMIN,
 });
