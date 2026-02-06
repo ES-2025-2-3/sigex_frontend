@@ -1,5 +1,5 @@
 import { observer } from 'mobx-react-lite';
-import { FaHourglassHalf, FaCalendarDay } from 'react-icons/fa'; // Troquei o ícone de Check por CalendarDay
+import { FaHourglassHalf, FaCalendarDay } from 'react-icons/fa';
 import Header from "../../commons/header/Header";
 import MetricCard from '../../commons/components/MetricCard';
 import AdminSidebar from '../../commons/admin/AdminSidebar';
