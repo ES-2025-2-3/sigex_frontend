@@ -1,8 +1,16 @@
-import axios from 'axios';
+import axios from "axios";
 
-const api = axios.create({
-  baseURL: 'http://localhost:8080', //endereço do back
-  timeout: 10000,
+export const api = axios.create({
+  baseURL: "http://localhost:8080",
+  withCredentials: true, 
 });
 
-export default api;
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401 || error.response?.status === 403) {
+      window.location.href = "/login";
+    }
+    return Promise.reject(error);
+  }
+);

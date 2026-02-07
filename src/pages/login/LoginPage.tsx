@@ -1,11 +1,14 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { observer } from "mobx-react-lite";
+import { Eye, EyeOff } from "lucide-react"; 
 import HeaderRegister from "../../commons/header/HeaderRegister";
 import Footer from "../../commons/footer/Footer";
 import Button from "../../commons/components/Button";
 import Toast, { ToastType } from "../../commons/toast/Toast";
+import { authStore } from "../../store/auth/AuthStore";
 
-const LoginPage: React.FC = () => {
+const LoginPage: React.FC = observer(() => {
   const navigate = useNavigate();
   
   const [formData, setFormData] = useState({
@@ -13,6 +16,7 @@ const LoginPage: React.FC = () => {
     password: "",
   });
 
+  const [showPassword, setShowPassword] = useState(false); 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [toast, setToast] = useState<{ type: ToastType; message: string } | null>(null);
 
@@ -22,11 +26,10 @@ const LoginPage: React.FC = () => {
     if (errors[name]) setErrors(prev => ({ ...prev, [name]: "" }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     const newErrors: Record<string, string> = {};
-
     (Object.keys(formData) as Array<keyof typeof formData>).forEach((key) => {
       if (!formData[key]) {
         newErrors[key] = "Campo obrigatório";
@@ -42,9 +45,24 @@ const LoginPage: React.FC = () => {
       return;
     }
 
-    setToast({ type: 'success', message: 'Login realizado com sucesso!' });
-    console.log("Dados enviados:", formData);
-    
+    try {
+      await authStore.login({
+        email: formData.email,
+        password: formData.password
+      });
+
+      setToast({ type: 'success', message: 'Login realizado com sucesso!' });
+      
+      setTimeout(() => {
+        navigate("/");
+      }, 1000);
+
+    } catch (error: any) {
+      setToast({
+        type: 'error',
+        message: 'Falha na autenticação. Verifique seu e-mail e senha.'
+      });
+    }    
   };
 
   return (
@@ -83,9 +101,9 @@ const LoginPage: React.FC = () => {
               {errors.email && <span className="text-red-500 text-xs ml-2 mt-1 font-medium">{errors.email}</span>}
             </div>
 
-            <div className="flex flex-col">
+            <div className="flex flex-col relative"> 
               <input
-                type="password"
+                type={showPassword ? "text" : "password"} 
                 name="password"
                 placeholder="Senha"
                 className={`w-full px-6 py-4 rounded-2xl bg-gray-50 border outline-none focus:ring-2 transition-all ${
@@ -94,17 +112,30 @@ const LoginPage: React.FC = () => {
                 value={formData.password}
                 onChange={handleChange}
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-brand-blue transition-colors"
+              >
+                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+              </button>
               {errors.password && <span className="text-red-500 text-xs ml-2 mt-1 font-medium">{errors.password}</span>}
             </div>
 
             <div className="mt-4">
-              <Button variant="primary" size="large" className="w-full rounded-2xl py-4 font-bold text-lg" type="submit">
-                ENTRAR 
+              <Button 
+                variant="primary" 
+                size="large" 
+                className="w-full rounded-2xl py-5 font-black text-lg uppercase italic tracking-widest shadow-xl shadow-brand-blue/20" 
+                type="submit"
+                disabled={authStore.loading}
+              >
+                {authStore.loading ? "AUTENTICANDO..." : "ENTRAR"}
               </Button>
             </div>
 
             <div className="text-center">
-              <button type="button" onClick={() => navigate("/cadastro")} className="mt-4 text-brand-blue cursor-pointer font-bold hover:underline">
+              <button type="button" onClick={() => navigate("/recuperar-senha")} className="mt-4 text-brand-blue cursor-pointer font-bold hover:underline">
                 Esqueceu a senha?
               </button>
               <p className="text-center text-gray-500">
@@ -120,6 +151,6 @@ const LoginPage: React.FC = () => {
       <Footer />
     </div>
   );
-};
+});
 
 export default LoginPage;
