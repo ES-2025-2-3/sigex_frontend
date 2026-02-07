@@ -26,7 +26,6 @@ import {
   FaHourglassHalf,
 } from "react-icons/fa";
 import UserBanner from "../../commons/user/UserBanner";
-import FilterDropdown from "../../commons/components/FilterDropdown";
 
 const ITEMS_PER_PAGE = 5;
 
