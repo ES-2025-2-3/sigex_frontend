@@ -17,11 +17,11 @@ const AppRoutes = () => {
     <Routes>
       <Route path="/" element={<HomePage />} />
       <Route path="/eventos" element={<EventsPage />} />
+      <Route path="/eventos/:id" element={<EventDetailsPage />} />
       <Route path="/reserva" element={<BookingRequestPage />} />
       <Route path="/sobre" element={<AboutPage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/cadastro" element={<RegisterPage />} />
-      <Route path="/eventos/:id" element={<EventDetailsPage />} />
       <Route path="/usuario/reservas" element={<ReservationPage />} />
       <Route path="*" element={<NotFoundPage />} />
 
