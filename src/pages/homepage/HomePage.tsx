@@ -7,7 +7,7 @@ import { FaSearch } from "react-icons/fa";
 
 import Header from "../../commons/header/Header";
 import EventCard from "../../commons/eventCard/EventCard";
-import Button from "../../commons/button/Button";
+import Button from "../../commons/components/Button";
 import Modal from "../../commons/modal/Modal";
 import Footer from "../../commons/footer/Footer";
 import LoadingSpinner from "../../commons/components/LoadingSpinner";
@@ -46,7 +46,7 @@ const HomePage = observer(() => {
   };
 
   const handleGoToReserva = () => {
-    navigate("/reservas/nova");
+    navigate("/reserva");
   };
 
   return (

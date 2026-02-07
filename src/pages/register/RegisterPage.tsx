@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import HeaderRegister from "../../commons/header/HeaderRegister";
 import Footer from "../../commons/footer/Footer";
-import Button from "../../commons/button/Button";
+import Button from "../../commons/components/Button";
 import Toast, { ToastType } from "../../commons/toast/Toast";
 
 const RegisterPage: React.FC = () => {
@@ -10,9 +10,8 @@ const RegisterPage: React.FC = () => {
   
   const [formData, setFormData] = useState({
     name: "",
+    registrationNumber: "",
     email: "",
-    cpf: "",
-    phone: "",
     password: "",
     confirmPassword: "",
     profile: "Aluno"
@@ -94,6 +93,26 @@ const RegisterPage: React.FC = () => {
 
             <div className="flex flex-col">
               <input
+                type="text"
+                name="registrationNumber"
+                placeholder="Matrícula"
+                className={`w-full px-6 py-4 rounded-2xl bg-gray-50 border outline-none focus:ring-2 transition-all ${
+                  errors.registrationNumber
+                    ? "border-red-400 focus:ring-red-100"
+                    : "border-gray-100 focus:ring-brand-blue/20"
+                }`}
+                value={formData.registrationNumber}
+                onChange={handleChange}
+              />
+              {errors.registrationNumber && (
+                <span className="text-red-500 text-xs ml-2 mt-1 font-medium">
+                  {errors.registrationNumber}
+                </span>
+              )}
+            </div>
+
+            <div className="flex flex-col">
+              <input
                 type="email"
                 name="email"
                 placeholder="E-mail institucional (@ufcg)"
@@ -104,35 +123,6 @@ const RegisterPage: React.FC = () => {
                 onChange={handleChange}
               />
               {errors.email && <span className="text-red-500 text-xs ml-2 mt-1 font-medium">{errors.email}</span>}
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="flex flex-col">
-                <input
-                  type="text"
-                  name="cpf"
-                  placeholder="CPF"
-                  className={`w-full px-6 py-4 rounded-2xl bg-gray-50 border outline-none focus:ring-2 transition-all ${
-                    errors.cpf ? "border-red-400 focus:ring-red-100" : "border-gray-100 focus:ring-brand-blue/20"
-                  }`}
-                  value={formData.cpf}
-                  onChange={handleChange}
-                />
-                {errors.cpf && <span className="text-red-500 text-xs ml-2 mt-1 font-medium">{errors.cpf}</span>}
-              </div>
-              <div className="flex flex-col">
-                <input
-                  type="text"
-                  name="phone"
-                  placeholder="WhatsApp"
-                  className={`w-full px-6 py-4 rounded-2xl bg-gray-50 border outline-none focus:ring-2 transition-all ${
-                    errors.phone ? "border-red-400 focus:ring-red-100" : "border-gray-100 focus:ring-brand-blue/20"
-                  }`}
-                  value={formData.phone}
-                  onChange={handleChange}
-                />
-                {errors.phone && <span className="text-red-500 text-xs ml-2 mt-1 font-medium">{errors.phone}</span>}
-              </div>
             </div>
 
             <div className="flex flex-col">
@@ -193,7 +183,7 @@ const RegisterPage: React.FC = () => {
             
             <p className="text-center text-gray-500 mt-6">
               Já faz parte do SIGEX?{" "}
-              <button type="button" onClick={() => navigate("/login")} className="text-brand-blue font-bold hover:underline">
+              <button type="button" onClick={() => navigate("/login")} className="cursor-pointer text-brand-blue font-bold hover:underline">
                 Entrar agora
               </button>
             </p>

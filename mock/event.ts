@@ -12,17 +12,19 @@ export const event_mock = [
     registrationLink: "https://geas.ufcg.edu.br",
     additionalInfo:
       "Os participantes devem levar 1kg de alimento não perecível para doação no dia do evento. Haverá certificação de 20h.",
+    isPublic: true,
   },
   {
     id: 2,
     title: "II Encontro de Ecopedagogias",
-    date: "2026-11-11",
+    date: "2026-03-03",
     description:
       "Um espaço de reflexão sobre práticas educativas voltadas à sustentabilidade e à conexão entre o ser humano e o meio ambiente no contexto escolar.",
     imageUrl:
       "https://images.unsplash.com/photo-1515187029135-18ee286d815b?auto=format&fit=crop&w=500",
     location: "Auditório de Psicologia",
     tags: ["Workshop", "Educação"],
+    isPublic: true,
   },
   {
     id: 3,
@@ -34,6 +36,7 @@ export const event_mock = [
       "https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?auto=format&fit=crop&w=500",
     location: "Bloco Humanas",
     tags: ["Cultura", "Música"],
+    isPublic: true,
   },
   {
     id: 4,
@@ -45,6 +48,7 @@ export const event_mock = [
       "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=500",
     location: "Central de Aulas",
     tags: ["Tecnologia", "Inovação"],
+    isPublic: true,
   },
   {
     id: 5,
@@ -56,6 +60,7 @@ export const event_mock = [
       "https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&w=500",
     location: "Auditório Central",
     tags: ["Meio Ambiente", "Debate"],
+    isPublic: true,
   },
   {
     id: 6,
@@ -67,6 +72,7 @@ export const event_mock = [
       "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=500",
     location: "LCC3",
     tags: ["Educação", "TI"],
+    isPublic: false, 
   },
   {
     id: 7,
@@ -78,6 +84,7 @@ export const event_mock = [
       "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=500",
     location: "Praça de Alimentação",
     tags: ["Cultura", "Arte"],
+    isPublic: true,
   },
   {
     id: 8,
@@ -89,6 +96,7 @@ export const event_mock = [
       "https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?auto=format&fit=crop&w=500",
     location: "Mini Auditório",
     tags: ["Saúde", "Palestra"],
+    isPublic: true,
   },
   {
     id: 9,
@@ -100,6 +108,7 @@ export const event_mock = [
       "https://images.unsplash.com/photo-1452421822248-d4c2b47f0c81?auto=format&fit=crop&w=500",
     location: "Biblioteca Central",
     tags: ["Exposição", "História"],
+    isPublic: true,
   },
   {
     id: 10,
@@ -111,6 +120,7 @@ export const event_mock = [
       "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&w=500",
     location: "LCC4",
     tags: ["Design", "Workshop"],
+    isPublic: false, 
   },
   {
     id: 11,
@@ -122,6 +132,7 @@ export const event_mock = [
       "https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&w=500",
     location: "Centro de Convenções",
     tags: ["Tecnologia", "IA"],
+    isPublic: true,
   },
   {
     id: 12,
@@ -133,5 +144,6 @@ export const event_mock = [
       "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=500",
     location: "Laboratórios Integrados",
     tags: ["TI", "Social"],
+    isPublic: true,
   },
 ];

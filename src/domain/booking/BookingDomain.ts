@@ -6,12 +6,11 @@ import { BookingShift } from "../enums/BookingShift";
 class BookingDomain extends DomainBase {
   @observable accessor id: number | null = null;
   @observable accessor bookerId: number | null = null;
-  @observable accessor instituteId: number | null = null;
   @observable accessor roomIds: number[] = [];
   @observable accessor eventId: number | null = null;
   @observable accessor date = "";
   @observable accessor shift: BookingShift | null = null;
-  @observable accessor status: BookingStatus = BookingStatus.REQUESTED;
+  @observable accessor status: BookingStatus = BookingStatus.SOLICITADA;
 
   constructor(b?: Record<string, unknown>) {
     super();
@@ -28,8 +27,6 @@ class BookingDomain extends DomainBase {
 
     super.validate(undefined, () => {
       if (!this.bookerId) this.errors["bookerId"] = "Usuário obrigatório";
-      if (!this.instituteId)
-        this.errors["instituteId"] = "Instituto obrigatório";
       if (!this.roomIds.length)
         this.errors["roomIds"] = "Selecione pelo menos uma sala";
       if (!this.date) this.errors["date"] = "Data obrigatória";
@@ -48,7 +45,6 @@ class BookingDomain extends DomainBase {
       status: this.status,
 
       booker: this.bookerId ? { id: this.bookerId } : null,
-      institute: this.instituteId ? { id: this.instituteId } : null,
       rooms: this.roomIds.map((id) => ({ id })),
       event: this.eventId ? { id: this.eventId } : null,
     };

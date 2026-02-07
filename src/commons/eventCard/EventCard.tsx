@@ -1,5 +1,5 @@
 import React from "react";
-import Button from "../button/Button";
+import Button from "../components/Button";
 import { Evento } from "../../types/event/EventType";
 
 interface EventCardProps extends Evento {
