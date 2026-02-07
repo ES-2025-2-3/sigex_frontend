@@ -4,4 +4,5 @@ export interface Reservation {
     date: string; //mudar para date
     time: string; //mudar para algo?
     space: string; //provavelmente apenas josé farias
+    status: "ACTIVE"|"CANCELED";
 }

@@ -17,7 +17,7 @@ const AppRoutes = () => {
       <Route path="/login" element={<LoginPage />} />
       <Route path="/cadastro" element={<RegisterPage />} />
       <Route path="/eventos/:id" element={<EventDetailsPage />} />
-      <Route path= "/reserva" element={<ReservationPage />}/>
+      <Route path= "/usuario/reserva" element={<ReservationPage />}/>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );

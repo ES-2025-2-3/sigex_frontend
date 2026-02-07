@@ -8,6 +8,7 @@ export const reservations_mock: Reservation[] = [
         date: "20/02/2025",
         time: "08:00",
         space: "José Farias",
+        status: "ACTIVE",
     },
     {
         id: "2",
@@ -15,6 +16,7 @@ export const reservations_mock: Reservation[] = [
         date: "23/02/2025",
         time: "16:00",
         space: "José Farias",
+        status: "ACTIVE",
     },
     {
         id: "3",
@@ -22,6 +24,7 @@ export const reservations_mock: Reservation[] = [
         date: "25/02/2025",
         time: "10:00",
         space: "José Farias",
+        status: "ACTIVE",
     },
     {
         id: "4",
@@ -29,6 +32,7 @@ export const reservations_mock: Reservation[] = [
         date: "27/02/2025",
         time: "14:00",
         space: "José Farias",
+        status: "ACTIVE",
     },
     {
         id: "5",
@@ -36,6 +40,7 @@ export const reservations_mock: Reservation[] = [
         date: "01/03/2025",
         time: "09:00",
         space: "José Farias",
+        status: "ACTIVE",
     },
     {
         id: "6",
@@ -43,6 +48,7 @@ export const reservations_mock: Reservation[] = [
         date: "03/03/2025",
         time: "15:00",
         space: "José Farias",
+        status: "ACTIVE",
     },
     {
         id: "7",
@@ -50,6 +56,7 @@ export const reservations_mock: Reservation[] = [
         date: "05/03/2025",
         time: "11:00",
         space: "José Farias",
+        status: "ACTIVE",
     },
     {
         id: "8",
@@ -57,6 +64,7 @@ export const reservations_mock: Reservation[] = [
         date: "07/03/2025",
         time: "08:00",
         space: "José Farias",
+        status: "ACTIVE",
     },
     {
         id: "9",
@@ -64,6 +72,7 @@ export const reservations_mock: Reservation[] = [
         date: "10/03/2025",
         time: "13:00",
         space: "José Farias",
+        status: "ACTIVE",
     },
     {
         id: "10",
@@ -71,6 +80,7 @@ export const reservations_mock: Reservation[] = [
         date: "12/03/2025",
         time: "16:00",
         space: "José Farias",
+        status: "ACTIVE",
     },
     {
         id: "11",
@@ -78,6 +88,7 @@ export const reservations_mock: Reservation[] = [
         date: "14/03/2025",
         time: "10:00",
         space: "José Farias",
+        status: "ACTIVE",
     },
     {
         id: "12",
@@ -85,6 +96,7 @@ export const reservations_mock: Reservation[] = [
         date: "16/03/2025",
         time: "09:00",
         space: "José Farias",
+        status: "ACTIVE",
     },
     {
         id: "13",
@@ -92,6 +104,7 @@ export const reservations_mock: Reservation[] = [
         date: "18/03/2025",
         time: "14:00",
         space: "José Farias",
+        status: "ACTIVE",
     },
     {
         id: "14",
@@ -99,6 +112,7 @@ export const reservations_mock: Reservation[] = [
         date: "20/03/2025",
         time: "15:00",
         space: "José Farias",
+        status: "ACTIVE",
     },
     {
         id: "15",
@@ -106,6 +120,7 @@ export const reservations_mock: Reservation[] = [
         date: "22/03/2025",
         time: "11:00",
         space: "José Farias",
+        status: "ACTIVE",
     },
     {
         id: "16",
@@ -113,6 +128,7 @@ export const reservations_mock: Reservation[] = [
         date: "24/03/2025",
         time: "08:00",
         space: "José Farias",
+        status: "ACTIVE",
     },
     {
         id: "17",
@@ -120,5 +136,6 @@ export const reservations_mock: Reservation[] = [
         date: "26/03/2025",
         time: "16:00",
         space: "José Farias",
+        status: "ACTIVE",
     }
 ]
