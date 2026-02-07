@@ -4,7 +4,7 @@ import { BookingStatus } from "../src/domain/enums/BookingStatus";
 export const booking_mock = [
   {
     id: 101,
-    bookerId: 10,
+    bookerId: 1,
     roomIds: [1, 2],
     eventId: 2,
     date: "2026-03-03",
@@ -13,7 +13,7 @@ export const booking_mock = [
   },
   {
     id: 102,
-    bookerId: 11,
+    bookerId: 1,
     roomIds: [3],
     eventId: 10, 
     date: "2026-03-03",
@@ -40,7 +40,7 @@ export const booking_mock = [
   },
   {
     id: 105,
-    bookerId: 14,
+    bookerId: 1,
     roomIds: [4],
     eventId: 8, 
     date: "2026-05-10",
@@ -49,7 +49,7 @@ export const booking_mock = [
   },
   {
     id: 106,
-    bookerId: 15,
+    bookerId: 1,
     roomIds: [8],
     eventId: 11, 
     date: "2026-08-14",
@@ -67,7 +67,7 @@ export const booking_mock = [
   },
   {
     id: 107,
-    bookerId: 16,
+    bookerId: 1,
     roomIds: [1],
     eventId: 3, 
     date: "2026-06-05",
@@ -76,7 +76,7 @@ export const booking_mock = [
   },
   {
     id: 108,
-    bookerId: 17,
+    bookerId: 1,
     roomIds: [2, 3],
     eventId: 4, 
     date: "2026-10-12",
@@ -85,7 +85,7 @@ export const booking_mock = [
   },
   {
     id: 116,
-    bookerId: 25,
+    bookerId: 1,
     roomIds: [9],
     eventId: 4, 
     date: "2026-10-13",
@@ -94,7 +94,7 @@ export const booking_mock = [
   },
   {
     id: 109,
-    bookerId: 18,
+    bookerId: 1,
     roomIds: [1],
     eventId: 5,
     date: "2026-09-22",
@@ -103,7 +103,7 @@ export const booking_mock = [
   },
   {
     id: 110,
-    bookerId: 19,
+    bookerId: 1,
     roomIds: [15],
     eventId: 6, 
     date: "2026-01-15",
@@ -112,7 +112,7 @@ export const booking_mock = [
   },
   {
     id: 115,
-    bookerId: 24,
+    bookerId: 1,
     roomIds: [7],
     eventId: 6, 
     date: "2026-02-20",
@@ -121,7 +121,7 @@ export const booking_mock = [
   },
   {
     id: 111,
-    bookerId: 20,
+    bookerId: 1,
     roomIds: [20],
     eventId: 7, 
     date: "2026-07-30",
