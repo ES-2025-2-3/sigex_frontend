@@ -4,7 +4,7 @@ import { BookingStatus } from "../src/domain/enums/BookingStatus";
 export const booking_mock = [
   {
     id: 101,
-    bookerId: 10,
+    bookerId: 1,
     roomIds: [1, 2],
     eventId: 2,
     date: "2026-03-03",
@@ -13,7 +13,7 @@ export const booking_mock = [
   },
   {
     id: 102,
-    bookerId: 11,
+    bookerId: 1,
     roomIds: [3],
     eventId: 10, 
     date: "2026-03-03",
@@ -40,7 +40,7 @@ export const booking_mock = [
   },
   {
     id: 105,
-    bookerId: 14,
+    bookerId: 1,
     roomIds: [4],
     eventId: 8, 
     date: "2026-05-10",
@@ -49,7 +49,7 @@ export const booking_mock = [
   },
   {
     id: 106,
-    bookerId: 15,
+    bookerId: 1,
     roomIds: [8],
     eventId: 11, 
     date: "2026-08-14",
@@ -85,7 +85,7 @@ export const booking_mock = [
   },
   {
     id: 116,
-    bookerId: 25,
+    bookerId: 1,
     roomIds: [9],
     eventId: 4, 
     date: "2026-10-13",

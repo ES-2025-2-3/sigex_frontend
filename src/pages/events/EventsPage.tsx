@@ -150,9 +150,9 @@ const EventosPage = observer(() => {
 
           <button
             className="bg-brand-blue text-white px-6 py-2.5 rounded-xl font-bold hover:bg-brand-blue-hover transition shadow-lg shadow-brand-blue/20"
-            onClick={() => navigate("/reservas/nova")}
+            onClick={() => navigate("/reserva")}
           >
-            Cadastrar Evento
+            Solicitar Reserva
           </button>
         </div>
 
