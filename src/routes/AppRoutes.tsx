@@ -10,7 +10,8 @@ import BookingRequestPage from "../pages/booking/BookingRequestPage";
 import NotFoundPage from "../pages/notfound/NotFoundPage";
 import ProtectedRoute from "./ProtectedRoute";
 import AdminDashboardPage from "../pages/admin/AdminDashboardPage";
-import ReservationPage from "../pages/user/UserBookingPage";
+import UserBookingPage from "../pages/user/UserBookingPage";
+import UserRequestPage from "../pages/user/UserRequestPage";
 
 const AppRoutes = () => {
   return (
@@ -22,7 +23,8 @@ const AppRoutes = () => {
       <Route path="/login" element={<LoginPage />} />
       <Route path="/cadastro" element={<RegisterPage />} />
       <Route path="/eventos/:id" element={<EventDetailsPage />} />
-      <Route path="/usuario/reservas" element={<ReservationPage />} />
+      <Route path="/usuario/reservas" element={<UserBookingPage />} />
+      <Route path="minhas-solicitacoes" element={<UserRequestPage />} />
       <Route path="*" element={<NotFoundPage />} />
 
       <Route element={<ProtectedRoute />}>
