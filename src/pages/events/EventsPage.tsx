@@ -7,7 +7,7 @@ import Header from "../../commons/header/Header";
 import EventCard from "../../commons/eventCard/EventCard";
 import Footer from "../../commons/footer/Footer";
 import Pagination from "../../commons/pagination/Pagination";
-import Button from "../../commons/button/Button";
+import Button from "../../commons/components/Button";
 import Modal from "../../commons/modal/Modal";
 import LoadingSpinner from "../../commons/components/LoadingSpinner";
 
@@ -24,6 +24,7 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
 import EventDomain from "../../domain/event/EventDomain";
+import { booking_mock } from "../../../mock/booking";
 
 const EventosPage = observer(() => {
   const navigate = useNavigate();
@@ -94,6 +95,14 @@ const EventosPage = observer(() => {
     hoje.setHours(0, 0, 0, 0);
 
     return upcomingEvents.filter((evento) => {
+      if (evento.isPublic === false) return false;
+
+      const reservaConfirmada = booking_mock.find(
+        (b) => b.eventId === evento.id && b.status === "APROVADA",
+      );
+
+      if (!reservaConfirmada) return false;
+
       const matchesSearch =
         evento.title.toLowerCase().includes(filterTerm.toLowerCase()) ||
         evento.tags.some((tag) =>
@@ -103,11 +112,12 @@ const EventosPage = observer(() => {
       const matchesCategory =
         selectedCategory === "" ||
         (evento.tags && evento.tags.includes(selectedCategory));
-      const matchesDateFilter =
-        selectedDate === "" || evento.date === selectedDate;
 
-      const dataEvento = new Date(evento.date + "T00:00:00");
-      const isEncerrado = dataEvento < hoje;
+      const matchesDateFilter =
+        selectedDate === "" || reservaConfirmada.date === selectedDate;
+
+      const dataReserva = new Date(reservaConfirmada.date + "T00:00:00");
+      const isEncerrado = dataReserva < hoje;
       const matchesTab = activeTab === "futuros" ? !isEncerrado : isEncerrado;
 
       return (
@@ -306,7 +316,7 @@ const EventosPage = observer(() => {
 
         {loading ? (
           <div className="flex justify-center items-center py-20">
-              <LoadingSpinner size="medium"/>
+            <LoadingSpinner size="medium" />
           </div>
         ) : (
           <>
