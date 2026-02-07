@@ -25,7 +25,7 @@ import {
 import UserBanner from "../../commons/user/UserBanner";
 import FilterDropdown from "../../commons/components/FilterDropdown";
 
-const ITEMS_PER_PAGE = 7;
+const ITEMS_PER_PAGE = 5;
 
 const UserBookingPage = observer(() => {
   const [search, setSearch] = useState("");
