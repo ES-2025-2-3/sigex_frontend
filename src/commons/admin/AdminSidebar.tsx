@@ -2,6 +2,7 @@ import React from "react";
 import { FaChartLine, FaRegCalendarCheck, FaLayerGroup, FaUsers, FaCog, FaSignOutAlt, FaRocket } from "react-icons/fa";
 import { useNavigate, useLocation } from "react-router-dom";
 import { userSessionStore } from "../../store/user/UserSessionStore";
+import logoSigex from "../../assets/icons/logo.png";
 
 const AdminSidebar: React.FC = () => {
   const navigate = useNavigate();
@@ -20,7 +21,12 @@ const AdminSidebar: React.FC = () => {
     <aside className="w-96 min-w-[384px] bg-[#1e293b] flex flex-col h-screen sticky top-0 z-[1001] shadow-2xl shrink-0 font-inter">
       <div className="p-10 mb-4 border-b border-white/5">
         <h2 className="text-white font-black text-3xl tracking-tighter flex items-center gap-3 italic uppercase">
-          <FaRocket className="text-brand-blue" /> SIGEX
+          <img
+            src={logoSigex}
+            alt="Logo do SIGEX"
+            className="h-8 w-auto"
+          />
+          SIGEX
         </h2>
       </div>
 
