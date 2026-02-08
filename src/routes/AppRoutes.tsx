@@ -11,6 +11,7 @@ import NotFoundPage from "../pages/notfound/NotFoundPage";
 import ProtectedRoute from "./ProtectedRoute";
 import AdminDashboardPage from "../pages/admin/AdminDashboardPage";
 import ReservationPage from "../pages/user/UserBookingPage";
+import ConfigurationPage from "../pages/user/UserSettingsPage";
 
 const AppRoutes = () => {
   return (
@@ -23,6 +24,7 @@ const AppRoutes = () => {
       <Route path="/login" element={<LoginPage />} />
       <Route path="/cadastro" element={<RegisterPage />} />
       <Route path="/usuario/reservas" element={<ReservationPage />} />
+      <Route path="/usuario/configuracoes" element={<ConfigurationPage />} />
       <Route path="*" element={<NotFoundPage />} />
 
       <Route element={<ProtectedRoute />}>
