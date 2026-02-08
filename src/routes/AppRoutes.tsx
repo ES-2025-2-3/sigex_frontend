@@ -11,6 +11,7 @@ import NotFoundPage from "../pages/notfound/NotFoundPage";
 import ProtectedRoute from './ProtectedRoute';
 import AdminDashboardPage from '../pages/admin/AdminDashboardPage';
 import SettingsPage from '../pages/admin/SettingsPage';
+import SpacesPage from '../pages/admin/SpacesPage';
 
 const AppRoutes = () => {
   return (
@@ -24,6 +25,7 @@ const AppRoutes = () => {
       <Route path="/eventos/:id" element={<EventDetailsPage />} />
       <Route path="/admin" element={<ProtectedRoute />}>
         <Route index element={<AdminDashboardPage/>} />
+        <Route path="spaces" element={<SpacesPage/>} />
         <Route path="settings" element={<SettingsPage/>} />
       </Route>
       <Route path="*" element={<NotFoundPage />} />
