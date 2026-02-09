@@ -26,12 +26,13 @@ import {
   FaHourglassHalf,
 } from "react-icons/fa";
 import UserBanner from "../../commons/user/UserBanner";
+import { BookingShift } from "../../domain/enums/BookingShift";
 
 const ITEMS_PER_PAGE = 5;
 
 const UserRequestPage = observer(() => {
+    const events = event_mock;
     const [search, setSearch] = useState("");
-    const [statusFilter, setStatusFilter] = useState<string>("ALL");
     const [currentPage, setCurrentPage] = useState(1);
     const [loading, setLoading] = useState(true);
     const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
@@ -40,6 +41,8 @@ const UserRequestPage = observer(() => {
     const [bookingToCancel, setBookingToCancel] = useState<Booking | null>(null);
     const [isCancelSuccessOpen, setIsCancelSuccessOpen] = useState(false);
     const [isCancelErrorOpen, setIsCancelErrorOpen] = useState(false);
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [eventTitleDraft, setEventTitleDraft] = useState("");
 
     const handleConfirmCancel = async () => {
         try {
@@ -99,14 +102,26 @@ const UserRequestPage = observer(() => {
         const start = (currentPage - 1) * ITEMS_PER_PAGE;
         return filteredBookings.slice(start, start + ITEMS_PER_PAGE);
     }, [filteredBookings, currentPage]);
+    
+    const handleUpdateBooking = () => {
+        if (!selectedBooking) return;
 
-    const handleEdit = (booking: Booking) => {
-    console.log("Edit booking", booking);
-    };
+        const eventIndex = event_mock.findIndex(e => e.id === selectedBooking.eventId);
+
+        if (eventIndex !== -1) {
+            event_mock[eventIndex] = {
+            ...event_mock[eventIndex],
+            title: eventTitleDraft,}}
+
+        setUserBookings(prev =>
+            prev.map(b =>
+            b.id === selectedBooking.id ? selectedBooking : b));
+            
+        setIsEditModalOpen(false);};
 
     useEffect(() => {
         setCurrentPage(1);
-    }, [search, statusFilter]);
+    }, [search]);
 
     return (
         <div className="flex flex-col min-h-screen bg-[#F8FAFC]">
@@ -191,7 +206,6 @@ const UserRequestPage = observer(() => {
                             </td>
                             <td className="px-8 py-6 text-center">
                                 <div className="flex items-center justify-center gap-2">
-                                    {/* View */}
                                     <button
                                     onClick={() => {
                                         setSelectedBooking(b);
@@ -204,7 +218,9 @@ const UserRequestPage = observer(() => {
                                     </button>
 
                                     <button
-                                    onClick={() => {setSelectedBooking(b); handleEdit(b)}}
+                                    onClick={() => {
+                                        const event = event_mock.find(e => e.id === b.eventId)
+                                        setSelectedBooking(b); setEventTitleDraft(event?.title ?? ""); setIsEditModalOpen(true)}}
                                     className="p-2.5 text-gray-400 hover:text-amber-600
                                                 bg-gray-50 rounded-xl hover:bg-amber-50 transition-all"
                                     >
@@ -391,7 +407,6 @@ const UserRequestPage = observer(() => {
             onClose={() => setIsCancelSuccessOpen(false)}
             >
             <div className="space-y-6">
-                {/* Header */}
                 <div className="flex items-center gap-4 bg-slate-50 p-5 rounded-2xl border border-slate-100">
                 <div className="w-10 h-10 bg-emerald-600 text-white rounded-xl
                                 flex items-center justify-center
@@ -408,7 +423,6 @@ const UserRequestPage = observer(() => {
                 </div>
                 </div>
 
-                {/* Message */}
                 <div className="p-4 rounded-xl border flex items-center gap-3
                 bg-emerald-50/50 border-emerald-100 text-emerald-700">
                 <FaCheckCircle />
@@ -417,7 +431,6 @@ const UserRequestPage = observer(() => {
                 </span>
                 </div>
 
-                {/* Action */}
                 <button
                 onClick={() => setIsCancelSuccessOpen(false)}
                 className="w-full py-3.5 bg-slate-900 text-white rounded-xl
@@ -435,7 +448,6 @@ const UserRequestPage = observer(() => {
             onClose={() => setIsCancelErrorOpen(false)}
             >
             <div className="space-y-6">
-                {/* Header */}
                 <div className="flex items-center gap-4 bg-slate-50 p-5 rounded-2xl border border-slate-100">
                 <div className="w-10 h-10 bg-red-600 text-white rounded-xl
                                 flex items-center justify-center
@@ -452,7 +464,6 @@ const UserRequestPage = observer(() => {
                 </div>
                 </div>
 
-                {/* Message */}
                 <div className="p-4 rounded-xl border flex items-center gap-3
                 bg-red-50/50 border-red-100 text-red-700">
                 <FaTimesCircle />
@@ -461,7 +472,6 @@ const UserRequestPage = observer(() => {
                 </span>
                 </div>
 
-                {/* Action */}
                 <button
                 onClick={() => setIsCancelErrorOpen(false)}
                 className="w-full py-3.5 bg-slate-900 text-white rounded-xl
@@ -471,6 +481,103 @@ const UserRequestPage = observer(() => {
                 Fechar
                 </button>
             </div>
+        </Modal>
+
+        <Modal 
+            isOpen={isEditModalOpen}
+            title="Editar solicitação"
+            onClose={() => setIsEditModalOpen(false)}
+            >
+            
+            {selectedBooking && (
+                <div className="space-y-6">
+
+                <div className="flex items-center gap-4 bg-slate-50 p-5 rounded-2xl border border-slate-100">
+                    <div className="w-10 h-10 bg-brand-blue text-white rounded-xl flex items-center justify-center shadow-lg shadow-brand-blue/20">
+                        <FaBookmark size={18} />
+                    </div>
+
+                    <div className="flex-1">
+                        <span className="text-[9px] font-bold text-slate-400 uppercase block mb-1">
+                        Evento
+                        </span>
+
+                        <input
+                        type="text"
+                        className="w-full text-sm font-bold text-slate-800 bg-white border border-slate-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-blue"
+                        value={eventTitleDraft}
+                        onChange={(e) => setEventTitleDraft(e.target.value)}
+                        />
+                    </div>
+                    </div>
+
+                <div className="grid grid-cols-2 gap-3">
+
+                    <div className="p-3 bg-white border border-slate-100 rounded-xl">
+                    <span className="text-[9px] font-bold text-slate-400 uppercase block mb-1">
+                        Data
+                    </span>
+                    <input
+                        type="date"
+                        className="w-full text-sm font-bold text-slate-700 bg-transparent focus:outline-none"
+                        value={selectedBooking.date}
+                        onChange={(e) =>
+                        setSelectedBooking({
+                            ...selectedBooking,
+                            date: e.target.value,
+                        })
+                        }
+                    />
+                    </div>
+
+                    <div className="p-3 bg-white border border-slate-100 rounded-xl">
+                    <span className="text-[9px] font-bold text-slate-400 uppercase block mb-1">
+                        Período
+                    </span>
+                    <select
+                        className="w-full text-sm font-bold text-slate-700 uppercase bg-transparent focus:outline-none"
+                        value={selectedBooking.shift}
+                        onChange={(e) =>
+                        setSelectedBooking({
+                            ...selectedBooking,
+                            shift: e.target.value as BookingShift.MANHA | BookingShift.TARDE | BookingShift.NOITE,
+                        })
+                        }
+                    >
+                        <option value="MANHA">MANHÃ</option>
+                        <option value="TARDE">TARDE</option>
+                        <option value="NOITE">NOITE</option>
+                    </select>
+                    </div>
+
+                </div>
+
+                <div className="p-4 rounded-xl border flex items-center gap-3
+                    bg-amber-50/50 border-amber-100 text-amber-600">
+                    <FaHourglassHalf size={14} />
+                    <span className="text-xs font-bold uppercase tracking-wider">
+                    Alterações precisam de nova aprovação
+                    </span>
+                </div>
+
+                <div className="flex gap-3">
+                    <button
+                    onClick={() => setIsEditModalOpen(false)}
+                    className="w-full py-3.5 border border-slate-200 rounded-xl font-bold text-slate-600 hover:bg-slate-50 transition-all text-sm"
+                    >
+                    Cancelar
+                    </button>
+
+                    <button
+                    onClick={handleUpdateBooking}
+                    className="w-full py-3.5 bg-brand-blue text-white rounded-xl font-bold hover:opacity-90 transition-all text-sm shadow-xl shadow-brand-blue/30"
+                    >
+                    Salvar alterações
+                    </button>
+                </div>
+
+                </div>
+            )}
         </Modal>
 
         <Footer />

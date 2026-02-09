@@ -12,19 +12,28 @@ import ProtectedRoute from "./ProtectedRoute";
 import AdminDashboardPage from "../pages/admin/AdminDashboardPage";
 import UserBookingPage from "../pages/user/UserBookingPage";
 import UserRequestPage from "../pages/user/UserRequestPage";
+import ConfigurationPage from "../pages/user/UserSettingsPage";
+import ForgotPasswordEmailPage from "../pages/login/forgotPassword/ForgotPasswordEmailPage";
+import ForgotPasswordCodePage from "../pages/login/forgotPassword/ForgotPasswordCodePage";
+import ForgotPasswordNewPasswordPage from "../pages/login/forgotPassword/ForgotPasswordNewPasswordPage";
 
 const AppRoutes = () => {
   return (
     <Routes>
       <Route path="/" element={<HomePage />} />
       <Route path="/eventos" element={<EventsPage />} />
+      <Route path="/eventos/:id" element={<EventDetailsPage />} />
       <Route path="/reserva" element={<BookingRequestPage />} />
       <Route path="/sobre" element={<AboutPage />} />
       <Route path="/login" element={<LoginPage />} />
+      <Route path="/recuperar-senha" element={<ForgotPasswordEmailPage />} />
+      <Route path="/recuperar-senha/codigo" element={<ForgotPasswordCodePage />} />
+      <Route path="/recuperar-senha/nova-senha" element={<ForgotPasswordNewPasswordPage />} />
       <Route path="/cadastro" element={<RegisterPage />} />
       <Route path="/eventos/:id" element={<EventDetailsPage />} />
       <Route path="/usuario/reservas" element={<UserBookingPage />} />
       <Route path="/usuario/solicitacoes" element={<UserRequestPage />} />
+      <Route path="/usuario/configuracoes" element={<ConfigurationPage />} />
       <Route path="*" element={<NotFoundPage />} />
 
       <Route element={<ProtectedRoute />}>
