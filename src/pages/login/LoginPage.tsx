@@ -104,7 +104,7 @@ const LoginPage: React.FC = () => {
             </div>
 
             <div className="text-center">
-              <button type="button" onClick={() => navigate("/cadastro")} className="mt-4 text-brand-blue cursor-pointer font-bold hover:underline">
+              <button type="button" onClick={() => navigate("/recuperar-senha")} className="mt-4 text-brand-blue cursor-pointer font-bold hover:underline">
                 Esqueceu a senha?
               </button>
               <p className="text-center text-gray-500">
