@@ -10,6 +10,7 @@ import BookingRequestPage from "../pages/booking/BookingRequestPage";
 import NotFoundPage from "../pages/notfound/NotFoundPage";
 import ProtectedRoute from "./ProtectedRoute";
 import AdminDashboardPage from "../pages/admin/AdminDashboardPage";
+import AdminSolicitacoesPage from "../pages/admin/AdminSolicitacoesPage";
 import ReservationPage from "../pages/user/UserBookingPage";
 
 const AppRoutes = () => {
@@ -27,6 +28,7 @@ const AppRoutes = () => {
 
       <Route element={<ProtectedRoute />}>
         <Route path="/admin" element={<AdminDashboardPage />} />
+        <Route path="/admin/requests" element={<AdminSolicitacoesPage />} />
         {/* outras rotas do admin aqui */}
       </Route>
     </Routes>
