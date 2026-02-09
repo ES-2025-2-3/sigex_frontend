@@ -79,7 +79,7 @@ const UserBookingPage = observer(() => {
   }, [search, statusFilter]);
 
   return (
-    <div className="flex flex-col min-h-screen bg-[#F8FAFC]">
+    <div className="flex flex-col min-h-screen bg-bg-main">
       <Header />
 
       <main className="flex-grow container mx-auto px-6 py-10 max-w-7xl">
