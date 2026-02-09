@@ -24,7 +24,7 @@ const AppRoutes = () => {
       <Route path="/cadastro" element={<RegisterPage />} />
       <Route path="/eventos/:id" element={<EventDetailsPage />} />
       <Route path="/usuario/reservas" element={<UserBookingPage />} />
-      <Route path="minhas-solicitacoes" element={<UserRequestPage />} />
+      <Route path="/usuario/solicitacoes" element={<UserRequestPage />} />
       <Route path="*" element={<NotFoundPage />} />
 
       <Route element={<ProtectedRoute />}>
