@@ -81,7 +81,7 @@ const UserSettingsPage = observer(() => {
   }, [deleteAccountOpen]);
 
   return (
-    <div className="flex flex-col min-h-screen bg-[#F8FAFC]">
+    <div className="flex flex-col min-h-screen bg-bg-main">
       <Header />
 
       <main className="flex-grow container mx-auto px-6 py-10 max-w-7xl">
@@ -93,7 +93,6 @@ const UserSettingsPage = observer(() => {
           </div>
         ) : (
           <>
-            {/* HEADER */}
             <div className="mb-8">
               <div className="flex items-center gap-2 text-brand-blue mb-1">
                 <FaUserEdit size={14} />
@@ -107,7 +106,6 @@ const UserSettingsPage = observer(() => {
             </div>
 
             <div className="space-y-8">
-              {/* DADOS PESSOAIS */}
               <div className="bg-white rounded-2xl shadow-sm border border-slate-300 p-6 space-y-6">
                 <div>
                   <h2 className="text-xs font-bold uppercase tracking-widest text-slate-500">
@@ -116,7 +114,6 @@ const UserSettingsPage = observer(() => {
                 </div>
 
                 <div className="flex flex-col md:flex-row gap-6 items-center">
-                  {/* AVATAR */}
                   <div className="relative">
                     <div className="w-20 h-20 bg-brand-blue rounded-2xl text-white flex items-center justify-center text-2xl font-black select-none">
                       {draftName.charAt(0) || "?"}
@@ -135,7 +132,6 @@ const UserSettingsPage = observer(() => {
                     </button>
                   </div>
 
-                  {/* CAMPOS */}
                   <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
                       <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
@@ -200,7 +196,6 @@ const UserSettingsPage = observer(() => {
                 </div>
               </div>
 
-              {/* ALTERAR SENHA */}
               <div className="bg-white rounded-2xl shadow-sm border border-slate-300 p-6 space-y-4">
                 <h2 className="text-xs font-bold uppercase tracking-widest text-slate-500">
                   Alterar Senha
@@ -253,7 +248,6 @@ const UserSettingsPage = observer(() => {
                 </button>
               </div>
 
-              {/* EXCLUSÃO */}
               <div className="bg-red-50 border border-red-200 rounded-2xl p-6">
                 <button
                   onClick={() => setDeleteAccountOpen(true)}
