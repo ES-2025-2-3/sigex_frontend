@@ -16,13 +16,13 @@ export const booking_mock = [
     bookerId: 1,
     roomIds: [3],
     eventId: 10, 
-    date: "2026-03-03",
+    date: "2026-02-03",
     shift: BookingShift.TARDE, 
     status: BookingStatus.APROVADA, 
   },
   {
     id: 103,
-    bookerId: 12,
+    bookerId: 1,
     roomIds: [5, 6],
     eventId: 1, 
     date: "2026-03-18",
@@ -31,7 +31,7 @@ export const booking_mock = [
   },
   {
     id: 104,
-    bookerId: 13,
+    bookerId: 1,
     roomIds: [10],
     eventId: 12, 
     date: "2026-04-20",
@@ -58,7 +58,7 @@ export const booking_mock = [
   },
   {
     id: 113,
-    bookerId: 22,
+    bookerId: 1,
     roomIds: [4, 5],
     eventId: 11, 
     date: "2026-08-15",
@@ -130,7 +130,7 @@ export const booking_mock = [
   },
   {
     id: 112,
-    bookerId: 21,
+    bookerId: 1,
     roomIds: [12],
     eventId: 9, 
     date: "2026-12-02",
