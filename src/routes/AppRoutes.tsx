@@ -12,6 +12,9 @@ import ProtectedRoute from "./ProtectedRoute";
 import AdminDashboardPage from "../pages/admin/AdminDashboardPage";
 import ReservationPage from "../pages/user/UserBookingPage";
 import ConfigurationPage from "../pages/user/UserSettingsPage";
+import ForgotPasswordEmailPage from "../pages/login/forgotPassword/ForgotPasswordEmailPage";
+import ForgotPasswordCodePage from "../pages/login/forgotPassword/ForgotPasswordCodePage";
+import ForgotPasswordNewPasswordPage from "../pages/login/forgotPassword/ForgotPasswordNewPasswordPage";
 
 const AppRoutes = () => {
   return (
@@ -22,6 +25,9 @@ const AppRoutes = () => {
       <Route path="/reserva" element={<BookingRequestPage />} />
       <Route path="/sobre" element={<AboutPage />} />
       <Route path="/login" element={<LoginPage />} />
+      <Route path="/recuperar-senha" element={<ForgotPasswordEmailPage />} />
+      <Route path="/recuperar-senha/codigo" element={<ForgotPasswordCodePage />} />
+      <Route path="/recuperar-senha/nova-senha" element={<ForgotPasswordNewPasswordPage />} />
       <Route path="/cadastro" element={<RegisterPage />} />
       <Route path="/usuario/reservas" element={<ReservationPage />} />
       <Route path="/usuario/configuracoes" element={<ConfigurationPage />} />
