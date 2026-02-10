@@ -13,6 +13,7 @@ import AdminDashboardPage from "../pages/admin/AdminDashboardPage";
 import UserBookingPage from "../pages/user/UserBookingPage";
 import UserRequestPage from "../pages/user/UserRequestPage";
 import ConfigurationPage from "../pages/user/UserSettingsPage";
+import AdminProfilePage from "../pages/admin/AdminProfilePage";
 import ForgotPasswordEmailPage from "../pages/login/forgotPassword/ForgotPasswordEmailPage";
 import ForgotPasswordCodePage from "../pages/login/forgotPassword/ForgotPasswordCodePage";
 import ForgotPasswordNewPasswordPage from "../pages/login/forgotPassword/ForgotPasswordNewPasswordPage";
@@ -44,6 +45,7 @@ const AppRoutes = () => {
       {/* Rotas do Administrador */}
       <Route element={<ProtectedRoute />}>
         <Route path="/admin" element={<AdminDashboardPage />} />
+        <Route path="/admin/perfil" element={<AdminProfilePage />} />
       </Route>
     </Routes>
   );
