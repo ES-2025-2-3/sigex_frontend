@@ -13,7 +13,9 @@ const Header: React.FC = observer(() => {
 
   const isLoggedIn = userSessionStore.isLoggedIn;
   const user = userSessionStore.user;
-  const isInsideAdminPanel = location.pathname.startsWith("/admin");
+  const isInsideAdminPanel =
+    location.pathname.startsWith("/admin") &&
+    !location.pathname.startsWith("/admin/perfil");
   const isAdminUser = user && String(user.type).toUpperCase() === "ADMIN";
 
   const navTextStyle = "text-[0.80rem] font-black uppercase tracking-[0.15em]";

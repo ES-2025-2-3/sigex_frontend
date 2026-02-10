@@ -6,9 +6,8 @@ import UserDomain from "../src/domain/user/UserDomain";
  */
 export const mockUser = new UserDomain({
   id: 1,
-  name: "Nicole Brito Maracajá",
-  email: "nicole.brito.maracaja@ccc.ufcg.edu.br",
-  username: "nicole.maracaja",
-  registrationNumber: "123111413",
-  type: UserType.DOCENTE,
+  name: "Administrador",
+  email: "administradorsistema@ufcg.edu.br",
+  username: "administrador",
+  type: UserType.ADMIN,
 });
