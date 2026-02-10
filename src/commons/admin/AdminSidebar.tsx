@@ -35,7 +35,7 @@ const AdminSidebar: React.FC = () => {
             <button
               key={item.id}
               onClick={() => navigate(item.path)}
-              className={`w-full flex items-center gap-5 px-6 py-5 rounded-2xl font-black text-[13px] uppercase tracking-widest transition-all group
+              className={`w-full flex items-center gap-5 px-6 py-5 rounded-2xl font-black text-[13px] uppercase cursor-pointer tracking-widest transition-all group
                 ${isActive ? "bg-brand-blue text-white shadow-xl scale-[1.02]" : "text-slate-400 hover:bg-white/5 hover:text-white"}`}
             >
               <span className="text-xl">{item.icon}</span>
@@ -56,7 +56,7 @@ const AdminSidebar: React.FC = () => {
             </p>
             <button
               onClick={() => navigate("/")}
-              className="text-[10px] font-black text-slate-500 hover:text-red-400 uppercase flex items-center gap-1 transition-all mt-1"
+              className="text-[10px] font-black text-slate-500 hover:text-red-400 uppercase cursor-pointer flex items-center gap-1 transition-all mt-1"
             >
               <FaSignOutAlt size={10} /> Sair do Painel
             </button>

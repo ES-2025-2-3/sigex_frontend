@@ -20,7 +20,10 @@ const AppRoutes = () => {
       <Route path="/eventos" element={<EventsPage/>} />
       <Route path="/reserva" element={<BookingRequestPage />} />
       <Route path="/sobre" element={<AboutPage />} />
+
+      {/* Rotas de Entrada no Sistema */}
       <Route path="/login" element={<LoginPage />} />
+      <Route path="/cadastro" element={<RegisterPage />} />
       <Route path="/recuperar-senha" element={<ForgotPasswordEmailPage />} />
       <Route path="/recuperar-senha/codigo" element={<ForgotPasswordCodePage />} />
       <Route path="/recuperar-senha/nova-senha" element={<ForgotPasswordNewPasswordPage />} />

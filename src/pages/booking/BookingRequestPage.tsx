@@ -220,7 +220,7 @@ const BookingRequestPage = observer(() => {
                   </div>
                   <h2 className="text-4xl font-black text-brand-dark uppercase tracking-tighter italic">Solicitado!</h2>
                   <p className="text-slate-400 mt-4 max-w-sm mx-auto">Sua reserva foi encaminhada. Você será notificado por e-mail após a análise do administrador.</p>
-                  <button onClick={() => navigate("/")} className="text-brand-blue font-black transition-all text-xs uppercase tracking-widest flex items-center gap-2 mx-auto hover:underline">
+                  <button onClick={() => navigate("/")} className="text-brand-blue font-black transition-all text-xs uppercase tracking-widest flex items-center gap-2 mx-auto hover:underline cursor-pointer">
                     <FaArrowLeft size={10} /> Voltar ao Início
                   </button>
                 </div>
@@ -231,7 +231,7 @@ const BookingRequestPage = observer(() => {
               <div className="mt-auto pt-10 flex justify-between items-center border-t border-slate-50">
                 <button
                   onClick={() => (step === 1 ? navigate("/") : setStep((s) => s - 1))}
-                  className="flex items-center gap-3 text-slate-400 hover:text-brand-dark font-black transition-all text-xs uppercase tracking-widest"
+                  className="flex items-center gap-3 text-slate-400 hover:text-brand-dark font-black transition-all text-xs uppercase tracking-widest cursor-pointer"
                 >
                   <FaArrowLeft size={10} /> {step === 1 ? "Cancelar" : "Voltar"}
                 </button>

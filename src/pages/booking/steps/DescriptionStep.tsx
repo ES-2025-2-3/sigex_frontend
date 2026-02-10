@@ -56,7 +56,7 @@ const DescriptionStep: React.FC<Props> = observer(({ tags }) => {
             <button
               type="button"
               onClick={() => (eDomain.isPublic = true)}
-              className={`flex items-center justify-center gap-3 p-5 rounded-[2rem] border-2 transition-all font-bold text-xs uppercase
+              className={`flex items-center justify-center gap-3 p-5 rounded-[2rem] border-2 transition-all font-bold text-xs uppercase cursor-pointer
                 ${eDomain.isPublic ? "border-brand-blue bg-blue-50 text-brand-blue shadow-md" : "border-slate-100 text-slate-400"}`}
             >
               <FaEye /> Sim, divulgar
@@ -64,7 +64,7 @@ const DescriptionStep: React.FC<Props> = observer(({ tags }) => {
             <button
               type="button"
               onClick={() => (eDomain.isPublic = false)}
-              className={`flex items-center justify-center gap-3 p-5 rounded-[2rem] border-2 transition-all font-bold text-xs uppercase
+              className={`flex items-center justify-center gap-3 p-5 rounded-[2rem] border-2 transition-all font-bold text-xs uppercase cursor-pointer
                 ${!eDomain.isPublic ? "border-slate-400 bg-slate-100 text-slate-600 shadow-md" : "border-slate-100 text-slate-400"}`}
             >
               <FaEyeSlash /> Não, privado

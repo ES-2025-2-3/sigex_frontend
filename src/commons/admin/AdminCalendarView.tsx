@@ -71,13 +71,13 @@ const AdminCalendarView: React.FC = observer(() => {
           <div className="flex gap-2">
             <button
               onClick={() => setViewDate(new Date(year, month - 1, 1))}
-              className="p-3 bg-white/50 hover:bg-white rounded-xl text-slate-500 shadow-sm transition-all"
+              className="p-3 bg-white/50 hover:bg-white rounded-xl text-slate-500 cursor-pointer shadow-sm transition-all"
             >
               <FaChevronLeft size={14} />
             </button>
             <button
               onClick={() => setViewDate(new Date(year, month + 1, 1))}
-              className="p-3 bg-white/50 hover:bg-white rounded-xl text-slate-500 shadow-sm transition-all"
+              className="p-3 bg-white/50 hover:bg-white rounded-xl text-slate-500 cursor-pointer shadow-sm transition-all"
             >
               <FaChevronRight size={14} />
             </button>

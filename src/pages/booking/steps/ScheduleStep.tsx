@@ -102,7 +102,7 @@ const ScheduleStep: React.FC<Props> = observer(({ occupationData }) => {
                   type="button"
                   onClick={() => (bDomain.shift = s)}
                   className={`p-6 rounded-3xl border-2
-                    flex items-center justify-between
+                    flex items-center justify-between cursor-pointer
                     transition-all duration-200
                     ${
                       selected

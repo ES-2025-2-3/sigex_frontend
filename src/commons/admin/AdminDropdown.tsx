@@ -24,33 +24,33 @@ const AdminDropdown: React.FC = () => {
       >
         <FaUserShield className="text-brand-blue" />
         <span className="text-white text-sm font-bold">Admin</span>
-        <FaChevronDown className={`text-white text-[10px] transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+        <FaChevronDown className={`text-white text-[10px] cursor-pointer transition-transform ${isOpen ? 'rotate-180' : ''}`} />
       </button>
 
       {isOpen && (
         <>
           <div 
-            className="fixed inset-0 z-[1000]" 
+            className="fixed inset-0 z-[1000] cursor-pointer" 
             onClick={() => setIsOpen(false)}
           ></div>
 
           <div className="absolute right-0 mt-3 w-52 bg-white rounded-2xl shadow-2xl p-2 z-[1001] animate-in fade-in slide-in-from-top-2">
             <button 
               onClick={handleGoToPanel}
-              className="w-full flex items-center gap-3 px-4 py-3 text-xs font-black text-brand-blue hover:bg-blue-50 rounded-xl transition-all uppercase tracking-tighter"
+              className="w-full flex items-center gap-3 px-4 py-3 text-xs font-black text-brand-blue cursor-pointer hover:bg-blue-50 rounded-xl transition-all uppercase tracking-tighter"
             >
               <FaChartPie /> ACESSAR PAINEL
             </button>
             
             <div className="border-t border-slate-100 my-1"></div>
             
-            <button className="w-full text-left px-4 py-3 text-xs font-bold text-slate-600 hover:bg-slate-50 rounded-xl">
+            <button className="w-full text-left px-4 py-3 text-xs font-bold text-slate-600 hover:bg-slate-50 rounded-xl cursor-pointer">
               Perfil de Admin
             </button>
             
             <button 
               onClick={handleLogout}
-              className="w-full flex items-center gap-3 px-4 py-3 text-xs font-black text-red-500 hover:bg-red-50 rounded-xl transition-all uppercase tracking-tighter"
+              className="w-full flex items-center gap-3 px-4 py-3 text-xs font-black text-red-500 hover:bg-red-50 cursor-pointer rounded-xl transition-all uppercase tracking-tighter"
             >
               <FaSignOutAlt /> Sair
             </button>

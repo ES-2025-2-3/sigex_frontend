@@ -2,11 +2,9 @@ export const event_mock = [
   {
     id: 1,
     title: "XVIII Encontro de Extensão (ENEX)",
-    date: "2026-03-18",
+    date: "2026-02-09",
     description:
       "O maior evento de extensão da universidade, reunindo projetos de diversas áreas para compartilhar resultados e experiências com a comunidade acadêmica e externa.",
-    imageUrl:
-      "https://images.unsplash.com/photo-1544531586-fde5298cdd40?auto=format&fit=crop&w=500",
     location: "Centro de Vivência",
     tags: ["Cultura", "Palestra"],
     registrationLink: "https://geas.ufcg.edu.br",
