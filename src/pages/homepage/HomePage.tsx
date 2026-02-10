@@ -74,7 +74,7 @@ const HomePage = observer(() => {
                 onKeyDown={(e) => e.key === "Enter" && handleSearch()}
               />
               <button
-                className="bg-brand-blue hover:bg-brand-blue-hover text-white px-8 py-3 md:py-0 rounded-lg md:rounded-full font-bold flex items-center justify-center gap-2 transition-colors"
+                className="bg-brand-blue hover:bg-brand-blue-hover text-white px-8 py-3 md:py-0 rounded-lg md:rounded-full font-bold flex items-center justify-center gap-2 transition-colors cursor-pointer"
                 onClick={handleSearch}
               >
                 <FaSearch /> Buscar
