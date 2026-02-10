@@ -10,6 +10,7 @@ import BookingRequestPage from "../pages/booking/BookingRequestPage";
 import NotFoundPage from "../pages/notfound/NotFoundPage";
 import ProtectedRoute from "./ProtectedRoute";
 import AdminDashboardPage from "../pages/admin/AdminDashboardPage";
+import AdminRequestPage from "../pages/admin/AdminRequestPage";
 import UserBookingPage from "../pages/user/UserBookingPage";
 import UserRequestPage from "../pages/user/UserRequestPage";
 import ConfigurationPage from "../pages/user/UserSettingsPage";
@@ -46,6 +47,8 @@ const AppRoutes = () => {
       <Route element={<ProtectedRoute />}>
         <Route path="/admin" element={<AdminDashboardPage />} />
         <Route path="/admin/perfil" element={<AdminProfilePage />} />
+        <Route path="/admin/requests" element={<AdminRequestPage />} />
+        {/* outras rotas do admin aqui */}
       </Route>
     </Routes>
   );
