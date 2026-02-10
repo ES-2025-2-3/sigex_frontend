@@ -2,7 +2,7 @@ export const event_mock = [
   {
     id: 1,
     title: "XVIII Encontro de Extensão (ENEX)",
-    date: "2026-03-18",
+    date: "2026-02-09",
     description:
       "O maior evento de extensão da universidade, reunindo projetos de diversas áreas para compartilhar resultados e experiências com a comunidade acadêmica e externa.",
     location: "Centro de Vivência",

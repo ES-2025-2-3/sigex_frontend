@@ -25,7 +25,7 @@ export const booking_mock = [
     bookerId: 1,
     roomIds: [5, 6],
     eventId: 1, 
-    date: "2026-03-18",
+    date: "2026-02-09",
     shift: BookingShift.MANHA, 
     status: BookingStatus.APROVADA, 
   },
