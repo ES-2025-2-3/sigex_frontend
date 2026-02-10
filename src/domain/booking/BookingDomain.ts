@@ -7,6 +7,7 @@ class BookingDomain extends DomainBase {
   @observable accessor id: number | null = null;
   @observable accessor bookerId: number | null = null;
   @observable accessor roomIds: number[] = [];
+  @observable accessor equipmentIds: number[] = [];
   @observable accessor eventId: number | null = null;
   @observable accessor date = "";
   @observable accessor shift: BookingShift | null = null;

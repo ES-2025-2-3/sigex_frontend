@@ -16,8 +16,10 @@ import ScheduleStep from "./steps/ScheduleStep";
 import LocationStep from "./steps/LocationStep";
 import DescriptionStep from "./steps/DescriptionStep";
 import MediaStep from "./steps/MediaStep";
+import TermsStep from "./steps/TermsStep";
 
 import { room_mock } from "../../../mock/room";
+import { equipament_mock } from "../../../mock/equipament";
 import { event_mock } from "../../../mock/event";
 
 const occupationData = event_mock.reduce<Record<string, string>>(
@@ -34,6 +36,7 @@ const BookingRequestPage = observer(() => {
 
   const [step, setStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [termsAccepted, setTermsAccepted] = useState(false);
   const [toastConfig, setToastConfig] = useState<{
     type: ToastType;
     message: string;
@@ -52,7 +55,7 @@ const BookingRequestPage = observer(() => {
   ];
 
   const isPublic = eDomain.isPublic;
-  const lastStep = isPublic ? 4 : 3;
+  const lastStep = isPublic ? 5 : 4;
 
   useEffect(() => {
     bookingFormStore.reset();
@@ -94,6 +97,13 @@ const BookingRequestPage = observer(() => {
       }
     }
 
+    if (step === (isPublic ? 5 : 4)) {
+      if (!termsAccepted) {
+        showToast("Você precisa aceitar os termos e condições.");
+        return false;
+      }
+    }
+
     return true;
   };
 
@@ -113,7 +123,7 @@ const BookingRequestPage = observer(() => {
       const success = await bookingFormStore.persist();
       if (success) {
         showToast("Solicitação enviada com sucesso!", "success");
-        setStep(5); 
+        setStep(isPublic ? 6 : 5); 
       } else {
         showToast("Não foi possível processar sua reserva agora.");
       }
@@ -166,6 +176,7 @@ const BookingRequestPage = observer(() => {
                   { label: "Local", num: 2 },
                   { label: "Detalhes", num: 3 },
                   ...(isPublic ? [{ label: "Mídia", num: 4 }] : []),
+                  { label: "Termos", num: isPublic ? 5 : 4 },
                 ].map((m) => (
                   <div key={m.num} className="flex items-center gap-4 group">
                     <div className={`w-10 h-10 rounded-2xl flex items-center justify-center font-bold transition-all border-2 
@@ -189,11 +200,20 @@ const BookingRequestPage = observer(() => {
           <div className="flex-1 p-8 md:p-16 bg-white relative flex flex-col">
             <div className="flex-1">
               {step === 1 && <ScheduleStep occupationData={occupationData} />}
-              {step === 2 && <LocationStep rooms={room_mock} />}
+              {step === 2 && <LocationStep rooms={room_mock} equipaments={equipament_mock} />}
               {step === 3 && <DescriptionStep tags={availableTags} />}
               {step === 4 && isPublic && <MediaStep />}
+              {step === (isPublic ? 5 : 4) && (
+                <TermsStep 
+                  rooms={room_mock} 
+                  equipaments={equipament_mock} 
+                  onGoToStep={setStep}
+                  termsAccepted={termsAccepted}
+                  onTermsChange={setTermsAccepted}
+                />
+              )}
 
-              {step === 5 && (
+              {step === (isPublic ? 6 : 5) && (
                 <div className="text-center py-20 space-y-10 animate-step h-full flex flex-col justify-center">
                   <div className="w-32 h-32 bg-green-500 text-white rounded-[2.5rem] flex items-center justify-center text-5xl mx-auto shadow-2xl animate-bounce">
                     <FaCheckCircle />
@@ -207,7 +227,7 @@ const BookingRequestPage = observer(() => {
               )}
             </div>
 
-            {step < 5 && (
+            {step < (isPublic ? 6 : 5) && (
               <div className="mt-auto pt-10 flex justify-between items-center border-t border-slate-50">
                 <button
                   onClick={() => (step === 1 ? navigate("/") : setStep((s) => s - 1))}
@@ -218,15 +238,15 @@ const BookingRequestPage = observer(() => {
 
                 <div className="flex items-center gap-6">
                   <p className="hidden sm:block text-[10px] font-black text-slate-200 uppercase tracking-widest">
-                    Passo {step} de {lastStep}
+                    Passo {step} de {lastStep + 1}
                   </p>
                   <Button
                     variant="primary"
-                    disabled={isSubmitting}
+                    disabled={isSubmitting || (step === (isPublic ? 5 : 4) && !termsAccepted)}
                     className="rounded-3xl px-12 py-5 font-black text-xs uppercase tracking-widest shadow-xl shadow-brand-blue/20 hover:scale-105 active:scale-95 transition-all"
                     onClick={handleNext}
                   >
-                    {isSubmitting ? "Enviando..." : step === lastStep ? "Enviar Solicitação" : "Próximo Passo"}
+                    {isSubmitting ? "Enviando..." : step === lastStep + 1 ? "Enviar Solicitação" : "Próximo Passo"}
                   </Button>
                 </div>
               </div>

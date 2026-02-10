@@ -11,9 +11,9 @@ const AdminSidebar: React.FC = () => {
   const menuItems = [
     { id: "dashboard", label: "Dashboard", icon: <FaChartLine />, path: "/admin" },
     { id: "requests", label: "Solicitações", icon: <FaRegCalendarCheck />, path: "/admin/requests" },
-    { id: "spaces", label: "Espaços", icon: <FaLayerGroup />, path: "/admin/spaces" },
+    { id: "spaces", label: "Espaços", icon: <FaLayerGroup />, path: "/admin/espacos" },
     { id: "users", label: "Usuários", icon: <FaUsers />, path: "/admin/users" },
-    { id: "settings", label: "Configurações", icon: <FaCog />, path: "/admin/settings" },
+    { id: "settings", label: "Configurações", icon: <FaCog />, path: "/admin/configuracoes" },
   ];
 
   return (

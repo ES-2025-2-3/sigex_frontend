@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { FaEdit, FaTrash } from 'react-icons/fa';
 import AdminSidebar from '../../commons/admin/AdminSidebar';
 import Header from '../../commons/header/Header';
 import Footer from '../../commons/footer/Footer';
@@ -15,31 +16,115 @@ const SpacesPage: React.FC = () => {
 
   const [roomForm, setRoomForm] = useState({ name: '', block: '', capacity: '' });
   const [equipForm, setEquipForm] = useState({ name: '', type: '' });
+  
+  const [editingRoomId, setEditingRoomId] = useState<number | null>(null);
+  const [editingEquipId, setEditingEquipId] = useState<number | null>(null);
+
 
   function addRoom(e: React.FormEvent) {
     e.preventDefault();
-    const next = {
-      id: Date.now(),
-      name: roomForm.name || 'Novo Espaço',
-      block: roomForm.block || '-',
-      capacity: Number(roomForm.capacity) || 0,
-    };
-    setRooms((s) => [next, ...s]);
+    if (editingRoomId) {
+      setRooms((s) =>
+        s.map((r) =>
+          r.id === editingRoomId
+            ? {
+                ...r,
+                name: roomForm.name || r.name,
+                block: roomForm.block || r.block,
+                capacity: Number(roomForm.capacity) || r.capacity,
+              }
+            : r
+        )
+      );
+      setEditingRoomId(null);
+    } else {
+      const next = {
+        id: Date.now(),
+        name: roomForm.name || 'Novo Espaço',
+        block: roomForm.block || '-',
+        capacity: Number(roomForm.capacity) || 0,
+      };
+      setRooms((s) => [next, ...s]);
+    }
     setRoomForm({ name: '', block: '', capacity: '' });
     setOpenRoomModal(false);
   }
 
+  function deleteRoom(id: number) {
+    if (confirm('Tem certeza que deseja remover este espaço?')) {
+      setRooms((s) => s.filter((r) => r.id !== id));
+    }
+  }
+
+  function editRoom(room: any) {
+    setEditingRoomId(room.id);
+    setRoomForm({ name: room.name, block: room.block, capacity: String(room.capacity) });
+    setOpenRoomModal(true);
+  }
+
   function addEquip(e: React.FormEvent) {
     e.preventDefault();
-    const next = {
-      id: Date.now(),
-      name: equipForm.name || 'Novo Material',
-      type: equipForm.type || 'Outro',
-    };
-    setEquipaments((s) => [next, ...s]);
+    if (editingEquipId) {
+      setEquipaments((s) =>
+        s.map((eq) =>
+          eq.id === editingEquipId
+            ? {
+                ...eq,
+                name: equipForm.name || eq.name,
+                type: equipForm.type || eq.type,
+              }
+            : eq
+        )
+      );
+      setEditingEquipId(null);
+    } else {
+      const next = {
+        id: Date.now(),
+        name: equipForm.name || 'Novo Material',
+        type: equipForm.type || 'Outro',
+      };
+      setEquipaments((s) => [next, ...s]);
+    }
     setEquipForm({ name: '', type: '' });
     setOpenEquipModal(false);
   }
+
+  function deleteEquip(id: number) {
+    if (confirm('Tem certeza que deseja remover este material?')) {
+      setEquipaments((s) => s.filter((eq) => eq.id !== id));
+    }
+  }
+
+  function editEquip(equip: any) {
+    setEditingEquipId(equip.id);
+    setEquipForm({ name: equip.name, type: equip.type });
+    setOpenEquipModal(true);
+  }
+
+  function openNewRoomModal() {
+    setEditingRoomId(null);
+    setRoomForm({ name: '', block: '', capacity: '' });
+    setOpenRoomModal(true);
+  }
+
+  function openNewEquipModal() {
+    setEditingEquipId(null);
+    setEquipForm({ name: '', type: '' });
+    setOpenEquipModal(true);
+  }
+
+  function closeRoomModal() {
+    setOpenRoomModal(false);
+    setEditingRoomId(null);
+    setRoomForm({ name: '', block: '', capacity: '' });
+  }
+
+  function closeEquipModal() {
+    setOpenEquipModal(false);
+    setEditingEquipId(null);
+    setEquipForm({ name: '', type: '' });
+  }
+
 
   return (
     <div className="flex min-h-screen bg-[#f8fafc] w-full font-inter">
@@ -58,7 +143,7 @@ const SpacesPage: React.FC = () => {
             <section className="space-y-4">
               <div className="flex justify-between items-center">
                 <h2 className="text-lg font-black text-slate-600">Espaços Cadastrados</h2>
-                <Button onClick={() => setOpenRoomModal(true)}>+ Novo</Button>
+                <Button onClick={openNewRoomModal}>+ Novo</Button>
               </div>
 
               <div className="bg-white rounded-2xl shadow-md p-4">
@@ -73,11 +158,26 @@ const SpacesPage: React.FC = () => {
                   </thead>
                   <tbody>
                     {rooms.map((r) => (
-                      <tr key={r.id} className="border-t last:border-b hover:bg-slate-50">
+                      <tr key={r.id} className="hover:bg-slate-50 transition-colors">
                         <td className="py-3 px-4 text-slate-700">{r.name}</td>
                         <td className="py-3 px-4 text-slate-500">{r.block}</td>
                         <td className="py-3 px-4 text-slate-500">{r.capacity}</td>
-                        <td className="py-3 px-4 text-slate-500">—</td>
+                        <td className="py-3 px-4 text-slate-500 flex gap-3">
+                          <button
+                            onClick={() => editRoom(r)}
+                            className="text-brand-blue hover:text-brand-blue/80 transition-colors"
+                            title="Editar"
+                          >
+                            <FaEdit size={16} />
+                          </button>
+                          <button
+                            onClick={() => deleteRoom(r.id)}
+                            className="text-red-500 hover:text-red-700 transition-colors"
+                            title="Remover"
+                          >
+                            <FaTrash size={16} />
+                          </button>
+                        </td>
                       </tr>
                     ))}
                   </tbody>
@@ -88,7 +188,7 @@ const SpacesPage: React.FC = () => {
             <section className="space-y-4">
               <div className="flex justify-between items-center">
                 <h2 className="text-lg font-black text-slate-600">Materiais fornecidos</h2>
-                <Button onClick={() => setOpenEquipModal(true)}>+ Novo</Button>
+                <Button onClick={openNewEquipModal}>+ Novo</Button>
               </div>
 
               <div className="bg-white rounded-2xl shadow-md p-4">
@@ -102,10 +202,25 @@ const SpacesPage: React.FC = () => {
                   </thead>
                   <tbody>
                     {equipaments.map((e) => (
-                      <tr key={e.id} className="border-t last:border-b hover:bg-slate-50">
+                      <tr key={e.id} className="hover:bg-slate-50 transition-colors">
                         <td className="py-3 px-4 text-slate-700">{e.name}</td>
                         <td className="py-3 px-4 text-slate-500">{e.type}</td>
-                        <td className="py-3 px-4 text-slate-500">—</td>
+                        <td className="py-3 px-4 text-slate-500 flex gap-3">
+                          <button
+                            onClick={() => editEquip(e)}
+                            className="text-brand-blue hover:text-brand-blue/80 transition-colors"
+                            title="Editar"
+                          >
+                            <FaEdit size={16} />
+                          </button>
+                          <button
+                            onClick={() => deleteEquip(e.id)}
+                            className="text-red-500 hover:text-red-700 transition-colors"
+                            title="Remover"
+                          >
+                            <FaTrash size={16} />
+                          </button>
+                        </td>
                       </tr>
                     ))}
                   </tbody>
@@ -117,7 +232,7 @@ const SpacesPage: React.FC = () => {
         <Footer />
       </div>
 
-      <Modal isOpen={openRoomModal} title="Novo Espaço" onClose={() => setOpenRoomModal(false)}>
+      <Modal isOpen={openRoomModal} title={editingRoomId ? "Editar Espaço" : "Novo Espaço"} onClose={closeRoomModal}>
         <form onSubmit={addRoom} className="space-y-4">
           <div>
             <label className="block text-sm font-semibold text-slate-700">Nome</label>
@@ -132,13 +247,13 @@ const SpacesPage: React.FC = () => {
             <input value={roomForm.capacity} onChange={(e) => setRoomForm({ ...roomForm, capacity: e.target.value })} type="number" className="w-full mt-2 p-2 border rounded-md" />
           </div>
           <div className="flex justify-end">
-            <Button variant="outline" onClick={() => setOpenRoomModal(false)}>Cancelar</Button>
-            <Button type="submit" className="ml-3">Salvar</Button>
+            <Button variant="outline" onClick={closeRoomModal}>Cancelar</Button>
+            <Button type="submit" className="ml-3">{editingRoomId ? "Atualizar" : "Salvar"}</Button>
           </div>
         </form>
       </Modal>
 
-      <Modal isOpen={openEquipModal} title="Novo Material" onClose={() => setOpenEquipModal(false)}>
+      <Modal isOpen={openEquipModal} title={editingEquipId ? "Editar Material" : "Novo Material"} onClose={closeEquipModal}>
         <form onSubmit={addEquip} className="space-y-4">
           <div>
             <label className="block text-sm font-semibold text-slate-700">Nome</label>
@@ -149,8 +264,8 @@ const SpacesPage: React.FC = () => {
             <input value={equipForm.type} onChange={(e) => setEquipForm({ ...equipForm, type: e.target.value })} className="w-full mt-2 p-2 border rounded-md" />
           </div>
           <div className="flex justify-end">
-            <Button variant="outline" onClick={() => setOpenEquipModal(false)}>Cancelar</Button>
-            <Button type="submit" className="ml-3">Salvar</Button>
+            <Button variant="outline" onClick={closeEquipModal}>Cancelar</Button>
+            <Button type="submit" className="ml-3">{editingEquipId ? "Atualizar" : "Salvar"}</Button>
           </div>
         </form>
       </Modal>

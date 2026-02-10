@@ -25,8 +25,8 @@ const AppRoutes = () => {
       <Route path="/eventos/:id" element={<EventDetailsPage />} />
       <Route path="/admin" element={<ProtectedRoute />}>
         <Route index element={<AdminDashboardPage/>} />
-        <Route path="spaces" element={<SpacesPage/>} />
-        <Route path="settings" element={<SettingsPage/>} />
+        <Route path="espacos" element={<SpacesPage/>} />
+        <Route path="configuracoes" element={<SettingsPage/>} />
       </Route>
       <Route path="*" element={<NotFoundPage />} />
     </Routes>

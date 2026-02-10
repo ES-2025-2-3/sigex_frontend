@@ -10,5 +10,5 @@ export const mockUser = new UserDomain({
   email: "nicole.brito.maracaja@ccc.ufcg.edu.br",
   username: "nicole.maracaja",
   registrationNumber: "123111413",
-  type: UserType.ADMIN,
+  type: UserType.DOCENTE,
 });
