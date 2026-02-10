@@ -31,7 +31,7 @@ type ConfirmAction = "APPROVE" | "REJECT";
 
 const ITEMS_PER_PAGE = 6;
 
-const AdminSolicitacoesPage = observer(() => {
+const AdminRequestPage = observer(() => {
   const getEventTitle = (eventId: number): string => {
     const event = event_mock.find((e) => e.id === eventId);
     return event ? event.title : "Evento desconhecido";
@@ -205,7 +205,7 @@ const AdminSolicitacoesPage = observer(() => {
                     <button
                       key={status}
                       onClick={() => handleStatusChange(status)}
-                      className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition ${statusFilter === status
+                      className={`cursor-pointer px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition ${statusFilter === status
                         ? "bg-brand-blue text-white"
                         : "bg-white border border-slate-200 text-slate-500 hover:bg-slate-50"
                         }`}
@@ -283,7 +283,7 @@ const AdminSolicitacoesPage = observer(() => {
                               <button
                                 disabled={b.status !== BookingStatus.SOLICITADA}
                                 onClick={() => openApproveConfirm(b)}
-                                className="p-2 rounded-lg text-emerald-600 hover:bg-emerald-50 disabled:opacity-40"
+                                className="cursor-pointer p-2 rounded-lg text-emerald-600 hover:bg-emerald-50 disabled:opacity-40"
                               >
                                 <FaCheck />
                               </button>
@@ -291,7 +291,7 @@ const AdminSolicitacoesPage = observer(() => {
                               <button
                                 disabled={b.status !== BookingStatus.SOLICITADA}
                                 onClick={() => openRejectConfirm(b)}
-                                className="p-2 rounded-lg text-red-600 hover:bg-red-50 disabled:opacity-40"
+                                className="cursor-pointer p-2 rounded-lg text-red-600 hover:bg-red-50 disabled:opacity-40"
                               >
                                 <FaTimes />
                               </button>
@@ -301,7 +301,7 @@ const AdminSolicitacoesPage = observer(() => {
                                   setSelectedBooking(b);
                                   setIsDetailsModalOpen(true);
                                 }}
-                                className="p-2 rounded-lg text-slate-400 hover:text-brand-blue">
+                                className="cursor-pointer p-2 rounded-lg text-slate-400 hover:text-brand-blue">
                                 <FaEye />
                               </button>
                             </div>
@@ -399,7 +399,7 @@ const AdminSolicitacoesPage = observer(() => {
                   <button
                     onClick={() => handleApprove(selectedBooking)}
                     className="
-        flex-1 py-3 rounded-xl
+        flex-1 py-3 rounded-xl cursor-pointer
         bg-emerald-600 text-white
         text-sm font-bold
         shadow-sm
@@ -415,7 +415,7 @@ const AdminSolicitacoesPage = observer(() => {
                   <button
                     onClick={() => handleReject(selectedBooking)}
                     className="
-        flex-1 py-3 rounded-xl
+        flex-1 py-3 rounded-xl cursor-pointer
         bg-red-600 text-white
         text-sm font-bold
         shadow-sm
@@ -433,7 +433,7 @@ const AdminSolicitacoesPage = observer(() => {
 
               <button
                 onClick={() => setIsDetailsModalOpen(false)}
-                className="w-full py-3.5 bg-slate-900 text-white rounded-xl font-bold hover:bg-slate-800 transition-all text-sm shadow-xl shadow-slate-200"
+                className="w-full cursor-pointer py-3.5 bg-slate-900 text-white rounded-xl font-bold hover:bg-slate-800 transition-all text-sm shadow-xl shadow-slate-200"
               >
                 Fechar
               </button>
@@ -477,14 +477,14 @@ const AdminSolicitacoesPage = observer(() => {
             <div className="flex gap-3">
               <button
                 onClick={() => setIsConfirmModalOpen(false)}
-                className="flex-1 py-3 rounded-xl bg-slate-100 text-slate-700 font-bold hover:bg-slate-200 transition"
+                className="cursor-pointer flex-1 py-3 rounded-xl bg-slate-100 text-slate-700 font-bold hover:bg-slate-200 transition"
               >
                 Cancelar
               </button>
 
               <button
                 onClick={handleConfirmAction}
-                className={`flex-1 py-3 rounded-xl text-white font-bold transition
+                className={`cursor-pointer flex-1 py-3 rounded-xl text-white font-bold transition
           ${confirmAction === "APPROVE"
                     ? "bg-emerald-600 hover:bg-emerald-700"
                     : "bg-red-600 hover:bg-red-700"}`}
@@ -500,4 +500,4 @@ const AdminSolicitacoesPage = observer(() => {
   );
 });
 
-export default AdminSolicitacoesPage;
+export default AdminRequestPage;

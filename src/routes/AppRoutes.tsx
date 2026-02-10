@@ -10,7 +10,7 @@ import BookingRequestPage from "../pages/booking/BookingRequestPage";
 import NotFoundPage from "../pages/notfound/NotFoundPage";
 import ProtectedRoute from "./ProtectedRoute";
 import AdminDashboardPage from "../pages/admin/AdminDashboardPage";
-import AdminSolicitacoesPage from "../pages/admin/AdminSolicitacoesPage";
+import AdminSolicitacoesPage from "../pages/admin/AdminRequestPage";
 import ReservationPage from "../pages/user/UserBookingPage";
 
 const AppRoutes = () => {
