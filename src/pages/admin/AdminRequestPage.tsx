@@ -169,7 +169,7 @@ const AdminRequestPage = observer(() => {
   };
 
   return (
-    <div className="flex min-h-screen bg-[#f8fafc] w-full font-inter">
+    <div className="flex min-h-screen bg-bg-main w-full font-inter">
       {toast && (
         <Toast
           type={toast.type}
