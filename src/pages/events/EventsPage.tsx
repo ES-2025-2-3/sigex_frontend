@@ -139,7 +139,7 @@ const EventosPage = observer(() => {
         <div className="flex justify-between items-center mb-8">
           <button
             onClick={() => navigate("/")}
-            className="flex items-center gap-2 text-gray-400 hover:text-brand-blue font-bold transition-all group text-sm"
+            className="flex items-center gap-2 text-gray-400 hover:text-brand-blue font-bold transition-all group text-sm cursor-pointer"
           >
             <FaArrowLeft
               size={12}
@@ -149,7 +149,7 @@ const EventosPage = observer(() => {
           </button>
 
           <button
-            className="bg-brand-blue text-white px-6 py-2.5 rounded-xl font-bold hover:bg-brand-blue-hover transition shadow-lg shadow-brand-blue/20"
+            className="bg-brand-blue text-white px-6 py-2.5 rounded-xl font-bold hover:bg-brand-blue-hover transition shadow-lg shadow-brand-blue/20 cursor-pointer"
             onClick={() => navigate("/reserva")}
           >
             Solicitar Reserva
@@ -162,7 +162,7 @@ const EventosPage = observer(() => {
               setActiveTab("futuros");
               setCurrentPage(1);
             }}
-            className={`pb-4 flex items-center gap-2 font-bold text-sm transition-all relative ${activeTab === "futuros" ? "text-brand-blue" : "text-gray-400 hover:text-gray-600"}`}
+            className={`pb-4 flex items-center gap-2 font-bold text-sm cursor-pointer transition-all relative ${activeTab === "futuros" ? "text-brand-blue" : "text-gray-400 hover:text-gray-600"}`}
           >
             <FaCalendarCheck size={16} />
             PRÓXIMOS EVENTOS
@@ -175,7 +175,7 @@ const EventosPage = observer(() => {
               setActiveTab("encerrados");
               setCurrentPage(1);
             }}
-            className={`pb-4 flex items-center gap-2 font-bold text-sm transition-all relative ${activeTab === "encerrados" ? "text-brand-blue" : "text-gray-400 hover:text-gray-600"}`}
+            className={`pb-4 flex items-center gap-2 font-bold text-sm cursor-pointer transition-all relative ${activeTab === "encerrados" ? "text-brand-blue" : "text-gray-400 hover:text-gray-600"}`}
           >
             <FaHistory size={16} />
             EVENTOS ENCERRADOS
@@ -200,7 +200,7 @@ const EventosPage = observer(() => {
           <div className="relative">
             <button
               onClick={() => setIsFilterOpen(!isFilterOpen)}
-              className={`flex items-center h-full gap-2 px-6 py-3.5 rounded-2xl font-bold border transition-all ${
+              className={`flex items-center h-full gap-2 px-6 py-3.5 rounded-2xl font-bold border cursor-pointer transition-all ${
                 isFilterOpen || activeFiltersCount > 0
                   ? "bg-brand-blue text-white border-brand-blue shadow-lg shadow-brand-blue/20"
                   : "bg-white text-gray-600 border-gray-200 hover:bg-gray-50"
@@ -227,7 +227,7 @@ const EventosPage = observer(() => {
                   </span>
                   <button
                     onClick={() => setIsFilterOpen(false)}
-                    className="text-gray-300 hover:text-gray-600"
+                    className="text-gray-300 hover:text-gray-600 cursor-pointer"
                   >
                     <FaTimes size={16} />
                   </button>
@@ -247,7 +247,7 @@ const EventosPage = observer(() => {
                         data: selectedDate,
                       });
                     }}
-                    className="w-full bg-gray-50 border-none rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-brand-blue/20 outline-none"
+                    className="w-full bg-gray-50 border-none rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-brand-blue/20 outline-none cursor-pointer"
                   >
                     <option value="">Todas as categorias</option>
                     {allCategories?.map((cat) => (

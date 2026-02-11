@@ -21,7 +21,7 @@ const AdminDashboardPage = observer(() => {
   ).length;
 
   return (
-    <div className="flex min-h-screen bg-[#f8fafc] w-full font-inter">
+    <div className="flex min-h-screen bg-bg-main w-full font-inter">
       <AdminSidebar />
       <div className="flex-1 flex flex-col min-w-0">
         <Header />
