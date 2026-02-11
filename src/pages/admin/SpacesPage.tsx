@@ -5,6 +5,7 @@ import Header from '../../commons/header/Header';
 import Footer from '../../commons/footer/Footer';
 import Button from '../../commons/components/Button';
 import Modal from '../../commons/modal/Modal';
+import Toast from '../../commons/toast/Toast';
 import { room_mock } from '../../../mock/room';
 import { equipament_mock } from '../../../mock/equipament';
 
@@ -19,6 +20,12 @@ const SpacesPage: React.FC = () => {
   
   const [editingRoomId, setEditingRoomId] = useState<number | null>(null);
   const [editingEquipId, setEditingEquipId] = useState<number | null>(null);
+
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [confirmMessage, setConfirmMessage] = useState('');
+  const [confirmAction, setConfirmAction] = useState<(() => void) | null>(null);
+
+  const [toast, setToast] = useState({ open: false, type: 'success' as 'success' | 'error' | 'warning' | 'info', message: '' });
 
 
   function addRoom(e: React.FormEvent) {
@@ -37,6 +44,7 @@ const SpacesPage: React.FC = () => {
         )
       );
       setEditingRoomId(null);
+      setToast({ open: true, type: 'success', message: 'Espaço atualizado com sucesso' });
     } else {
       const next = {
         id: Date.now(),
@@ -45,15 +53,20 @@ const SpacesPage: React.FC = () => {
         capacity: Number(roomForm.capacity) || 0,
       };
       setRooms((s) => [next, ...s]);
+      setToast({ open: true, type: 'success', message: 'Espaço criado com sucesso' });
     }
     setRoomForm({ name: '', block: '', capacity: '' });
     setOpenRoomModal(false);
   }
 
   function deleteRoom(id: number) {
-    if (confirm('Tem certeza que deseja remover este espaço?')) {
+    setConfirmMessage('Tem certeza que deseja remover este espaço?');
+    setConfirmAction(() => () => {
       setRooms((s) => s.filter((r) => r.id !== id));
-    }
+      setToast({ open: true, type: 'success', message: 'Espaço removido' });
+      setConfirmOpen(false);
+    });
+    setConfirmOpen(true);
   }
 
   function editRoom(room: any) {
@@ -77,6 +90,7 @@ const SpacesPage: React.FC = () => {
         )
       );
       setEditingEquipId(null);
+      setToast({ open: true, type: 'success', message: 'Material atualizado com sucesso' });
     } else {
       const next = {
         id: Date.now(),
@@ -84,15 +98,20 @@ const SpacesPage: React.FC = () => {
         type: equipForm.type || 'Outro',
       };
       setEquipaments((s) => [next, ...s]);
+      setToast({ open: true, type: 'success', message: 'Material criado com sucesso' });
     }
     setEquipForm({ name: '', type: '' });
     setOpenEquipModal(false);
   }
 
   function deleteEquip(id: number) {
-    if (confirm('Tem certeza que deseja remover este material?')) {
+    setConfirmMessage('Tem certeza que deseja remover este material?');
+    setConfirmAction(() => () => {
       setEquipaments((s) => s.filter((eq) => eq.id !== id));
-    }
+      setToast({ open: true, type: 'success', message: 'Material removido' });
+      setConfirmOpen(false);
+    });
+    setConfirmOpen(true);
   }
 
   function editEquip(equip: any) {
@@ -269,6 +288,23 @@ const SpacesPage: React.FC = () => {
           </div>
         </form>
       </Modal>
+      <Modal isOpen={confirmOpen} title={"Confirmação"} onClose={() => setConfirmOpen(false)}>
+        <div className="space-y-4">
+          <p className="text-sm text-slate-700">{confirmMessage}</p>
+          <div className="flex justify-end">
+            <Button variant="outline" onClick={() => setConfirmOpen(false)}>Cancelar</Button>
+            <Button className="ml-3" onClick={() => { if (confirmAction) confirmAction(); }}>Confirmar</Button>
+          </div>
+        </div>
+      </Modal>
+
+      {toast.open && (
+        <Toast
+          type={toast.type}
+          message={toast.message}
+          onClose={() => setToast({ ...toast, open: false })}
+        />
+      )}
     </div>
   );
 };

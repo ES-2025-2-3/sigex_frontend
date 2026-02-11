@@ -2,6 +2,9 @@ import { Routes, Route } from "react-router-dom";
 
 import HomePage from "../pages/homepage/HomePage";
 import LoginPage from "../pages/login/LoginPage";
+import ForgotPasswordEmailPage from "../pages/login/forgotPassword/ForgotPasswordEmailPage";
+import ForgotPasswordCodePage from "../pages/login/forgotPassword/ForgotPasswordCodePage";
+import ForgotPasswordNewPasswordPage from "../pages/login/forgotPassword/ForgotPasswordNewPasswordPage";
 import AboutPage from "../pages/about/AboutPage";
 import RegisterPage from "../pages/register/RegisterPage";
 import EventsPage from '../pages/events/EventsPage';
