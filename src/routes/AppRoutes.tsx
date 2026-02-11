@@ -18,6 +18,7 @@ import ForgotPasswordEmailPage from "../pages/login/forgotPassword/ForgotPasswor
 import ForgotPasswordCodePage from "../pages/login/forgotPassword/ForgotPasswordCodePage";
 import ForgotPasswordNewPasswordPage from "../pages/login/forgotPassword/ForgotPasswordNewPasswordPage";
 import EditBookingPage from "../pages/user/EditRequestPage";
+import AdminUserPage from "../pages/admin/AdminUserPage";
 
 const AppRoutes = () => {
   return (
@@ -46,6 +47,7 @@ const AppRoutes = () => {
       <Route element={<ProtectedRoute />}>
         <Route path="/admin" element={<AdminDashboardPage />} />
         <Route path="/admin/requests" element={<AdminRequestPage />} />
+        <Route path="/admin/users" element={<AdminUserPage />} />
         {/* outras rotas do admin aqui */}
       </Route>
     </Routes>

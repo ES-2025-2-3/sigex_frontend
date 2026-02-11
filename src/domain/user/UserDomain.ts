@@ -1,6 +1,7 @@
 import { observable, action, makeObservable, computed } from "mobx";
 import DomainBase from "../DomainBase";
 import { UserType } from "../enums/UserType";
+import { UserStatus } from "../enums/UserStatus";
 
 class UserDomain extends DomainBase {
   @observable accessor id: number | null = null;
@@ -8,6 +9,7 @@ class UserDomain extends DomainBase {
   @observable accessor email = "";
   @observable accessor registrationNumber = "";
   @observable accessor type: UserType | null = null;
+  @observable accessor status: UserStatus = UserStatus.PENDENTE;
 
   constructor(user?: Record<string, unknown>) {
     super();
