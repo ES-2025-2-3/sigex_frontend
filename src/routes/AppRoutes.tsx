@@ -46,8 +46,8 @@ const AppRoutes = () => {
       {/* Rotas do Administrador */}
       <Route element={<ProtectedRoute />}>
         <Route path="/admin" element={<AdminDashboardPage />} />
-        <Route path="/admin/requests" element={<AdminRequestPage />} />
-        <Route path="/admin/users" element={<AdminUserPage />} />
+        <Route path="/admin/solicitacoes" element={<AdminRequestPage />} />
+        <Route path="/admin/usuarios" element={<AdminUserPage />} />
         {/* outras rotas do admin aqui */}
       </Route>
     </Routes>
