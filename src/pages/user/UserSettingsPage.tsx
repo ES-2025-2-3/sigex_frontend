@@ -6,14 +6,14 @@ import Footer from "../../commons/footer/Footer";
 import LoadingSpinner from "../../commons/components/LoadingSpinner";
 import UserBanner from "../../commons/user/UserBanner";
 import Modal from "../../commons/modal/Modal";
+import Toast, { ToastType } from "../../commons/toast/Toast";
 
 import { userSessionStore } from "../../store/user/UserSessionStore";
 import { UserType } from "../../domain/enums/UserType";
 
 import { FaUserEdit, FaEnvelope, FaTrashAlt } from "react-icons/fa";
 
-const USER_TYPE_LABEL: Record<UserType, string> = {
-  [UserType.ADMIN]: "Administrador",
+const USER_TYPE_LABEL: Partial<Record<UserType, string>> = {
   [UserType.DOCENTE]: "Docente",
   [UserType.SERVIDOR_TECNICO_ADMINISTRATIVO]:
     "Servidor Técnico-Administrativo",
@@ -42,6 +42,11 @@ const UserSettingsPage = observer(() => {
   const [deleteAccountOpen, setDeleteAccountOpen] = useState(false);
 
   const [deleteCountdown, setDeleteCountdown] = useState(5);
+
+  const [toast, setToast] = useState<{
+    type: ToastType;
+    message: string;
+  } | null>(null);
 
   useEffect(() => {
     const timer = setTimeout(() => setLoading(false), 600);
@@ -80,6 +85,59 @@ const UserSettingsPage = observer(() => {
     return () => clearInterval(interval);
   }, [deleteAccountOpen]);
 
+  function showToast(type: ToastType, message: string) {
+    setToast({ type, message });
+  }
+
+  function isValidEmail(value: string) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+  }
+
+  function validateProfile() {
+    if (!draftName.trim()) {
+      showToast("error", "O nome não pode estar em branco.");
+      return false;
+    }
+
+    if (!draftEmail.trim()) {
+      showToast("error", "O e-mail não pode estar em branco.");
+      return false;
+    }
+
+    if (!isValidEmail(draftEmail)) {
+      showToast("warning", "Informe um e-mail válido.");
+      return false;
+    }
+
+    return true;
+  }
+
+  function validatePassword() {
+    if (!draftCurrentPassword) {
+      showToast("error", "Informe a senha atual.");
+      return false;
+    }
+
+    if (draftNewPassword.length < 8) {
+      showToast("warning", "A nova senha deve ter no mínimo 8 caracteres.");
+      return false;
+    }
+
+    if (draftNewPassword !== draftConfirmPassword) {
+      showToast("warning", "As senhas novas não coincidem.");
+      return false;
+    }
+
+    // Placeholder backend
+    const senhaAtualCorreta = true;
+    if (!senhaAtualCorreta) {
+      showToast("error", "Senha atual incorreta.");
+      return false;
+    }
+
+    return true;
+  }
+
   return (
     <div className="flex flex-col min-h-screen bg-bg-main">
       <Header />
@@ -106,12 +164,11 @@ const UserSettingsPage = observer(() => {
             </div>
 
             <div className="space-y-8">
+              {/* Dados pessoais */}
               <div className="bg-white rounded-2xl shadow-sm border border-slate-300 p-6 space-y-6">
-                <div>
-                  <h2 className="text-xs font-bold uppercase tracking-widest text-slate-500">
-                    Dados Pessoais
-                  </h2>
-                </div>
+                <h2 className="text-xs font-bold uppercase tracking-widest text-slate-500">
+                  Dados Pessoais
+                </h2>
 
                 <div className="flex flex-col md:flex-row gap-6 items-center">
                   <div className="relative">
@@ -140,13 +197,7 @@ const UserSettingsPage = observer(() => {
                       <input
                         value={draftName}
                         onChange={(e) => setDraftName(e.target.value)}
-                        className="
-                          mt-1 w-full px-4 py-3 rounded-2xl
-                          bg-white border border-gray-200
-                          font-bold text-sm text-gray-700
-                          outline-none transition-all
-                          focus:ring-4 focus:ring-brand-blue/10
-                        "
+                        className="mt-1 w-full px-4 py-3 rounded-2xl bg-white border border-gray-200 font-bold text-sm text-gray-700 outline-none focus:ring-4 focus:ring-brand-blue/10"
                       />
                     </div>
 
@@ -168,13 +219,7 @@ const UserSettingsPage = observer(() => {
                         <input
                           value={draftEmail}
                           onChange={(e) => setDraftEmail(e.target.value)}
-                          className="
-                            pl-11 pr-4 py-3 w-full rounded-2xl
-                            bg-white border border-gray-200
-                            font-bold text-sm text-gray-700
-                            outline-none transition-all
-                            focus:ring-4 focus:ring-brand-blue/10
-                          "
+                          className="pl-11 pr-4 py-3 w-full rounded-2xl bg-white border border-gray-200 font-bold text-sm text-gray-700 outline-none focus:ring-4 focus:ring-brand-blue/10"
                         />
                       </div>
                     </div>
@@ -183,19 +228,19 @@ const UserSettingsPage = observer(() => {
 
                 <div className="flex justify-end pt-2">
                   <button
-                    onClick={() => setConfirmProfileOpen(true)}
-                    className="
-                      px-6 py-3 bg-brand-blue text-white rounded-xl
-                      font-black uppercase text-xs
-                      hover:brightness-110 transition-all
-                      focus:outline-none focus:ring-4 focus:ring-brand-blue/30
-                    "
+                    onClick={() => {
+                      if (validateProfile()) {
+                        setConfirmProfileOpen(true);
+                      }
+                    }}
+                    className="px-6 py-3 bg-brand-blue text-white rounded-xl font-black uppercase text-xs"
                   >
                     Salvar Alterações
                   </button>
                 </div>
               </div>
 
+              {/* Alterar senha */}
               <div className="bg-white rounded-2xl shadow-sm border border-slate-300 p-6 space-y-4">
                 <h2 className="text-xs font-bold uppercase tracking-widest text-slate-500">
                   Alterar Senha
@@ -224,25 +269,17 @@ const UserSettingsPage = observer(() => {
                     placeholder={field.placeholder}
                     value={field.value}
                     onChange={(e) => field.onChange(e.target.value)}
-                    className="
-                      w-full px-4 py-3.5 rounded-2xl
-                      bg-white border border-gray-200
-                      font-bold text-sm text-gray-700
-                      outline-none transition-all
-                      focus:ring-4 focus:ring-brand-blue/10
-                      placeholder:text-gray-400 placeholder:font-bold
-                    "
+                    className="w-full px-4 py-3.5 rounded-2xl bg-white border border-gray-200 font-bold text-sm text-gray-700 outline-none focus:ring-4 focus:ring-brand-blue/10"
                   />
                 ))}
 
                 <button
-                  onClick={() => setConfirmPasswordOpen(true)}
-                  className="
-                    w-full py-3.5 bg-slate-900 text-white rounded-xl
-                    font-black uppercase text-sm
-                    hover:bg-slate-800 transition-all
-                    shadow-xl shadow-slate-200
-                  "
+                  onClick={() => {
+                    if (validatePassword()) {
+                      setConfirmPasswordOpen(true);
+                    }
+                  }}
+                  className="w-full py-3.5 bg-slate-900 text-white rounded-xl font-black uppercase text-sm"
                 >
                   Confirmar Alteração
                 </button>
@@ -251,12 +288,7 @@ const UserSettingsPage = observer(() => {
               <div className="bg-red-50 border border-red-200 rounded-2xl p-6">
                 <button
                   onClick={() => setDeleteAccountOpen(true)}
-                  className="
-                    w-full py-3.5 bg-red-600 text-white rounded-xl
-                    font-black uppercase text-sm
-                    hover:bg-red-700 transition-all
-                    flex items-center justify-center gap-2
-                  "
+                  className="w-full py-3.5 bg-red-600 text-white rounded-xl font-black uppercase text-sm flex items-center justify-center gap-2 cursor-pointer"
                 >
                   <FaTrashAlt />
                   Excluir Conta
@@ -290,6 +322,7 @@ const UserSettingsPage = observer(() => {
               setName(draftName);
               setEmail(draftEmail);
               setConfirmProfileOpen(false);
+              showToast("success", "Dados atualizados com sucesso!");
             }}
             className="px-6 py-2 bg-brand-blue text-white rounded-lg font-bold"
           >
@@ -316,10 +349,14 @@ const UserSettingsPage = observer(() => {
           </button>
           <button
             onClick={() => {
+              if (!validatePassword()) return;
+
               setCurrentPassword(draftCurrentPassword);
               setNewPassword(draftNewPassword);
               setConfirmPassword(draftConfirmPassword);
               setConfirmPasswordOpen(false);
+
+              showToast("success", "Senha alterada com sucesso!");
             }}
             className="px-6 py-2 bg-brand-blue text-white rounded-lg font-bold"
           >
@@ -327,6 +364,7 @@ const UserSettingsPage = observer(() => {
           </button>
         </div>
       </Modal>
+
 
       <Modal
         isOpen={deleteAccountOpen}
@@ -361,6 +399,14 @@ const UserSettingsPage = observer(() => {
           </button>
         </div>
       </Modal>
+
+      {toast && (
+        <Toast
+          type={toast.type}
+          message={toast.message}
+          onClose={() => setToast(null)}
+        />
+      )}
     </div>
   );
 });
