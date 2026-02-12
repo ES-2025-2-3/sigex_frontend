@@ -1,5 +1,5 @@
 import { observer } from "mobx-react-lite";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import {
   FaSearch,
   FaCheck,
@@ -22,27 +22,22 @@ import Modal from "../../commons/modal/Modal";
 
 import { booking_mock } from "../../../mock/booking";
 import { event_mock } from "../../../mock/event";
-import { mockUser } from "../../../mock/user";
 
 import { BookingStatus } from "../../domain/enums/BookingStatus";
 import Toast, { ToastType } from "../../commons/toast/Toast";
+
+import { mockStaff, mockAdmin, mockCommonUser } from "../../../mock/user";
 
 type ConfirmAction = "APPROVE" | "REJECT";
 
 const ITEMS_PER_PAGE = 6;
 
 const AdminRequestPage = observer(() => {
+  const allUsers = [mockStaff, mockAdmin, mockCommonUser];
+
   const getEventTitle = (eventId: number): string => {
     const event = event_mock.find((e) => e.id === eventId);
     return event ? event.title : "Evento desconhecido";
-  };
-
-  const getUserName = (userId: number): string => {
-    return userId === mockUser.id ? mockUser.name : "Usuário desconhecido";
-  };
-
-  const getUserEmail = (userId: number): string => {
-    return userId === mockUser.id ? mockUser.email : "-";
   };
 
   const getEventDescription = (eventId: number): string => {
@@ -50,24 +45,36 @@ const AdminRequestPage = observer(() => {
     return event?.description || "Descrição não disponível.";
   };
 
-  const [statusFilter, setStatusFilter] = useState<
-    BookingStatus | "ALL"
-  >("ALL");
+  const getUserName = (userId: string | number): string => {
+    const user = allUsers.find((u) => String(u.id) === String(userId));
+    return user ? user.name : "Usuário desconhecido";
+  };
 
+  const getUserEmail = (userId: string | number): string => {
+    const user = allUsers.find((u) => String(u.id) === String(userId));
+    return user ? user.email : "-";
+  };
+
+  // --- ESTADOS ---
+  const [statusFilter, setStatusFilter] = useState<BookingStatus | "ALL">(
+    "ALL",
+  );
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
-  const [confirmAction, setConfirmAction] = useState<ConfirmAction | null>(null);
+  const [confirmAction, setConfirmAction] = useState<ConfirmAction | null>(
+    null,
+  );
   const [confirmBooking, setConfirmBooking] = useState<Booking | null>(null);
-  const [toast, setToast] = useState<{ type: ToastType; message: string } | null>(null);
+  const [toast, setToast] = useState<{
+    type: ToastType;
+    message: string;
+  } | null>(null);
 
   useEffect(() => {
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth",
-    });
+    window.scrollTo({ top: 0, behavior: "smooth" });
   }, [currentPage]);
 
   const openApproveConfirm = (booking: Booking) => {
@@ -82,6 +89,47 @@ const AdminRequestPage = observer(() => {
     setIsConfirmModalOpen(true);
   };
 
+  const handleConfirmAction = () => {
+    if (!confirmBooking || !confirmAction) return;
+
+    if (confirmAction === "APPROVE") {
+      handleApprove(confirmBooking);
+    } else {
+      handleReject(confirmBooking);
+    }
+
+    setIsConfirmModalOpen(false);
+    setConfirmBooking(null);
+    setConfirmAction(null);
+  };
+
+  const handleApprove = (booking: Booking) => {
+    setToast({
+      type: "success",
+      message: `Reserva #${booking.id} aprovada com sucesso`,
+    });
+    setIsDetailsModalOpen(false);
+  };
+
+  const handleReject = (booking: Booking) => {
+    setToast({
+      type: "success",
+      message: `Reserva #${booking.id} recusada com sucesso`,
+    });
+    setIsDetailsModalOpen(false);
+  };
+
+  const handleStatusChange = (status: BookingStatus | "ALL") => {
+    setStatusFilter(status);
+    setCurrentPage(1);
+  };
+
+  const handleSearchChange = (value: string) => {
+    setSearch(value);
+    setCurrentPage(1);
+  };
+
+  // --- MAPAS DE ESTILO ---
   const statusOptions: Array<BookingStatus | "ALL"> = [
     "ALL",
     BookingStatus.SOLICITADA,
@@ -98,75 +146,26 @@ const AdminRequestPage = observer(() => {
   const statusStyleMap = {
     [BookingStatus.APROVADA]:
       "bg-emerald-50 text-emerald-600 border-emerald-100",
-
-    [BookingStatus.SOLICITADA]:
-      "bg-amber-50 text-amber-600 border-amber-100",
-
-    [BookingStatus.INDEFERIDA]:
-      "bg-red-50 text-red-600 border-red-100",
+    [BookingStatus.SOLICITADA]: "bg-amber-50 text-amber-600 border-amber-100",
+    [BookingStatus.INDEFERIDA]: "bg-red-50 text-red-600 border-red-100",
   };
 
-  const filteredBookings = booking_mock.filter((b) => {
-    const matchesStatus =
-      statusFilter === "ALL" || b.status === statusFilter;
-
-    const term = search.toLowerCase();
-
-    const matchesSearch =
-      getEventTitle(b.eventId).toLowerCase().includes(term) ||
-      getUserName(b.bookerId).toLowerCase().includes(term);
-
-    return matchesStatus && matchesSearch;
-  });
+  const filteredBookings = useMemo(() => {
+    return booking_mock.filter((b) => {
+      const matchesStatus = statusFilter === "ALL" || b.status === statusFilter;
+      const term = search.toLowerCase();
+      const matchesSearch =
+        getEventTitle(b.eventId).toLowerCase().includes(term) ||
+        getUserName(b.bookerId).toLowerCase().includes(term);
+      return matchesStatus && matchesSearch;
+    });
+  }, [statusFilter, search]);
 
   const totalPages = Math.ceil(filteredBookings.length / ITEMS_PER_PAGE);
-
   const paginatedBookings = filteredBookings.slice(
     (currentPage - 1) * ITEMS_PER_PAGE,
-    currentPage * ITEMS_PER_PAGE
+    currentPage * ITEMS_PER_PAGE,
   );
-
-  const handleConfirmAction = () => {
-    if (!confirmBooking || !confirmAction) return;
-
-    if (confirmAction === "APPROVE") {
-      handleApprove(confirmBooking);
-    } else {
-      handleReject(confirmBooking);
-    }
-
-    setIsConfirmModalOpen(false);
-    setConfirmBooking(null);
-    setConfirmAction(null);
-  };
-
-  const handleStatusChange = (status: BookingStatus | "ALL") => {
-    setStatusFilter(status);
-    setCurrentPage(1);
-  };
-
-  const handleSearchChange = (value: string) => {
-    setSearch(value);
-    setCurrentPage(1);
-  };
-
-  const handleApprove = (booking: Booking) => {
-    setToast({
-      type: 'success',
-      message: `Reserva #${booking.id} aprovada com sucesso`,
-    });
-
-    setIsDetailsModalOpen(false);
-  };
-
-  const handleReject = (booking: Booking) => {
-    setToast({
-      type: 'success',
-      message: `Reserva #${booking.id} recusada com sucesso`,
-    });
-
-    setIsDetailsModalOpen(false);
-  };
 
   return (
     <div className="flex min-h-screen bg-bg-main w-full font-inter">
@@ -205,10 +204,11 @@ const AdminRequestPage = observer(() => {
                     <button
                       key={status}
                       onClick={() => handleStatusChange(status)}
-                      className={`cursor-pointer px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition ${statusFilter === status
-                        ? "bg-brand-blue text-white"
-                        : "bg-white border border-slate-200 text-slate-500 hover:bg-slate-50"
-                        }`}
+                      className={`cursor-pointer px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition ${
+                        statusFilter === status
+                          ? "bg-brand-blue text-white"
+                          : "bg-white border border-slate-200 text-slate-500 hover:bg-slate-50"
+                      }`}
                     >
                       {status === "ALL" ? "Todas" : status}
                     </button>
@@ -272,7 +272,7 @@ const AdminRequestPage = observer(() => {
                           <td className="px-6 py-5">
                             <span
                               className={`px-3 py-1 rounded-full text-[10px] font-black uppercase border
-      ${statusStyleMap[b.status]}`}
+                                ${statusStyleMap[b.status]}`}
                             >
                               {b.status}
                             </span>
@@ -301,7 +301,8 @@ const AdminRequestPage = observer(() => {
                                   setSelectedBooking(b);
                                   setIsDetailsModalOpen(true);
                                 }}
-                                className="cursor-pointer p-2 rounded-lg text-slate-400 hover:text-brand-blue">
+                                className="cursor-pointer p-2 rounded-lg text-slate-400 hover:text-brand-blue"
+                              >
                                 <FaEye />
                               </button>
                             </div>
@@ -343,22 +344,17 @@ const AdminRequestPage = observer(() => {
         >
           {selectedBooking && (
             <div className="space-y-6">
-
-
               <div className="flex items-center gap-4 bg-slate-50 p-5 rounded-2xl border border-slate-100">
                 <div className="w-10 h-10 bg-brand-blue text-white rounded-xl flex items-center justify-center shadow-lg shadow-brand-blue/20">
                   <FaBookmark size={18} />
                 </div>
-
                 <div>
                   <h3 className="font-bold text-slate-800 leading-tight">
                     {getEventTitle(selectedBooking.eventId)}
                   </h3>
-
                   <p className="text-xs text-slate-500 mt-1 leading-snug max-w-md">
                     {getEventDescription(selectedBooking.eventId)}
                   </p>
-
                   <p className="text-[10px] text-slate-400 font-bold mt-2">
                     REFERÊNCIA: #{selectedBooking.id}
                   </p>
@@ -385,8 +381,7 @@ const AdminRequestPage = observer(() => {
               </div>
 
               <div
-                className={`p-4 rounded-xl border flex items-center gap-3 ${statusStyleMap[selectedBooking.status]
-                  }`}
+                className={`p-4 rounded-xl border flex items-center gap-3 ${statusStyleMap[selectedBooking.status]}`}
               >
                 {statusIconMap[selectedBooking.status]}
                 <span className="text-xs font-bold uppercase tracking-wider">
@@ -398,38 +393,18 @@ const AdminRequestPage = observer(() => {
                 <div className="flex gap-3">
                   <button
                     onClick={() => handleApprove(selectedBooking)}
-                    className="
-        flex-1 py-3 rounded-xl cursor-pointer
-        bg-emerald-600 text-white
-        text-sm font-bold
-        shadow-sm
-        hover:bg-emerald-700
-        hover:shadow
-        transition-all
-        focus:outline-none focus:ring-2 focus:ring-emerald-500/30
-      "
+                    className="flex-1 py-3 rounded-xl cursor-pointer bg-emerald-600 text-white text-sm font-bold shadow-sm hover:bg-emerald-700 hover:shadow transition-all"
                   >
                     Aceitar
                   </button>
-
                   <button
                     onClick={() => handleReject(selectedBooking)}
-                    className="
-        flex-1 py-3 rounded-xl cursor-pointer
-        bg-red-600 text-white
-        text-sm font-bold
-        shadow-sm
-        hover:bg-red-700
-        hover:shadow
-        transition-all
-        focus:outline-none focus:ring-2 focus:ring-red-500/30
-      "
+                    className="flex-1 py-3 rounded-xl cursor-pointer bg-red-600 text-white text-sm font-bold shadow-sm hover:bg-red-700 hover:shadow transition-all"
                   >
                     Recusar
                   </button>
                 </div>
               )}
-
 
               <button
                 onClick={() => setIsDetailsModalOpen(false)}
@@ -440,6 +415,7 @@ const AdminRequestPage = observer(() => {
             </div>
           )}
         </Modal>
+
         <Modal
           isOpen={isConfirmModalOpen}
           title="Confirmação"
@@ -457,16 +433,13 @@ const AdminRequestPage = observer(() => {
                 <div className="w-10 h-10 bg-brand-blue text-white rounded-xl flex items-center justify-center shadow-lg shadow-brand-blue/20">
                   <FaBookmark size={18} />
                 </div>
-
                 <div>
                   <h3 className="font-bold text-slate-800 leading-tight">
                     {getEventTitle(confirmBooking.eventId)}
                   </h3>
-
                   <p className="text-xs text-slate-500 mt-1 leading-snug max-w-md">
                     {getEventDescription(confirmBooking.eventId)}
                   </p>
-
                   <p className="text-[10px] text-slate-400 font-bold mt-2">
                     REFERÊNCIA: #{confirmBooking.id}
                   </p>
@@ -481,19 +454,21 @@ const AdminRequestPage = observer(() => {
               >
                 Cancelar
               </button>
-
               <button
-                onClick={handleConfirmAction}
+                onClick={() => handleConfirmAction()}
                 className={`cursor-pointer flex-1 py-3 rounded-xl text-white font-bold transition
-          ${confirmAction === "APPROVE"
-                    ? "bg-emerald-600 hover:bg-emerald-700"
-                    : "bg-red-600 hover:bg-red-700"}`}
+                  ${
+                    confirmAction === "APPROVE"
+                      ? "bg-emerald-600 hover:bg-emerald-700"
+                      : "bg-red-600 hover:bg-red-700"
+                  }`}
               >
                 Confirmar
               </button>
             </div>
           </div>
         </Modal>
+
         <Footer />
       </div>
     </div>

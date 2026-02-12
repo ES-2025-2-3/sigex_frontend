@@ -3,7 +3,7 @@ import { BookingStatus } from "../../domain/enums/BookingStatus";
 
 export interface Booking {
     id: number;
-    bookerId: number;
+    bookerId: string;
     roomIds: number[];
     eventId: number;
     date: string;

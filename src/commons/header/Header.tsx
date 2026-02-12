@@ -13,10 +13,12 @@ const Header: React.FC = observer(() => {
 
   const isLoggedIn = userSessionStore.isLoggedIn;
   const user = userSessionStore.user;
+
   const isInsideAdminPanel =
     location.pathname.startsWith("/admin") &&
     !location.pathname.startsWith("/admin/perfil");
-  const isAdminUser = user && String(user.type).toUpperCase() === "ADMIN";
+
+  const hasManagementPrivileges = user?.isAdmin || user?.isStaff;
 
   const navTextStyle = "text-[0.80rem] font-black uppercase tracking-[0.15em]";
   const btnTextStyle = "text-[0.70rem] font-black tracking-wide";
@@ -34,52 +36,57 @@ const Header: React.FC = observer(() => {
   return (
     <header className="bg-brand-dark py-5 sticky top-0 z-[1000] shadow-lg font-inter w-full border-b border-white/5">
       <div
-        className={`flex items-center justify-between px-8 ${isInsideAdminPanel ? "w-full" : "max-w-[1200px] mx-auto"}`}
+        className={`flex items-center justify-between px-8 ${
+          isInsideAdminPanel ? "w-full" : "max-w-[1200px] mx-auto"
+        }`}
       >
         {!isInsideAdminPanel && (
-          <Link
-            to="/"
-            className="flex items-center gap-3 no-underline cursor-pointer transition-all duration-400 hover:scale-105 hover:opacity-90"
-          >
-            <img
-              src={logoSigex}
-              alt="Logo SIGEX"
-              className="h-10 w-auto object-contain"
-            />
-            <span className="text-white text-2xl font-bold tracking-wider">
-              SIGEX
-            </span>
-          </Link>
-        )}
+          <>
+            <Link
+              to="/"
+              className="flex items-center gap-3 no-underline cursor-pointer transition-all duration-400 hover:scale-105 hover:opacity-90"
+            >
+              <img
+                src={logoSigex}
+                alt="Logo SIGEX"
+                className="h-10 w-auto object-contain"
+              />
+              <span className="text-white text-2xl font-bold tracking-wider">
+                SIGEX
+              </span>
+            </Link>
 
-        {!isInsideAdminPanel && (
-          <nav className="hidden md:flex gap-8">
-            <Link to="/" className={getLinkClass("/", true)}>
-              Início
-            </Link>
-            <Link to="/eventos" className={getLinkClass("/eventos")}>
-              Eventos
-            </Link>
-            <Link to="/reserva" className={getLinkClass("/reserva")}>
-              Solicitar Reserva
-            </Link>
-            <Link to="/sobre" className={getLinkClass("/sobre", true)}>
-              Sobre
-            </Link>
-          </nav>
+            <nav className="hidden md:flex gap-8">
+              <Link to="/" className={getLinkClass("/", true)}>
+                Início
+              </Link>
+              <Link to="/eventos" className={getLinkClass("/eventos")}>
+                Eventos
+              </Link>
+              <Link to="/reserva" className={getLinkClass("/reserva")}>
+                Solicitar Reserva
+              </Link>
+              <Link to="/sobre" className={getLinkClass("/sobre", true)}>
+                Sobre
+              </Link>
+            </nav>
+          </>
         )}
 
         {isInsideAdminPanel && (
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
             <span className="text-slate-500 text-[15px] font-black uppercase tracking-[0.3em]">
               Ambiente de Gestão
+            </span>
+            <span className="bg-white/5 text-[9px] px-2 py-1 rounded border border-white/10 text-brand-blue font-black uppercase tracking-widest">
+              {user?.isAdmin ? "Acesso Total" : "Operacional"}
             </span>
           </div>
         )}
 
         <div className="flex items-center gap-4">
           {isLoggedIn ? (
-            isAdminUser ? (
+            hasManagementPrivileges ? (
               <AdminDropdown />
             ) : (
               <UserDropdown />

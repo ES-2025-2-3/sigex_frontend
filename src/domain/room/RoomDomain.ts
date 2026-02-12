@@ -6,7 +6,7 @@ class RoomDomain extends DomainBase {
   @observable accessor name = '';
   @observable accessor capacity = 0;
   @observable accessor description = '';
-  @observable accessor instituteId: number | null = null;
+  @observable accessor instituteId = '';
 
   constructor(room?: Record<string, unknown>) {
     super();
@@ -22,22 +22,21 @@ class RoomDomain extends DomainBase {
     }
 
     super.validate(undefined, () => {
-      if (!this.name) this.errors['name'] = 'Campo obrigatório';
-      if (this.capacity <= 0) this.errors['capacity'] = 'Capacidade deve ser maior que 0';
-      if (!this.instituteId) this.errors['instituteId'] = 'Instituto obrigatório';
+      if (!this.name.trim()) this.errors['name'] = 'Nome é obrigatório';
+      if (this.capacity <= 0) this.errors['capacity'] = 'Defina a capacidade';
+      if (!this.instituteId) this.errors['instituteId'] = 'Vínculo necessário';
     });
   }
 
   getBackendObject() {
     return {
       id: this.id,
-      name: this.name,
+      name: this.name.trim(),
       capacity: this.capacity,
       description: this.description,
-      institute: this.instituteId ? { id: this.instituteId } : null,
+      instituteId: this.instituteId
     };
   }
 }
 
 export default RoomDomain;
-
