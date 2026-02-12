@@ -17,7 +17,7 @@ import LocationStep from "./steps/LocationStep";
 import DescriptionStep from "./steps/DescriptionStep";
 import MediaStep from "./steps/MediaStep";
 
-import { room_mock } from "../../../mock/room";
+import { mockRoom } from "../../../mock/room";
 import { event_mock } from "../../../mock/event";
 
 const occupationData = event_mock.reduce<Record<string, string>>(
@@ -189,7 +189,7 @@ const BookingRequestPage = observer(() => {
           <div className="flex-1 p-8 md:p-16 bg-white relative flex flex-col">
             <div className="flex-1">
               {step === 1 && <ScheduleStep occupationData={occupationData} />}
-              {step === 2 && <LocationStep rooms={room_mock} />}
+              {step === 2 && <LocationStep rooms={mockRoom} />}
               {step === 3 && <DescriptionStep tags={availableTags} />}
               {step === 4 && isPublic && <MediaStep />}
 

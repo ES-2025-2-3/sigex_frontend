@@ -1,8 +1,10 @@
+import { UserType } from "../../domain/enums/UserType";
+
 export interface User {
   id: string;
   name: string;
   email: string;
-  photoUrl?: string;
   registrationNumber?: string; 
-  affiliation?: string;        
+  affiliation?: string;   
+  type: UserType;     
 }

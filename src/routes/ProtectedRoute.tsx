@@ -15,10 +15,13 @@ const ProtectedRoute = observer(() => {
     );
   }
 
-  const isAdmin = String(user.type) === "ADMIN";
+  const hasAccess = user.isAdmin || user.isStaff;
 
-  if (!isAdmin) {
-    console.error("Acesso negado: Usuário não é ADMIN. Tipo atual:", user.type);
+  if (!hasAccess) {
+    console.error("Acesso negado: O usuário não possui permissões administrativas.", {
+      nome: user.name,
+      tipo: user.type
+    });
     return <Navigate to="/" replace />;
   }
 

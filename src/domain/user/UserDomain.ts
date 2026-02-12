@@ -3,47 +3,67 @@ import DomainBase from "../DomainBase";
 import { UserType } from "../enums/UserType";
 
 class UserDomain extends DomainBase {
-  @observable accessor id: number | null = null;
+  @observable accessor id: string | null = null;
   @observable accessor name = "";
   @observable accessor email = "";
-  @observable accessor registrationNumber = "";
+  @observable accessor registrationNumber = ""; 
   @observable accessor type: UserType | null = null;
 
-  constructor(user?: Record<string, unknown>) {
+  constructor(user?: any) {
     super();
     makeObservable(this);
+    if (user) this.setData(user);
+  }
 
-    if (user) {
-      this.setData(user);
-    }
+  @computed
+  get isAdmin(): boolean {
+    return this.type === UserType.ADMIN;
+  }
+
+  @computed
+  get isStaff(): boolean {
+    return this.type === UserType.FUNCIONARIO;
+  }
+
+  @computed
+  get isRegularUser(): boolean {
+    return (
+      this.type === UserType.DOCENTE || 
+      this.type === UserType.SERVIDOR_TECNICO_ADMINISTRATIVO
+    );
   }
 
   @computed
   get initials(): string {
     if (!this.name) return "??";
-
     const names = this.name.trim().split(/\s+/);
     if (names.length > 1) {
-      const firstLetter = names[0][0];
-      const lastLetter = names[names.length - 1][0];
-      return (firstLetter + lastLetter).toUpperCase();
+      return (names[0][0] + names[names.length - 1][0]).toUpperCase();
     }
     return names[0].substring(0, 2).toUpperCase();
+  }
+
+  @computed
+  get canBePromotedToStaff(): boolean {
+    return this.type === UserType.SERVIDOR_TECNICO_ADMINISTRATIVO;
+  }
+
+  @action
+  updateType(newType: UserType) {
+    this.type = newType;
   }
 
   @action
   validate(field?: string) {
     if (field) {
       super.validate(field);
-
-      if (field === "email" && this.email) {
-        this.validateEmail(this.email);
-      }
+      if (field === "email" && this.email) this.validateEmail(this.email);
     } else {
       super.validate(undefined, () => {
-        if (!this.name) this.errors["name"] = "Campo obrigatório";
+        if (!this.name) this.errors["name"] = "Nome é obrigatório";
+        if (!this.registrationNumber) this.errors["registrationNumber"] = "Matrícula é obrigatória";
         if (!this.email) {
-          this.errors["email"] = "Campo obrigatório";
+          this.errors["email"] = "E-mail é obrigatório";
         } else {
           this.validateEmail(this.email);
         }
@@ -53,14 +73,14 @@ class UserDomain extends DomainBase {
 
   private validateEmail(email: string) {
     const re = /\S+@\S+\.\S+/;
-    if (!re.test(email)) {
-      this.errors["email"] = "E-mail inválido";
-    }
+    if (!re.test(email)) this.errors["email"] = "E-mail inválido";
   }
 
-  getBackendObject() {
-    const obj = super.getBackendObject();
-    return obj;
+  getPromotionObject() {
+    return {
+      userId: this.id,
+      newType: UserType.FUNCIONARIO
+    };
   }
 }
 
