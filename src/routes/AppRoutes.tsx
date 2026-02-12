@@ -24,6 +24,7 @@ import ForgotPasswordCodePage from "../pages/login/forgotPassword/ForgotPassword
 import ForgotPasswordNewPasswordPage from "../pages/login/forgotPassword/ForgotPasswordNewPasswordPage";
 import AdminRequestPage from "../pages/admin/AdminRequestPage";
 import AdminRoomPage from "../pages/admin/AdminRoomPage";
+import AdminEquipmentPage from "../pages/admin/AdminEquipmentPage";
 import AdminStaffManagementPage from "../pages/admin/AdminStaffManagementPage";
 
 const AppRoutes = () => {
@@ -63,6 +64,7 @@ const AppRoutes = () => {
         <Route path="/admin" element={<AdminDashboardPage />} />
         <Route path="/admin/solicitacoes" element={<AdminRequestPage />} />
         <Route path="/admin/espacos" element={<AdminRoomPage />} />
+        <Route path="/admin/equipamentos" element={<AdminEquipmentPage />} />
         <Route path="/admin/configuracoes" element={<AdminSettingsPage />} />
         <Route path="/admin/perfil" element={<AdminProfilePage />} />
 
