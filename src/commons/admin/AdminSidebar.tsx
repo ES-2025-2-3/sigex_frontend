@@ -8,6 +8,7 @@ import {
   FaSignOutAlt,
   FaRocket,
   FaUserTie,
+  FaTools,
 } from "react-icons/fa";
 import { useNavigate, useLocation } from "react-router-dom";
 import { observer } from "mobx-react-lite";
@@ -38,6 +39,13 @@ const AdminSidebar: React.FC = observer(() => {
       label: "Espaços",
       icon: <FaLayerGroup />,
       path: "/admin/espacos",
+      visible: user?.isStaff || user?.isAdmin,
+    },
+    {
+      id: "equipments",
+      label: "Equipamentos",
+      icon: <FaTools />,
+      path: "/admin/equipamentos",
       visible: user?.isStaff || user?.isAdmin,
     },
     {
