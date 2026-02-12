@@ -4,18 +4,31 @@ import HeaderRegister from "../../commons/header/HeaderRegister";
 import Footer from "../../commons/footer/Footer";
 import Button from "../../commons/components/Button";
 import Toast, { ToastType } from "../../commons/toast/Toast";
+import { UserType } from "../../domain/enums/UserType";
 
 const RegisterPage: React.FC = () => {
   const navigate = useNavigate();
   
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<{
+    name: string;
+    registrationNumber: string;
+    email: string;
+    password: string;
+    confirmPassword: string;
+    profile: UserType;
+  }>({
     name: "",
     registrationNumber: "",
     email: "",
     password: "",
     confirmPassword: "",
-    profile: "Aluno"
+    profile: UserType.DOCENTE
   });
+
+  const userProfiles = [
+    { label: "Docente", value: UserType.DOCENTE },
+    { label: "Servidor Técnico-Administrativo", value: UserType.SERVIDOR_TECNICO_ADMINISTRATIVO },
+  ];
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [toast, setToast] = useState<{ type: ToastType; message: string } | null>(null);
@@ -156,19 +169,23 @@ const RegisterPage: React.FC = () => {
             <div className="bg-gray-50 p-4 rounded-2xl border border-gray-100 mt-2">
               <p className="text-center text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-3">Eu sou:</p>
               <div className="flex items-center justify-between gap-2">
-                {["Professor", "Servidor", "Aluno"].map((tipo) => (
-                  <label key={tipo} className="flex-1">
+                {userProfiles.map((tipo) => (
+                  <label key={tipo.value} className="flex-1">
                     <input 
                       type="radio" 
                       name="profile" 
-                      checked={formData.profile === tipo}
+                      checked={formData.profile === tipo.value}
                       className="hidden" 
-                      onChange={() => setFormData(prev => ({ ...prev, profile: tipo }))} 
+                      onChange={() => setFormData(prev => ({ ...prev, profile: tipo.value }))} 
                     />
-                    <div className={`text-center py-2 px-1 rounded-xl cursor-pointer text-sm font-bold transition-all ${
-                      formData.profile === tipo ? "bg-brand-blue text-white shadow-md shadow-brand-blue/20" : "text-gray-400 hover:bg-gray-200"
-                    }`}>
-                      {tipo}
+                    <div
+                      className={`flex items-center justify-center text-center h-14 px-3 rounded-xl cursor-pointer text-sm font-bold transition-all ${
+                        formData.profile === tipo.value
+                          ? "bg-brand-blue text-white shadow-md shadow-brand-blue/20"
+                          : "text-gray-400 hover:bg-gray-200"
+                      }`}
+                    >
+                      {tipo.label}
                     </div>
                   </label>
                 ))}
