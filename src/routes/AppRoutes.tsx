@@ -1,4 +1,4 @@
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 
 import HomePage from "../pages/homepage/HomePage";
 import LoginPage from "../pages/login/LoginPage";
@@ -9,47 +9,73 @@ import EventDetailsPage from "../pages/events/EventDetailsPage";
 import BookingRequestPage from "../pages/booking/BookingRequestPage";
 import NotFoundPage from "../pages/notfound/NotFoundPage";
 import ProtectedRoute from "./ProtectedRoute";
+
 import AdminDashboardPage from "../pages/admin/AdminDashboardPage";
-import AdminRequestPage from "../pages/admin/AdminRequestPage";
+import AdminSettingsPage from "../pages/admin/AdminSettingsPage";
+import AdminProfilePage from "../pages/admin/AdminProfilePage";
+
 import UserBookingPage from "../pages/user/UserBookingPage";
 import UserRequestPage from "../pages/user/UserRequestPage";
 import ConfigurationPage from "../pages/user/UserSettingsPage";
+import EditBookingPage from "../pages/user/EditRequestPage";
+
 import ForgotPasswordEmailPage from "../pages/login/forgotPassword/ForgotPasswordEmailPage";
 import ForgotPasswordCodePage from "../pages/login/forgotPassword/ForgotPasswordCodePage";
 import ForgotPasswordNewPasswordPage from "../pages/login/forgotPassword/ForgotPasswordNewPasswordPage";
 import EditBookingPage from "../pages/user/EditRequestPage";
 import AdminUserPage from "../pages/admin/AdminUserPage";
+import AdminRequestPage from "../pages/admin/AdminRequestPage";
+import AdminRoomPage from "../pages/admin/AdminRoomPage";
+import AdminStaffManagementPage from "../pages/admin/AdminStaffManagementPage";
 
 const AppRoutes = () => {
   return (
     <Routes>
+      {/* Públicas */}
       <Route path="/" element={<HomePage />} />
       <Route path="/eventos" element={<EventsPage />} />
       <Route path="/eventos/:id" element={<EventDetailsPage />} />
       <Route path="/reserva" element={<BookingRequestPage />} />
       <Route path="/sobre" element={<AboutPage />} />
 
-      {/* Rotas de Entrada no Sistema */}
+      {/* Auth */}
       <Route path="/login" element={<LoginPage />} />
       <Route path="/cadastro" element={<RegisterPage />} />
       <Route path="/recuperar-senha" element={<ForgotPasswordEmailPage />} />
-      <Route path="/recuperar-senha/codigo" element={<ForgotPasswordCodePage />} />
-      <Route path="/recuperar-senha/nova-senha" element={<ForgotPasswordNewPasswordPage />} />
+      <Route
+        path="/recuperar-senha/codigo"
+        element={<ForgotPasswordCodePage />}
+      />
+      <Route
+        path="/recuperar-senha/nova-senha"
+        element={<ForgotPasswordNewPasswordPage />}
+      />
 
-      {/* Rotas do Usuário */}
+      {/* Usuário Comum */}
       <Route path="/usuario/reservas" element={<UserBookingPage />} />
       <Route path="/usuario/solicitacoes" element={<UserRequestPage />} />
-      <Route path="/usuario/solicitacoes/editar/:id" element={<EditBookingPage />} />
+      <Route
+        path="/usuario/solicitacoes/editar/:id"
+        element={<EditBookingPage />}
+      />
       <Route path="/usuario/configuracoes" element={<ConfigurationPage />} />
-      <Route path="*" element={<NotFoundPage />} />
 
-      {/* Rotas do Administrador */}
       <Route element={<ProtectedRoute />}>
+        {/* Comum a Admin e Funcionário */}
         <Route path="/admin" element={<AdminDashboardPage />} />
         <Route path="/admin/solicitacoes" element={<AdminRequestPage />} />
-        <Route path="/admin/usuarios" element={<AdminUserPage />} />
         {/* outras rotas do admin aqui */}
+        <Route path="/admin/usuarios" element={<AdminUserPage />} />
+        <Route path="/admin/espacos" element={<AdminRoomPage />} />
+        <Route path="/admin/configuracoes" element={<AdminSettingsPage />} />
+        <Route path="/admin/perfil" element={<AdminProfilePage />} />
+
+        {/* EXCLUSIVO: Administrador do Sistema */}
+        <Route path="/admin/funcionarios" element={<AdminStaffManagementPage />} />
       </Route>
+
+      {/* 404 */}
+      <Route path="*" element={<NotFoundPage />} />
     </Routes>
   );
 };

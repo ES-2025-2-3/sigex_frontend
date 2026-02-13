@@ -16,6 +16,11 @@ const AdminDropdown: React.FC = () => {
     navigate('/admin');
   };
 
+  const handleGoToProfile = () => {
+    setIsOpen(false);
+    navigate("/admin/perfil");
+  };
+
   return (
     <div className="relative">
       <button 
@@ -44,7 +49,10 @@ const AdminDropdown: React.FC = () => {
             
             <div className="border-t border-slate-100 my-1"></div>
             
-            <button className="w-full text-left px-4 py-3 text-xs font-bold text-slate-600 hover:bg-slate-50 rounded-xl cursor-pointer">
+            <button
+              onClick={handleGoToProfile}
+              className="w-full text-left px-4 py-3 text-xs font-bold text-slate-600 hover:bg-slate-50 rounded-xl cursor-pointer"
+            >
               Perfil de Admin
             </button>
             

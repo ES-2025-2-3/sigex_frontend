@@ -5,6 +5,6 @@ export interface User {
   name: string;
   email: string;
   registrationNumber?: string; 
-  affiliation?: string;     
-  type: UserType  
+  affiliation?: string;   
+  type: UserType;     
 }

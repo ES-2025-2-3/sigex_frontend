@@ -1,12 +1,10 @@
 import { observer } from "mobx-react-lite";
 import { FaUserCircle } from "react-icons/fa";
 import { userSessionStore } from "../../store/user/UserSessionStore";
-import { mockUser } from "../../../mock/user";
 
 const UserBanner = observer(() => {
-  const userName = userSessionStore.currentUser?.name || mockUser.name;
-  const userEmail = userSessionStore.currentUser?.email || mockUser.email;
-  const registration = userSessionStore.currentUser?.registrationNumber || mockUser.registrationNumber;
+  const user = userSessionStore.currentUser;
+  if (!user) return null;
 
   return (
     <div className="bg-white border border-slate-200 rounded-2xl p-6 mb-8 shadow-sm flex items-center justify-between">
@@ -19,16 +17,16 @@ const UserBanner = observer(() => {
             Sessão Ativa
           </p>
           <h2 className="text-lg font-bold text-slate-800">
-            {userName}
+            {user.name}
           </h2>
         </div>
       </div>
       <div className="hidden md:block text-right">
         <p className="text-xs text-slate-500 font-semibold">
-          Matrícula: {registration}
+          Matrícula: {user.registrationNumber || "Não informada"}
         </p>
         <p className="text-xs text-brand-blue font-medium">
-          {userEmail}
+          {user.email}
         </p>
       </div>
     </div>

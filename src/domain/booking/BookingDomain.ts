@@ -4,8 +4,9 @@ import { BookingStatus } from "../enums/BookingStatus";
 import { BookingShift } from "../enums/BookingShift";
 
 class BookingDomain extends DomainBase {
-  @observable accessor id: number | null = null;
-  @observable accessor bookerId: number | null = null;
+  @observable accessor id: string | null = null;
+  @observable accessor bookerId: string | null = null;
+  @observable accessor instituteId: string | null = null;
   @observable accessor roomIds: number[] = [];
   @observable accessor eventId: number | null = null;
   @observable accessor date = "";
