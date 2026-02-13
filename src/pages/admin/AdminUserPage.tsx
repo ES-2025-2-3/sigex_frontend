@@ -2,10 +2,10 @@ import { observer } from "mobx-react-lite";
 import { useEffect, useState } from "react";
 import {
   FaSearch,
-  FaCheck,
   FaTimes,
   FaEye,
   FaUser,
+  FaArrowUp,
 } from "react-icons/fa";
 
 import Header from "../../commons/header/Header";
@@ -18,22 +18,16 @@ import Modal from "../../commons/modal/Modal";
 import { user_mock } from "../../../mock/user_mock";
 
 import Toast, { ToastType } from "../../commons/toast/Toast";
-import { UserStatus } from "../../domain/enums/UserStatus";
 import { UserType } from "../../domain/enums/UserType";
 
-type ConfirmAction = "APPROVE" | "REJECT" | "VIEW";
+type ConfirmAction = "PROMOTE" | "REMOVE" | "VIEW";
 
 const ITEMS_PER_PAGE = 6;
 
 const AdminUserPage = observer(() => {
 
-  const [statusFilter, setStatusFilter] = useState<
-    UserStatus | "ALL"
-  >("ALL");
-
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [confirmAction, setConfirmAction] = useState<ConfirmAction | null>(null);
   const [confirmUser, setConfirmUser] = useState<User | null>(null);
@@ -48,15 +42,15 @@ const AdminUserPage = observer(() => {
   }, [currentPage]);
 
 
-  const openApproveConfirm = (user: User) => {
+  const openPromoteConfirm = (user: User) => {
     setConfirmUser(user);
-    setConfirmAction("APPROVE");
+    setConfirmAction("PROMOTE");
     setIsConfirmModalOpen(true);
   };
 
-  const openRejectConfirm = (user: User) => {
+  const openRemoveConfirm = (user: User) => {
     setConfirmUser(user);
-    setConfirmAction("REJECT");
+    setConfirmAction("REMOVE");
     setIsConfirmModalOpen(true);
   };
 
@@ -66,12 +60,6 @@ const AdminUserPage = observer(() => {
     setIsConfirmModalOpen(true);
   };
 
-  const statusOptions: Array<UserStatus | "ALL"> = [
-    "ALL",
-    UserStatus.CADASTRADO,
-    UserStatus.PENDENTE,
-  ];
-
   const formatUserType = (type: UserType) => {
     switch (type) {
       case UserType.ADMIN:
@@ -80,15 +68,14 @@ const AdminUserPage = observer(() => {
         return "Docente";
       case UserType.SERVIDOR_TECNICO_ADMINISTRATIVO:
         return "Servidor Técnico Administrativo";
+      case UserType.FUNCIONARIO:
+        return "Funcionário";
       default:
         return type;
     }
   };
 
   const filteredUsers = user_mock.filter((user) => {
-    const matchesStatus =
-      statusFilter === "ALL" || user.status === statusFilter;
-
     const matchesType =
       typeFilter === "ALL" || user.type === typeFilter;
 
@@ -98,7 +85,7 @@ const AdminUserPage = observer(() => {
       user.name.toLowerCase().includes(term) ||
       user.email.toLowerCase().includes(term);
 
-    return matchesStatus && matchesSearch && matchesType;
+    return matchesSearch && matchesType;
   });
 
   const totalPages = Math.ceil(filteredUsers.length / ITEMS_PER_PAGE);
@@ -108,24 +95,26 @@ const AdminUserPage = observer(() => {
     currentPage * ITEMS_PER_PAGE
   );
 
+  const typeStyles = {
+    [UserType.ADMIN]: "bg-purple-50 text-purple-600 border-purple-100",
+    [UserType.DOCENTE]: "bg-blue-50 text-blue-600 border-blue-100",
+    [UserType.FUNCIONARIO]: "bg-emerald-50 text-emerald-600 border-emerald-100",
+    [UserType.SERVIDOR_TECNICO_ADMINISTRATIVO]: "bg-rose-50 text-rose-600 border-rose-100",
+  };
+
+
   const handleConfirmAction = () => {
-    handleConfirmAction
     if (!confirmUser || !confirmAction) return;
 
-    if (confirmAction === "APPROVE") {
-      handleApprove(confirmUser);
-    } else {
-      handleReject(confirmUser);
+    if (confirmAction === "PROMOTE") {
+      handlePromote(confirmUser);
+    } else if (confirmAction === "REMOVE") {
+      handleRemove(confirmUser);
     }
 
     setIsConfirmModalOpen(false);
     setConfirmUser(null);
     setConfirmAction(null);
-  };
-
-  const handleStatusChange = (status: UserStatus | "ALL") => {
-    setStatusFilter(status);
-    setCurrentPage(1);
   };
 
   const handleSearchChange = (value: string) => {
@@ -138,22 +127,18 @@ const AdminUserPage = observer(() => {
     setCurrentPage(1);
   };
 
-  const handleApprove = (user: User) => {
+  const handlePromote = (user: User) => {
     setToast({
       type: 'success',
-      message: `Usuário #${user.id} aprovado(a) com sucesso`,
+      message: `Usuário #${user.id} promovido(a) com sucesso`,
     });
-
-    setIsDetailsModalOpen(false);
   };
 
-  const handleReject = (user: User) => {
+  const handleRemove = (user: User) => {
     setToast({
       type: 'success',
-      message: `Usuário #${user.id} recusado(a) com sucesso`,
+      message: `Usuário #${user.id} excluido(a) com sucesso`,
     });
-
-    setIsDetailsModalOpen(false);
   };
 
 
@@ -189,18 +174,6 @@ const AdminUserPage = observer(() => {
 
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                 <div className="flex gap-3">
-                  {statusOptions.map((status) => (
-                    <button
-                      key={status}
-                      onClick={() => handleStatusChange(status)}
-                      className={`cursor-pointer px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition ${statusFilter === status
-                        ? "bg-brand-blue text-white"
-                        : "bg-white border border-slate-200 text-slate-500 hover:bg-slate-50"
-                        }`}
-                    >
-                      {status === "ALL" ? "Todos" : status}
-                    </button>
-                  ))}
                   <select
                     value={typeFilter}
                     onChange={(e) => handleTypeChange(e.target.value as UserType | "ALL")}
@@ -210,6 +183,7 @@ const AdminUserPage = observer(() => {
                     <option value={UserType.ADMIN}>Admin</option>
                     <option value={UserType.DOCENTE}>Docente</option>
                     <option value={UserType.SERVIDOR_TECNICO_ADMINISTRATIVO}>Servidor Técnico</option>
+                    <option value={UserType.FUNCIONARIO}>Funcionário</option>
                   </select>
                 </div>
 
@@ -232,7 +206,6 @@ const AdminUserPage = observer(() => {
                       <th className="px-6 py-5">Usuário</th>
                       <th className="px-6 py-5">Tipo</th>
                       <th className="px-6 py-5">Matrícula</th>
-                      <th className="px-6 py-5">Status</th>
                       <th className="px-6 py-5 text-center">Ações</th>
                     </tr>
                   </thead>
@@ -267,32 +240,19 @@ const AdminUserPage = observer(() => {
                               </span>
                             )}
                           </td>
-
-                          <td className="px-6 py-5">
-                            <span
-                              className={`px-3 py-1 rounded-full text-[10px] font-black uppercase border
-              ${user.status === UserStatus.CADASTRADO
-                                  ? "bg-emerald-50 text-emerald-600 border-emerald-100"
-                                  : "bg-amber-50 text-amber-600 border-amber-100"
-                                }`}
-                            >
-                              {user.status}
-                            </span>
-                          </td>
-
                           <td className="px-6 py-5">
                             <div className="flex justify-center gap-2">
                               <button
-                                onClick={() => openApproveConfirm(user)}
-                                disabled={user.status !== UserStatus.PENDENTE}
-                                className="cursor-pointer p-2 rounded-lg text-emerald-600 hover:bg-emerald-50 disabled:opacity-40"
+                                onClick={() => openPromoteConfirm(user)}
+                                disabled={user.type !== UserType.SERVIDOR_TECNICO_ADMINISTRATIVO}
+                                className="cursor-pointer p-2 rounded-lg text-purple-600 hover:bg-purple-50 disabled:opacity-40"
                               >
-                                <FaCheck />
+                                <FaArrowUp />
                               </button>
 
                               <button
-                                onClick={() => openRejectConfirm(user)}
-                                disabled={user.status !== UserStatus.CADASTRADO}
+                                onClick={() => openRemoveConfirm(user)}
+                                disabled={user.type === UserType.ADMIN}
                                 className="cursor-pointer p-2 rounded-lg text-red-600 hover:bg-red-50 disabled:opacity-40"
                               >
                                 <FaTimes />
@@ -310,7 +270,7 @@ const AdminUserPage = observer(() => {
                       ))
                     ) : (
                       <tr>
-                        <td colSpan={5} className="py-20 text-center">
+                        <td colSpan={4} className="py-20 text-center">
                           <FaUser className="mx-auto text-slate-200 mb-4" size={36} />
                           <p className="text-slate-400 text-sm font-black uppercase tracking-wider">
                             Nenhum usuário encontrado
@@ -337,18 +297,21 @@ const AdminUserPage = observer(() => {
         <Modal
           isOpen={isConfirmModalOpen}
           title={
-            confirmAction === "VIEW"
-              ? "Informações do Usuário"
-              : "Confirmação de Usuário"
+            confirmAction === "PROMOTE"
+              ? "Confirmação de promoção de Usuário"
+              : confirmAction === "REMOVE"
+                ? "Confirmação de exclusão de Usuário"
+                : "Informações do Usuário"
+
           }
           onClose={() => setIsConfirmModalOpen(false)}
         >
           <div className="space-y-6">
             <p className="text-sm text-slate-600 font-medium">
-              {confirmAction === "APPROVE"
-                ? "Você realmente deseja aprovar este usuário?"
-                : confirmAction === "REJECT"
-                  ? "Você realmente deseja recusar este usuário?"
+              {confirmAction === "PROMOTE"
+                ? "Você realmente deseja promover este usuário?"
+                : confirmAction === "REMOVE"
+                  ? "Você realmente deseja excluir este usuário?"
                   : "Visualização dos dados do usuário."}
             </p>
 
@@ -387,33 +350,12 @@ const AdminUserPage = observer(() => {
 
                     <span
                       className={`inline-flex w-fit uppercase items-center px-3 py-1 rounded-full text-[10px] font-bold border
-      ${confirmUser.type === UserType.ADMIN
-                          ? "bg-purple-50 text-purple-600 border-purple-100"
-                          : confirmUser.type === UserType.DOCENTE
-                            ? "bg-blue-50 text-blue-600 border-blue-100"
-                            : "bg-rose-50 text-rose-600 border-rose-100"
-                        }`}
+                        ${typeStyles[confirmUser.type] ?? "bg-gray-50 text-gray-600 border-gray-100"}
+                      `}
                     >
                       {formatUserType(confirmUser.type)}
                     </span>
                   </div>
-
-                  <div className="bg-slate-50 p-3 rounded-xl border border-slate-100 col-span-2">
-                    <span className="text-[10px] uppercase font-bold text-slate-400 block mb-2">
-                      Status
-                    </span>
-
-                    <span
-                      className={`px-3 py-1 rounded-full text-[11px] font-black uppercase border
-                ${confirmUser.status === UserStatus.CADASTRADO
-                          ? "bg-emerald-50 text-emerald-600 border-emerald-100"
-                          : "bg-amber-50 text-amber-600 border-amber-100"
-                        }`}
-                    >
-                      {confirmUser.status}
-                    </span>
-                  </div>
-
                   <div className="col-span-2 text-[11px] text-slate-400 font-bold mt-2">
                     ID DO USUÁRIO: #{confirmUser.id}
                   </div>
@@ -435,12 +377,12 @@ const AdminUserPage = observer(() => {
                   <button
                     onClick={handleConfirmAction}
                     className={`cursor-pointer flex-1 py-3 rounded-xl text-white font-bold transition
-          ${confirmAction === "APPROVE"
+          ${confirmAction === "PROMOTE"
                         ? "bg-emerald-600 hover:bg-emerald-700"
                         : "bg-red-600 hover:bg-red-700"
                       }`}
                   >
-                    {confirmAction === "APPROVE" ? "Aprovar" : "Recusar"}
+                    {confirmAction === "PROMOTE" ? "Promover" : "Excluir"}
                   </button>
                 </>
               )}

@@ -1,4 +1,3 @@
-import { UserStatus } from "../../domain/enums/UserStatus";
 import { UserType } from "../../domain/enums/UserType";
 
 export interface User {
@@ -8,5 +7,4 @@ export interface User {
   registrationNumber?: string; 
   affiliation?: string;     
   type: UserType  
-  status: UserStatus; 
 }
