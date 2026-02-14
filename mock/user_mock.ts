@@ -1,4 +1,3 @@
-// mock/users.ts
 import { UserType } from "../src/domain/enums/UserType";
 
 export interface User {

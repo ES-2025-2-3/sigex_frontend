@@ -17,7 +17,6 @@ import AdminProfilePage from "../pages/admin/AdminProfilePage";
 import UserBookingPage from "../pages/user/UserBookingPage";
 import UserRequestPage from "../pages/user/UserRequestPage";
 import ConfigurationPage from "../pages/user/UserSettingsPage";
-import EditBookingPage from "../pages/user/EditRequestPage";
 
 import ForgotPasswordEmailPage from "../pages/login/forgotPassword/ForgotPasswordEmailPage";
 import ForgotPasswordCodePage from "../pages/login/forgotPassword/ForgotPasswordCodePage";
@@ -64,13 +63,12 @@ const AppRoutes = () => {
         {/* Comum a Admin e Funcionário */}
         <Route path="/admin" element={<AdminDashboardPage />} />
         <Route path="/admin/solicitacoes" element={<AdminRequestPage />} />
-        {/* outras rotas do admin aqui */}
-        <Route path="/admin/usuarios" element={<AdminUserPage />} />
         <Route path="/admin/espacos" element={<AdminRoomPage />} />
         <Route path="/admin/configuracoes" element={<AdminSettingsPage />} />
         <Route path="/admin/perfil" element={<AdminProfilePage />} />
 
         {/* EXCLUSIVO: Administrador do Sistema */}
+        <Route path="/admin/usuarios" element={<AdminUserPage />} />
         <Route path="/admin/funcionarios" element={<AdminStaffManagementPage />} />
       </Route>
 

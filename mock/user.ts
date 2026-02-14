@@ -35,3 +35,53 @@ export const mockCommonUser = new UserDomain({
   registrationNumber: "987654321",
   type: UserType.SERVIDOR_TECNICO_ADMINISTRATIVO,
 });
+
+/**
+ * Lista integrada de usuários
+ */
+export const user_mock: UserDomain[] = [
+  mockAdmin,
+  mockStaff,
+  new UserDomain({
+    id: "2",
+    name: "Maria Docente",
+    email: "maria.docente@email.edu.br",
+    registrationNumber: "100000002",
+    type: UserType.DOCENTE,
+  }),
+  new UserDomain({
+    id: "3",
+    name: "João Servidor Exemplo",
+    email: "joao.servidor@ufcg.edu.br",
+    registrationNumber: "987654321",
+    type: UserType.SERVIDOR_TECNICO_ADMINISTRATIVO,
+  }),
+  new UserDomain({
+    id: "4",
+    name: "Ana Admin",
+    email: "ana.admin@email.edu.br",
+    registrationNumber: "100000004",
+    type: UserType.ADMIN,
+  }),
+  new UserDomain({
+    id: "5",
+    name: "Paulo Docente",
+    email: "paulo.docente@email.edu.br",
+    registrationNumber: "100000005",
+    type: UserType.DOCENTE,
+  }),
+  new UserDomain({
+    id: "6",
+    name: "Fernanda Técnica",
+    email: "fernanda.tecnica@email.edu.br",
+    registrationNumber: "100000006",
+    type: UserType.SERVIDOR_TECNICO_ADMINISTRATIVO,
+  }),
+  new UserDomain({
+    id: "7",
+    name: "Lucas Técnico",
+    email: "lucas.tecnico@email.edu.br",
+    registrationNumber: "100000007",
+    type: UserType.SERVIDOR_TECNICO_ADMINISTRATIVO,
+  }),
+];
