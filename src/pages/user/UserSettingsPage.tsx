@@ -128,7 +128,6 @@ const UserSettingsPage = observer(() => {
       return false;
     }
 
-    // Placeholder backend
     const senhaAtualCorreta = true;
     if (!senhaAtualCorreta) {
       showToast("error", "Senha atual incorreta.");

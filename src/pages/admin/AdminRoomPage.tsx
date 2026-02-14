@@ -9,45 +9,45 @@ import {
   FaTrash,
 } from "react-icons/fa";
 
-import RoomDomain from "../../domain/room/RoomDomain";
+import spaceDomain from "../../domain/space/SpaceDomain";
 
 import Header from "../../commons/header/Header";
 import AdminSidebar from "../../commons/admin/AdminSidebar";
 import Modal from "../../commons/modal/Modal";
 import Toast, { ToastType } from "../../commons/toast/Toast";
-import { roomStore } from "../../store/room/RoomStore";
+import { spaceStore } from "../../store/space/SpaceStore";
 
-const AdminRoomPage = observer(() => {
-  const { rooms, isLoading } = roomStore;
-  const [domain] = useState(() => new RoomDomain());
+const AdminspacePage = observer(() => {
+  const { spaces, isLoading } = spaceStore;
+  const [domain] = useState(() => new spaceDomain());
 
   const [search, setSearch] = useState("");
   const [isFormModalOpen, setIsFormModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [selectedRoomId, setSelectedRoomId] = useState<number | null>(null);
+  const [selectedspaceId, setSelectedspaceId] = useState<number | null>(null);
   const [toast, setToast] = useState<{
     type: ToastType;
     message: string;
   } | null>(null);
 
   useEffect(() => {
-    roomStore.fetchRooms();
+    spaceStore.fetchSpaces();
   }, []);
 
-  const filteredRooms = useMemo(() => {
-    const roomsList = Array.isArray(rooms) ? rooms : [];
-    return roomsList.filter(r => 
+  const filteredspaces = useMemo(() => {
+    const spacesList = Array.isArray(spaces) ? spaces : [];
+    return spacesList.filter(r => 
       r.name.toLowerCase().includes(search.toLowerCase())
     );
-  }, [rooms, search]);
+  }, [spaces, search]);
 
   const handleOpenCreate = () => {
     domain.clear(); 
     setIsFormModalOpen(true);
   };
 
-  const handleOpenEdit = (room: any) => {
-    domain.setData(room);
+  const handleOpenEdit = (space: any) => {
+    domain.setData(space);
     setIsFormModalOpen(true);
   };
 
@@ -57,7 +57,7 @@ const AdminRoomPage = observer(() => {
 
     if (domain.hasErrors) return;
 
-    const success = await roomStore.save(domain);
+    const success = await spaceStore.save(domain);
     if (success) {
       setToast({ type: "success", message: "Sala salva com sucesso!" });
       setIsFormModalOpen(false);
@@ -70,8 +70,8 @@ const AdminRoomPage = observer(() => {
   };
 
   const handleDelete = async () => {
-    if (selectedRoomId) {
-      const success = await roomStore.delete(selectedRoomId);
+    if (selectedspaceId) {
+      const success = await spaceStore.delete(selectedspaceId);
       if (success) {
         setToast({ type: "success", message: "Sala excluída!" });
         setIsDeleteModalOpen(false);
@@ -134,28 +134,28 @@ const AdminRoomPage = observer(() => {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 text-sm font-bold text-slate-700">
-                    {filteredRooms.length > 0 ? (
-                      filteredRooms.map((room) => (
-                        <tr key={room.id} className="hover:bg-slate-50 transition">
+                    {filteredspaces.length > 0 ? (
+                      filteredspaces.map((space) => (
+                        <tr key={space.id} className="hover:bg-slate-50 transition">
                           <td className="px-6 py-5 flex items-center gap-3">
                             <FaDoorOpen className="text-brand-blue opacity-70" />{" "}
-                            {room.name}
+                            {space.name}
                           </td>
                           <td className="px-6 py-5 font-medium text-slate-500">
                             <FaUsers className="inline mr-2 opacity-30" />{" "}
-                            {room.capacity} pessoas
+                            {space.capacity} pessoas
                           </td>
                           <td className="px-6 py-5 text-center">
                             <div className="flex justify-center gap-2">
                               <button
-                                onClick={() => handleOpenEdit(room)}
+                                onClick={() => handleOpenEdit(space)}
                                 className="p-2 text-slate-400 hover:text-brand-blue transition"
                               >
                                 <FaEdit />
                               </button>
                               <button
                                 onClick={() => {
-                                  setSelectedRoomId(room.id);
+                                  setSelectedspaceId(space.id);
                                   setIsDeleteModalOpen(true);
                                 }}
                                 className="p-2 text-slate-400 hover:text-red-500 transition"
@@ -281,4 +281,4 @@ const AdminRoomPage = observer(() => {
   );
 });
 
-export default AdminRoomPage;
+export default AdminspacePage;

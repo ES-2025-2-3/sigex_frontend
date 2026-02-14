@@ -8,11 +8,11 @@ import LoadingSpinner from "../../commons/components/LoadingSpinner";
 import Pagination from "../../commons/pagination/Pagination";
 import Modal from "../../commons/modal/Modal";
 
-import { booking_mock } from "../../../mock/booking";
+import { reservation_mock } from "../../../mock/reservation";
 import { event_mock } from "../../../mock/event";
-import { BookingStatus } from "../../domain/enums/BookingStatus";
+import { ReservationStatus } from "../../domain/enums/ReservationStatus";
 import { userSessionStore } from "../../store/user/UserSessionStore";
-import { Booking } from "../../types/booking/Booking";
+import { Reservation } from "../../types/reservation/ReservationType";
 
 import {
   FaCalendarAlt,
@@ -31,18 +31,18 @@ import UserBanner from "../../commons/user/UserBanner";
 const ITEMS_PER_PAGE = 5;
 
 const UserRequestPage = observer(() => {
-  const navigate = useNavigate(); // Hook de navegação
+  const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
-  const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
+  const [selectedReservation, setSelectedReservation] = useState<Reservation | null>(null);
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
-  const [bookingToCancel, setBookingToCancel] = useState<Booking | null>(null);
+  const [reservationToCancel, setReservationToCancel] = useState<Reservation | null>(null);
   const [isCancelSuccessOpen, setIsCancelSuccessOpen] = useState(false);
   const [isCancelErrorOpen, setIsCancelErrorOpen] = useState(false);
 
-  const [userBookings, setUserBookings] = useState<Booking[]>([]);
+  const [userReservations, setUserReservations] = useState<Reservation[]>([]);
   const loggedUserId = userSessionStore.currentUser?.id || 1;
 
   useEffect(() => {
@@ -51,24 +51,24 @@ const UserRequestPage = observer(() => {
   }, []);
 
   useEffect(() => {
-    setUserBookings(
-      (booking_mock as Booking[]).filter((b) => b.bookerId === loggedUserId),
+    setUserReservations(
+      (reservation_mock as Reservation[]).filter((b) => b.bookerId === loggedUserId),
     );
   }, [loggedUserId]);
 
   const handleConfirmCancel = async () => {
     try {
-      setUserBookings((prev) => {
-        const newBookings = prev.filter((b) => b.id !== bookingToCancel!.id);
+      setUserReservations((prev) => {
+        const newReservations = prev.filter((b) => b.id !== reservationToCancel!.id);
 
         const totalPagesAfterDelete = Math.ceil(
-          newBookings.length / ITEMS_PER_PAGE,
+          newReservations.length / ITEMS_PER_PAGE,
         );
         if (currentPage > totalPagesAfterDelete && totalPagesAfterDelete > 0) {
           setCurrentPage(totalPagesAfterDelete);
         }
 
-        return newBookings;
+        return newReservations;
       });
 
       setIsCancelModalOpen(false);
@@ -84,10 +84,10 @@ const UserRequestPage = observer(() => {
     return event ? event.title : `Evento #${eventId}`;
   };
 
-  const filteredBookings = useMemo(() => {
-    return userBookings
+  const filteredReservations = useMemo(() => {
+    return userReservations
       .filter((b) => {
-        const isPending = b.status === BookingStatus.SOLICITADA;
+        const isPending = b.status === ReservationStatus.SOLICITADA;
         const eventTitle = getEventTitle(b.eventId).toLowerCase();
         const matchesSearch =
           eventTitle.includes(search.toLowerCase()) ||
@@ -96,13 +96,13 @@ const UserRequestPage = observer(() => {
         return isPending && matchesSearch;
       })
       .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-  }, [search, userBookings]);
+  }, [search, userReservations]);
 
-  const totalPages = Math.ceil(filteredBookings.length / ITEMS_PER_PAGE);
-  const paginatedBookings = useMemo(() => {
+  const totalPages = Math.ceil(filteredReservations.length / ITEMS_PER_PAGE);
+  const paginatedReservations = useMemo(() => {
     const start = (currentPage - 1) * ITEMS_PER_PAGE;
-    return filteredBookings.slice(start, start + ITEMS_PER_PAGE);
-  }, [filteredBookings, currentPage]);
+    return filteredReservations.slice(start, start + ITEMS_PER_PAGE);
+  }, [filteredReservations, currentPage]);
 
   useEffect(() => {
     setCurrentPage(1);
@@ -164,8 +164,8 @@ const UserRequestPage = observer(() => {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 text-sm font-bold">
-                    {paginatedBookings.length > 0 ? (
-                      paginatedBookings.map((b) => (
+                    {paginatedReservations.length > 0 ? (
+                      paginatedReservations.map((b) => (
                         <tr
                           key={b.id}
                           className="group hover:bg-slate-50 transition-colors"
@@ -192,7 +192,7 @@ const UserRequestPage = observer(() => {
                             <div className="flex items-center justify-center gap-2">
                               <button
                                 onClick={() => {
-                                  setSelectedBooking(b);
+                                  setSelectedReservation(b);
                                   setIsDetailsModalOpen(true);
                                 }}
                                 className="p-2.5 text-gray-400 hover:text-brand-blue
@@ -213,7 +213,7 @@ const UserRequestPage = observer(() => {
 
                               <button
                                 onClick={() => {
-                                  setBookingToCancel(b);
+                                  setReservationToCancel(b);
                                   setIsCancelModalOpen(true);
                                 }}
                                 className="p-2.5 text-gray-400 hover:text-red-600
@@ -257,7 +257,7 @@ const UserRequestPage = observer(() => {
         title="Resumo da Reserva"
         onClose={() => setIsDetailsModalOpen(false)}
       >
-        {selectedBooking && (
+        {selectedReservation && (
           <div className="space-y-6">
             <div className="flex items-center gap-4 bg-slate-50 p-5 rounded-2xl border border-slate-100">
               <div className="w-10 h-10 bg-brand-blue text-white rounded-xl flex items-center justify-center shadow-lg shadow-brand-blue/20">
@@ -265,10 +265,10 @@ const UserRequestPage = observer(() => {
               </div>
               <div>
                 <h3 className="font-bold text-slate-800 leading-tight">
-                  {getEventTitle(selectedBooking.eventId)}
+                  {getEventTitle(selectedReservation.eventId)}
                 </h3>
                 <p className="text-[10px] text-slate-400 font-bold mt-0.5">
-                  REFERÊNCIA: #{selectedBooking.id}
+                  REFERÊNCIA: #{selectedReservation.id}
                 </p>
               </div>
             </div>
@@ -279,7 +279,7 @@ const UserRequestPage = observer(() => {
                   Data
                 </span>
                 <p className="text-slate-700 font-bold text-sm">
-                  {selectedBooking.date}
+                  {selectedReservation.date}
                 </p>
               </div>
               <div className="p-3 bg-white border border-slate-100 rounded-xl">
@@ -287,7 +287,7 @@ const UserRequestPage = observer(() => {
                   Período
                 </span>
                 <p className="text-slate-700 font-bold text-sm uppercase">
-                  {selectedBooking.shift}
+                  {selectedReservation.shift}
                 </p>
               </div>
             </div>
@@ -317,7 +317,7 @@ const UserRequestPage = observer(() => {
         title="Cancelar Solicitação"
         onClose={() => setIsCancelModalOpen(false)}
       >
-        {bookingToCancel && (
+        {reservationToCancel && (
           <div className="space-y-6">
             <div className="flex items-center gap-4 bg-slate-50 p-5 rounded-2xl border border-slate-100">
               <div
@@ -343,7 +343,7 @@ const UserRequestPage = observer(() => {
                   Evento
                 </span>
                 <p className="text-slate-700 font-bold text-sm">
-                  {getEventTitle(bookingToCancel.eventId)}
+                  {getEventTitle(reservationToCancel.eventId)}
                 </p>
               </div>
 
@@ -353,7 +353,7 @@ const UserRequestPage = observer(() => {
                     Data
                   </span>
                   <p className="text-slate-700 font-bold text-sm">
-                    {bookingToCancel.date}
+                    {reservationToCancel.date}
                   </p>
                 </div>
 
@@ -362,7 +362,7 @@ const UserRequestPage = observer(() => {
                     Turno
                   </span>
                   <p className="text-slate-700 font-bold text-sm uppercase">
-                    {bookingToCancel.shift}
+                    {reservationToCancel.shift}
                   </p>
                 </div>
               </div>

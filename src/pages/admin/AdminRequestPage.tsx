@@ -17,16 +17,16 @@ import Header from "../../commons/header/Header";
 import AdminSidebar from "../../commons/admin/AdminSidebar";
 import Footer from "../../commons/footer/Footer";
 import Pagination from "../../commons/pagination/Pagination";
-import { Booking } from "../../types/booking/Booking";
 import Modal from "../../commons/modal/Modal";
 
-import { booking_mock } from "../../../mock/booking";
 import { event_mock } from "../../../mock/event";
 
-import { BookingStatus } from "../../domain/enums/BookingStatus";
+import { ReservationStatus } from "../../domain/enums/ReservationStatus";
 import Toast, { ToastType } from "../../commons/toast/Toast";
 
 import { mockStaff, mockAdmin, mockCommonUser } from "../../../mock/user";
+import { reservation_mock } from "../../../mock/reservation";
+import { Reservation } from "../../types/reservation/ReservationType";
 
 type ConfirmAction = "APPROVE" | "REJECT";
 
@@ -55,19 +55,18 @@ const AdminRequestPage = observer(() => {
     return user ? user.email : "-";
   };
 
-  // --- ESTADOS ---
-  const [statusFilter, setStatusFilter] = useState<BookingStatus | "ALL">(
+  const [statusFilter, setStatusFilter] = useState<ReservationStatus | "ALL">(
     "ALL",
   );
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
-  const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
+  const [selectedReservation, setSelectedReservation] = useState<Reservation | null>(null);
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [confirmAction, setConfirmAction] = useState<ConfirmAction | null>(
     null,
   );
-  const [confirmBooking, setConfirmBooking] = useState<Booking | null>(null);
+  const [confirmReservation, setConfirmReservation] = useState<Reservation | null>(null);
   const [toast, setToast] = useState<{
     type: ToastType;
     message: string;
@@ -77,49 +76,49 @@ const AdminRequestPage = observer(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, [currentPage]);
 
-  const openApproveConfirm = (booking: Booking) => {
-    setConfirmBooking(booking);
+  const openApproveConfirm = (reservation: Reservation) => {
+    setConfirmReservation(reservation);
     setConfirmAction("APPROVE");
     setIsConfirmModalOpen(true);
   };
 
-  const openRejectConfirm = (booking: Booking) => {
-    setConfirmBooking(booking);
+  const openRejectConfirm = (reservation: Reservation) => {
+    setConfirmReservation(reservation);
     setConfirmAction("REJECT");
     setIsConfirmModalOpen(true);
   };
 
   const handleConfirmAction = () => {
-    if (!confirmBooking || !confirmAction) return;
+    if (!confirmReservation || !confirmAction) return;
 
     if (confirmAction === "APPROVE") {
-      handleApprove(confirmBooking);
+      handleApprove(confirmReservation);
     } else {
-      handleReject(confirmBooking);
+      handleReject(confirmReservation);
     }
 
     setIsConfirmModalOpen(false);
-    setConfirmBooking(null);
+    setConfirmReservation(null);
     setConfirmAction(null);
   };
 
-  const handleApprove = (booking: Booking) => {
+  const handleApprove = (reservation: Reservation) => {
     setToast({
       type: "success",
-      message: `Reserva #${booking.id} aprovada com sucesso`,
+      message: `Reserva #${reservation.id} aprovada com sucesso`,
     });
     setIsDetailsModalOpen(false);
   };
 
-  const handleReject = (booking: Booking) => {
+  const handleReject = (Reservation: Reservation) => {
     setToast({
       type: "success",
-      message: `Reserva #${booking.id} recusada com sucesso`,
+      message: `Reserva #${Reservation.id} recusada com sucesso`,
     });
     setIsDetailsModalOpen(false);
   };
 
-  const handleStatusChange = (status: BookingStatus | "ALL") => {
+  const handleStatusChange = (status: ReservationStatus | "ALL") => {
     setStatusFilter(status);
     setCurrentPage(1);
   };
@@ -129,29 +128,28 @@ const AdminRequestPage = observer(() => {
     setCurrentPage(1);
   };
 
-  // --- MAPAS DE ESTILO ---
-  const statusOptions: Array<BookingStatus | "ALL"> = [
+  const statusOptions: Array<ReservationStatus | "ALL"> = [
     "ALL",
-    BookingStatus.SOLICITADA,
-    BookingStatus.APROVADA,
-    BookingStatus.INDEFERIDA,
+    ReservationStatus.SOLICITADA,
+    ReservationStatus.APROVADA,
+    ReservationStatus.INDEFERIDA,
   ];
 
   const statusIconMap = {
-    [BookingStatus.APROVADA]: <FaCheckCircle />,
-    [BookingStatus.INDEFERIDA]: <FaTimesCircle />,
-    [BookingStatus.SOLICITADA]: <FaHourglassHalf />,
+    [ReservationStatus.APROVADA]: <FaCheckCircle />,
+    [ReservationStatus.INDEFERIDA]: <FaTimesCircle />,
+    [ReservationStatus.SOLICITADA]: <FaHourglassHalf />,
   };
 
   const statusStyleMap = {
-    [BookingStatus.APROVADA]:
+    [ReservationStatus.APROVADA]:
       "bg-emerald-50 text-emerald-600 border-emerald-100",
-    [BookingStatus.SOLICITADA]: "bg-amber-50 text-amber-600 border-amber-100",
-    [BookingStatus.INDEFERIDA]: "bg-red-50 text-red-600 border-red-100",
+    [ReservationStatus.SOLICITADA]: "bg-amber-50 text-amber-600 border-amber-100",
+    [ReservationStatus.INDEFERIDA]: "bg-red-50 text-red-600 border-red-100",
   };
 
-  const filteredBookings = useMemo(() => {
-    return booking_mock.filter((b) => {
+  const filteredReservations = useMemo(() => {
+    return reservation_mock.filter((b) => {
       const matchesStatus = statusFilter === "ALL" || b.status === statusFilter;
       const term = search.toLowerCase();
       const matchesSearch =
@@ -161,8 +159,8 @@ const AdminRequestPage = observer(() => {
     });
   }, [statusFilter, search]);
 
-  const totalPages = Math.ceil(filteredBookings.length / ITEMS_PER_PAGE);
-  const paginatedBookings = filteredBookings.slice(
+  const totalPages = Math.ceil(filteredReservations.length / ITEMS_PER_PAGE);
+  const paginatedReservations = filteredReservations.slice(
     (currentPage - 1) * ITEMS_PER_PAGE,
     currentPage * ITEMS_PER_PAGE,
   );
@@ -241,8 +239,8 @@ const AdminRequestPage = observer(() => {
                   </thead>
 
                   <tbody className="divide-y divide-slate-100 text-sm font-bold">
-                    {paginatedBookings.length > 0 ? (
-                      paginatedBookings.map((b) => (
+                    {paginatedReservations.length > 0 ? (
+                      paginatedReservations.map((b) => (
                         <tr key={b.id} className="hover:bg-slate-50 transition">
                           <td className="px-6 py-5">
                             <div className="flex items-center gap-2">
@@ -281,7 +279,7 @@ const AdminRequestPage = observer(() => {
                           <td className="px-6 py-5">
                             <div className="flex justify-center gap-2">
                               <button
-                                disabled={b.status !== BookingStatus.SOLICITADA}
+                                disabled={b.status !== ReservationStatus.SOLICITADA}
                                 onClick={() => openApproveConfirm(b)}
                                 className="cursor-pointer p-2 rounded-lg text-emerald-600 hover:bg-emerald-50 disabled:opacity-40"
                               >
@@ -289,7 +287,7 @@ const AdminRequestPage = observer(() => {
                               </button>
 
                               <button
-                                disabled={b.status !== BookingStatus.SOLICITADA}
+                                disabled={b.status !== ReservationStatus.SOLICITADA}
                                 onClick={() => openRejectConfirm(b)}
                                 className="cursor-pointer p-2 rounded-lg text-red-600 hover:bg-red-50 disabled:opacity-40"
                               >
@@ -298,7 +296,7 @@ const AdminRequestPage = observer(() => {
 
                               <button
                                 onClick={() => {
-                                  setSelectedBooking(b);
+                                  setSelectedReservation(b);
                                   setIsDetailsModalOpen(true);
                                 }}
                                 className="cursor-pointer p-2 rounded-lg text-slate-400 hover:text-brand-blue"
@@ -342,7 +340,7 @@ const AdminRequestPage = observer(() => {
           title="Resumo da Reserva"
           onClose={() => setIsDetailsModalOpen(false)}
         >
-          {selectedBooking && (
+          {selectedReservation && (
             <div className="space-y-6">
               <div className="flex items-center gap-4 bg-slate-50 p-5 rounded-2xl border border-slate-100">
                 <div className="w-10 h-10 bg-brand-blue text-white rounded-xl flex items-center justify-center shadow-lg shadow-brand-blue/20">
@@ -350,13 +348,13 @@ const AdminRequestPage = observer(() => {
                 </div>
                 <div>
                   <h3 className="font-bold text-slate-800 leading-tight">
-                    {getEventTitle(selectedBooking.eventId)}
+                    {getEventTitle(selectedReservation.eventId)}
                   </h3>
                   <p className="text-xs text-slate-500 mt-1 leading-snug max-w-md">
-                    {getEventDescription(selectedBooking.eventId)}
+                    {getEventDescription(selectedReservation.eventId)}
                   </p>
                   <p className="text-[10px] text-slate-400 font-bold mt-2">
-                    REFERÊNCIA: #{selectedBooking.id}
+                    REFERÊNCIA: #{selectedReservation.id}
                   </p>
                 </div>
               </div>
@@ -367,7 +365,7 @@ const AdminRequestPage = observer(() => {
                     Data
                   </span>
                   <p className="text-slate-700 font-bold text-sm">
-                    {selectedBooking.date}
+                    {selectedReservation.date}
                   </p>
                 </div>
                 <div className="p-3 bg-white border border-slate-100 rounded-xl">
@@ -375,30 +373,30 @@ const AdminRequestPage = observer(() => {
                     Período
                   </span>
                   <p className="text-slate-700 font-bold text-sm uppercase">
-                    {selectedBooking.shift}
+                    {selectedReservation.shift}
                   </p>
                 </div>
               </div>
 
               <div
-                className={`p-4 rounded-xl border flex items-center gap-3 ${statusStyleMap[selectedBooking.status]}`}
+                className={`p-4 rounded-xl border flex items-center gap-3 ${statusStyleMap[selectedReservation.status]}`}
               >
-                {statusIconMap[selectedBooking.status]}
+                {statusIconMap[selectedReservation.status]}
                 <span className="text-xs font-bold uppercase tracking-wider">
-                  Status: {selectedBooking.status}
+                  Status: {selectedReservation.status}
                 </span>
               </div>
 
-              {selectedBooking.status === BookingStatus.SOLICITADA && (
+              {selectedReservation.status === ReservationStatus.SOLICITADA && (
                 <div className="flex gap-3">
                   <button
-                    onClick={() => handleApprove(selectedBooking)}
+                    onClick={() => handleApprove(selectedReservation)}
                     className="flex-1 py-3 rounded-xl cursor-pointer bg-emerald-600 text-white text-sm font-bold shadow-sm hover:bg-emerald-700 hover:shadow transition-all"
                   >
                     Aceitar
                   </button>
                   <button
-                    onClick={() => handleReject(selectedBooking)}
+                    onClick={() => handleReject(selectedReservation)}
                     className="flex-1 py-3 rounded-xl cursor-pointer bg-red-600 text-white text-sm font-bold shadow-sm hover:bg-red-700 hover:shadow transition-all"
                   >
                     Recusar
@@ -428,20 +426,20 @@ const AdminRequestPage = observer(() => {
                 : "Você realmente deseja recusar esta reserva?"}
             </p>
 
-            {confirmBooking && (
+            {confirmReservation && (
               <div className="flex items-center gap-4 bg-slate-50 p-5 rounded-2xl border border-slate-100">
                 <div className="w-10 h-10 bg-brand-blue text-white rounded-xl flex items-center justify-center shadow-lg shadow-brand-blue/20">
                   <FaBookmark size={18} />
                 </div>
                 <div>
                   <h3 className="font-bold text-slate-800 leading-tight">
-                    {getEventTitle(confirmBooking.eventId)}
+                    {getEventTitle(confirmReservation.eventId)}
                   </h3>
                   <p className="text-xs text-slate-500 mt-1 leading-snug max-w-md">
-                    {getEventDescription(confirmBooking.eventId)}
+                    {getEventDescription(confirmReservation.eventId)}
                   </p>
                   <p className="text-[10px] text-slate-400 font-bold mt-2">
-                    REFERÊNCIA: #{confirmBooking.id}
+                    REFERÊNCIA: #{confirmReservation.id}
                   </p>
                 </div>
               </div>

@@ -6,7 +6,7 @@ import AboutPage from "../pages/about/AboutPage";
 import RegisterPage from "../pages/register/RegisterPage";
 import EventsPage from "../pages/events/EventsPage";
 import EventDetailsPage from "../pages/events/EventDetailsPage";
-import BookingRequestPage from "../pages/booking/BookingRequestPage";
+import BookingRequestPage from "../pages/reservation/ReservationRequestPage";
 import NotFoundPage from "../pages/notfound/NotFoundPage";
 import ProtectedRoute from "./ProtectedRoute";
 
@@ -14,7 +14,7 @@ import AdminDashboardPage from "../pages/admin/AdminDashboardPage";
 import AdminSettingsPage from "../pages/admin/AdminSettingsPage";
 import AdminProfilePage from "../pages/admin/AdminProfilePage";
 
-import UserBookingPage from "../pages/user/UserBookingPage";
+import UserBookingPage from "../pages/user/UserReservationPage";
 import UserRequestPage from "../pages/user/UserRequestPage";
 import ConfigurationPage from "../pages/user/UserSettingsPage";
 import EditBookingPage from "../pages/user/EditRequestPage";
