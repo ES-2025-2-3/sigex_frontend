@@ -4,10 +4,8 @@ import DomainBase from '../DomainBase';
 class EventDomain extends DomainBase {
   @observable accessor id: number | null = null;
   @observable accessor title = '';
-  @observable accessor date = '';
   @observable accessor description = '';
   @observable accessor imageUrl = '';
-  @observable accessor location = '';
   @observable accessor tags: string[] = [];
   @observable accessor registrationLink = '';
   @observable accessor additionalInfo = '';
@@ -40,8 +38,6 @@ class EventDomain extends DomainBase {
 
     super.validate(undefined, () => {
       if (!this.title) this.errors['title'] = 'Title is required';
-      if (!this.date) this.errors['date'] = 'Date is required';
-      if (!this.location) this.errors['location'] = 'Location is required';
       if (!this.description) this.errors['description'] = 'Description is required';
 
       if (this.registrationLink) {

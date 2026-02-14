@@ -1,17 +1,17 @@
 import { observable, action, computed, makeObservable } from "mobx";
 import DomainBase from "../DomainBase";
-import { BookingStatus } from "../enums/BookingStatus";
-import { BookingShift } from "../enums/BookingShift";
+import { ReservationStatus } from "../enums/ReservationStatus";
+import { ReservationShift } from "../enums/ReservationShift";
 
-class BookingDomain extends DomainBase {
+class ReservationDomain extends DomainBase {
   @observable accessor id: string | null = null;
   @observable accessor bookerId: string | null = null;
   @observable accessor instituteId: string | null = null;
   @observable accessor roomIds: number[] = [];
   @observable accessor eventId: number | null = null;
   @observable accessor date = "";
-  @observable accessor shift: BookingShift | null = null;
-  @observable accessor status: BookingStatus = BookingStatus.SOLICITADA;
+  @observable accessor shift: ReservationShift | null = null;
+  @observable accessor status: ReservationStatus = ReservationStatus.SOLICITADA;
 
   constructor(b?: Record<string, unknown>) {
     super();
@@ -52,4 +52,4 @@ class BookingDomain extends DomainBase {
   }
 }
 
-export default BookingDomain;
+export default ReservationDomain;

@@ -1,9 +1,9 @@
 import axios from 'axios';
-import RoomDomain from '../domain/room/RoomDomain';
+import RoomDomain from '../domain/space/SpaceDomain';
 
 const API_URL = '/api/rooms';
 
-class RoomService {
+class SpaceService {
   /**
    * Busca todos os locais (rooms) cadastrados no sistema.
    * No backend, o RoomController já possui o endpoint GET.
@@ -26,7 +26,6 @@ class RoomService {
    * O backend valida se o usuário logado é o gerente do instituto.
    */
   async create(domain: RoomDomain) {
-    // Seguindo o seu padrão de extrair o objeto do domain
     const payload = {
       name: domain.name,
       capacity: domain.capacity,
@@ -59,4 +58,4 @@ class RoomService {
   }
 }
 
-export default new RoomService();
+export default new SpaceService();

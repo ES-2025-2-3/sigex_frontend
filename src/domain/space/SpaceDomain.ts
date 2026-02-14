@@ -1,17 +1,17 @@
 import { observable, action, makeObservable } from 'mobx';
 import DomainBase from '../DomainBase';
 
-class RoomDomain extends DomainBase {
+class SpaceDomain extends DomainBase {
   @observable accessor id: number | null = null;
   @observable accessor name = '';
   @observable accessor capacity = 0;
   @observable accessor description = '';
   @observable accessor instituteId = '';
 
-  constructor(room?: Record<string, unknown>) {
+  constructor(space?: Record<string, unknown>) {
     super();
     makeObservable(this);
-    if (room) this.setData(room);
+    if (space) this.setData(space);
   }
 
   @action
@@ -39,4 +39,4 @@ class RoomDomain extends DomainBase {
   }
 }
 
-export default RoomDomain;
+export default SpaceDomain;

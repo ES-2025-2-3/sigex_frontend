@@ -1,4 +1,4 @@
-export const mockRoom = [
+export const spaces_mock = [
   {
     id: 1,
     name: "Auditório do Centro de Extensão",
