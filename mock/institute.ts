@@ -12,7 +12,7 @@ export const mockInstitute: Institute = {
   acronym: "PROPEX",
   contactPhone: "(83) 2101-1123",
   manager: {
-    id: String(mockStaff.id), 
+    id: Number(mockStaff.id) || 0, 
     name: mockStaff.name || "",
     email: mockStaff.email || "",
     type: mockStaff.type as any, 

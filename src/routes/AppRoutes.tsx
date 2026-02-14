@@ -17,11 +17,12 @@ import AdminProfilePage from "../pages/admin/AdminProfilePage";
 import UserBookingPage from "../pages/user/UserReservationPage";
 import UserRequestPage from "../pages/user/UserRequestPage";
 import ConfigurationPage from "../pages/user/UserSettingsPage";
-import EditBookingPage from "../pages/user/EditRequestPage";
 
 import ForgotPasswordEmailPage from "../pages/login/forgotPassword/ForgotPasswordEmailPage";
 import ForgotPasswordCodePage from "../pages/login/forgotPassword/ForgotPasswordCodePage";
 import ForgotPasswordNewPasswordPage from "../pages/login/forgotPassword/ForgotPasswordNewPasswordPage";
+import EditBookingPage from "../pages/user/EditRequestPage";
+import AdminUserPage from "../pages/admin/AdminUserPage";
 import AdminRequestPage from "../pages/admin/AdminRequestPage";
 import AdminRoomPage from "../pages/admin/AdminRoomPage";
 import AdminStaffManagementPage from "../pages/admin/AdminStaffManagementPage";
@@ -67,6 +68,7 @@ const AppRoutes = () => {
         <Route path="/admin/perfil" element={<AdminProfilePage />} />
 
         {/* EXCLUSIVO: Administrador do Sistema */}
+        <Route path="/admin/usuarios" element={<AdminUserPage />} />
         <Route path="/admin/funcionarios" element={<AdminStaffManagementPage />} />
       </Route>
 
