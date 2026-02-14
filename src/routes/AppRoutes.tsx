@@ -24,7 +24,7 @@ import ForgotPasswordNewPasswordPage from "../pages/login/forgotPassword/ForgotP
 import EditBookingPage from "../pages/user/EditRequestPage";
 import AdminUserPage from "../pages/admin/AdminUserPage";
 import AdminRequestPage from "../pages/admin/AdminRequestPage";
-import AdminRoomPage from "../pages/admin/AdminRoomPage";
+import AdminRoomPage from "../pages/admin/AdminSpacePage";
 import AdminStaffManagementPage from "../pages/admin/AdminStaffManagementPage";
 
 const AppRoutes = () => {

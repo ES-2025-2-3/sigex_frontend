@@ -1,7 +1,7 @@
 import { observer } from "mobx-react-lite";
 import { useEffect, useState, useMemo } from "react";
 import {
-  FaTrashAlt,
+  FaTrash,
   FaExclamationTriangle,
   FaUser,
   FaSearch,
@@ -180,10 +180,10 @@ const AdminStaffManagementPage = observer(() => {
                             <div className="flex justify-center gap-2">
                               <button
                                 onClick={() => openRemoveConfirm(staff)}
-                                className="cursor-pointer p-2 rounded-lg text-red-600 hover:bg-red-50 transition-colors"
+                                className="cursor-pointer p-2 text-slate-400 hover:text-red-500 transition"
                                 title="Revogar Permissões"
                               >
-                                <FaTrashAlt size={16} />
+                                <FaTrash size={16} />
                               </button>
                             </div>
                           </td>
