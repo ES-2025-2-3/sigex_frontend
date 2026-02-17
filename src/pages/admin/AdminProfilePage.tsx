@@ -8,7 +8,7 @@ import LoadingSpinner from "../../commons/components/LoadingSpinner";
 import Modal from "../../commons/modal/Modal";
 import Toast, { ToastType } from "../../commons/toast/Toast";
 
-import { userSessionStore } from "../../store/user/UserSessionStore";
+import { userSessionStore } from "../../store/auth/UserSessionStore";
 
 import { FaEnvelope, FaUserShield, FaUserCog } from "react-icons/fa";
 

@@ -8,7 +8,7 @@ import UserBanner from "../../commons/user/UserBanner";
 import Modal from "../../commons/modal/Modal";
 import Toast, { ToastType } from "../../commons/toast/Toast";
 
-import { userSessionStore } from "../../store/user/UserSessionStore";
+import { userSessionStore } from "../../store/auth/UserSessionStore";
 import { UserType } from "../../domain/enums/UserType";
 
 import { FaUserEdit, FaEnvelope, FaTrashAlt } from "react-icons/fa";

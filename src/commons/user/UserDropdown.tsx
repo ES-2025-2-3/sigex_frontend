@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { observer } from "mobx-react-lite";
 import { useNavigate } from "react-router-dom";
-import { userSessionStore } from "../../store/user/UserSessionStore";
+import { userSessionStore } from "../../store/auth/UserSessionStore";
 import UserRequestPage from "../../pages/user/UserRequestPage";
 
 const UserDropdown: React.FC = observer(() => {
@@ -10,7 +10,7 @@ const UserDropdown: React.FC = observer(() => {
   const dropdownRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
 
-  const user = userSessionStore.user;
+  const user = userSessionStore.currentUser;
   if (!user) return null;
 
   useEffect(() => {

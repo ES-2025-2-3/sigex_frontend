@@ -1,4 +1,5 @@
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
+import { observer } from "mobx-react-lite";
 
 import HomePage from "../pages/homepage/HomePage";
 import LoginPage from "../pages/login/LoginPage";
@@ -13,69 +14,62 @@ import ProtectedRoute from "./ProtectedRoute";
 import AdminDashboardPage from "../pages/admin/AdminDashboardPage";
 import AdminSettingsPage from "../pages/admin/AdminSettingsPage";
 import AdminProfilePage from "../pages/admin/AdminProfilePage";
-
-import UserBookingPage from "../pages/user/UserReservationPage";
-import UserRequestPage from "../pages/user/UserRequestPage";
-import ConfigurationPage from "../pages/user/UserSettingsPage";
-
-import ForgotPasswordEmailPage from "../pages/login/forgotPassword/ForgotPasswordEmailPage";
-import ForgotPasswordCodePage from "../pages/login/forgotPassword/ForgotPasswordCodePage";
-import ForgotPasswordNewPasswordPage from "../pages/login/forgotPassword/ForgotPasswordNewPasswordPage";
-import EditBookingPage from "../pages/user/EditRequestPage";
 import AdminUserPage from "../pages/admin/AdminUserPage";
 import AdminRequestPage from "../pages/admin/AdminRequestPage";
 import AdminRoomPage from "../pages/admin/AdminSpacePage";
 import AdminStaffManagementPage from "../pages/admin/AdminStaffManagementPage";
 
-const AppRoutes = () => {
+import UserBookingPage from "../pages/user/UserReservationPage";
+import UserRequestPage from "../pages/user/UserRequestPage";
+import ConfigurationPage from "../pages/user/UserSettingsPage";
+import EditBookingPage from "../pages/user/EditRequestPage";
+
+import ForgotPasswordEmailPage from "../pages/login/forgotPassword/ForgotPasswordEmailPage";
+import ForgotPasswordCodePage from "../pages/login/forgotPassword/ForgotPasswordCodePage";
+import ForgotPasswordNewPasswordPage from "../pages/login/forgotPassword/ForgotPasswordNewPasswordPage";
+import RegisterSuccessPage from "../pages/register/RegisterSucessPage";
+
+const AppRoutes = observer(() => {
   return (
     <Routes>
-      {/* Públicas */}
+      {/* --- PÚBLICAS (Abertas para todos) --- */}
       <Route path="/" element={<HomePage />} />
       <Route path="/eventos" element={<EventsPage />} />
       <Route path="/eventos/:id" element={<EventDetailsPage />} />
-      <Route path="/reserva" element={<BookingRequestPage />} />
       <Route path="/sobre" element={<AboutPage />} />
 
-      {/* Auth */}
+      {/* --- AUTH (Somente quem não está logado) --- */}
       <Route path="/login" element={<LoginPage />} />
       <Route path="/cadastro" element={<RegisterPage />} />
+      <Route path="/cadastro-sucesso" element={<RegisterSuccessPage />} />
       <Route path="/recuperar-senha" element={<ForgotPasswordEmailPage />} />
-      <Route
-        path="/recuperar-senha/codigo"
-        element={<ForgotPasswordCodePage />}
-      />
-      <Route
-        path="/recuperar-senha/nova-senha"
-        element={<ForgotPasswordNewPasswordPage />}
-      />
+      <Route path="/recuperar-senha/codigo" element={<ForgotPasswordCodePage />} />
+      <Route path="/recuperar-senha/nova-senha" element={<ForgotPasswordNewPasswordPage />} />
 
-      {/* Usuário Comum */}
-      <Route path="/usuario/reservas" element={<UserBookingPage />} />
-      <Route path="/usuario/solicitacoes" element={<UserRequestPage />} />
-      <Route
-        path="/usuario/solicitacoes/editar/:id"
-        element={<EditBookingPage />}
-      />
-      <Route path="/usuario/configuracoes" element={<ConfigurationPage />} />
-
+      {/* --- PROTEGIDAS: USUÁRIO COMUM (Exige Login) --- */}
       <Route element={<ProtectedRoute />}>
-        {/* Comum a Admin e Funcionário */}
+        <Route path="/reserva" element={<BookingRequestPage />} />
+        <Route path="/usuario/reservas" element={<UserBookingPage />} />
+        <Route path="/usuario/solicitacoes" element={<UserRequestPage />} />
+        <Route path="/usuario/solicitacoes/editar/:id" element={<EditBookingPage />} />
+        <Route path="/usuario/configuracoes" element={<ConfigurationPage />} />
+      </Route>
+
+      {/* --- PROTEGIDAS: ÁREA ADMINISTRATIVA (Exige Login + Admin/Staff) --- */}
+      <Route element={<ProtectedRoute adminOnly />}>
         <Route path="/admin" element={<AdminDashboardPage />} />
         <Route path="/admin/solicitacoes" element={<AdminRequestPage />} />
         <Route path="/admin/espacos" element={<AdminRoomPage />} />
         <Route path="/admin/configuracoes" element={<AdminSettingsPage />} />
         <Route path="/admin/perfil" element={<AdminProfilePage />} />
-
-        {/* EXCLUSIVO: Administrador do Sistema */}
         <Route path="/admin/usuarios" element={<AdminUserPage />} />
         <Route path="/admin/funcionarios" element={<AdminStaffManagementPage />} />
       </Route>
 
-      {/* 404 */}
+      {/* --- 404 --- */}
       <Route path="*" element={<NotFoundPage />} />
     </Routes>
   );
-};
+});
 
 export default AppRoutes;

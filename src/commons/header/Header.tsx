@@ -4,15 +4,21 @@ import Button from "../components/Button";
 import logoSigex from "../../assets/icons/logo.png";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import UserDropdown from "../user/UserDropdown";
-import { userSessionStore } from "../../store/user/UserSessionStore";
+import { userSessionStore } from "../../store/auth/UserSessionStore";
 import AdminDropdown from "../admin/AdminDropdown";
 
 const Header: React.FC = observer(() => {
+  console.log("ESTADO ATUAL:", {
+    userNoLocal: localStorage.getItem("sigex_user_data"),
+    userNaStore: userSessionStore.currentUser,
+    logado: userSessionStore.isLoggedIn
+  });
+
   const navigate = useNavigate();
   const location = useLocation();
 
   const isLoggedIn = userSessionStore.isLoggedIn;
-  const user = userSessionStore.user;
+  const user = userSessionStore.currentUser;
 
   const isInsideAdminPanel =
     location.pathname.startsWith("/admin") &&

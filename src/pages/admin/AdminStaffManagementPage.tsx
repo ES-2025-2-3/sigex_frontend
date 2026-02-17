@@ -41,8 +41,7 @@ const AdminStaffManagementPage = observer(() => {
       new UserDomain({
         id: "1",
         name: "Nicole Brito Maracajá",
-        registrationNumber: "123111413",
-        type: UserType.FUNCIONARIO,
+        type: UserType.SERVIDOR_TECNICO_ADMINISTRATIVO,
         email: "nicole.brito.maracaja@ccc.ufcg.edu.br",
       }),
     ],
@@ -168,14 +167,6 @@ const AdminStaffManagementPage = observer(() => {
                             </div>
                           </td>
 
-                          <td className="px-6 py-5 text-slate-600">
-                            {staff.registrationNumber || (
-                              <span className="text-slate-400 italic text-xs">
-                                Não informado
-                              </span>
-                            )}
-                          </td>
-
                           <td className="px-6 py-5">
                             <div className="flex justify-center gap-2">
                               <button
@@ -246,14 +237,6 @@ const AdminStaffManagementPage = observer(() => {
                 </div>
 
                 <div className="grid grid-cols-2 gap-4 text-sm">
-                  <div className="bg-slate-50 p-3 rounded-xl border border-slate-100">
-                    <span className="text-[10px] uppercase font-bold text-slate-400 block mb-1">
-                      Matrícula
-                    </span>
-                    <p className="font-semibold text-slate-700">
-                      {selectedUser.registrationNumber || "Não informado"}
-                    </p>
-                  </div>
 
                   <div className="bg-slate-50 p-3 rounded-xl border border-slate-100">
                     <span className="text-[10px] uppercase font-bold text-slate-400 block mb-1">

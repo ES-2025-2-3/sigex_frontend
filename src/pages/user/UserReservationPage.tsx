@@ -10,7 +10,7 @@ import Modal from "../../commons/modal/Modal";
 import { reservation_mock } from "../../../mock/reservation";
 import { event_mock } from "../../../mock/event";
 import { ReservationStatus } from "../../domain/enums/ReservationStatus";
-import { userSessionStore } from "../../store/user/UserSessionStore";
+import { userSessionStore } from "../../store/auth/UserSessionStore";
 import { Reservation } from "../../types/reservation/ReservationType";
 
 import {
