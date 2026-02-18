@@ -1,6 +1,6 @@
 import { observer } from "mobx-react-lite";
 import { FaUserCircle } from "react-icons/fa";
-import { userSessionStore } from "../../store/user/UserSessionStore";
+import { userSessionStore } from "../../store/auth/UserSessionStore";
 
 const UserBanner = observer(() => {
   const user = userSessionStore.currentUser;
@@ -20,14 +20,6 @@ const UserBanner = observer(() => {
             {user.name}
           </h2>
         </div>
-      </div>
-      <div className="hidden md:block text-right">
-        <p className="text-xs text-slate-500 font-semibold">
-          Matrícula: {user.registrationNumber || "Não informada"}
-        </p>
-        <p className="text-xs text-brand-blue font-medium">
-          {user.email}
-        </p>
       </div>
     </div>
   );

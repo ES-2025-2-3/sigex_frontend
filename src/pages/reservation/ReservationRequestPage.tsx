@@ -5,7 +5,7 @@ import { FaArrowLeft, FaRocket, FaCheckCircle } from "react-icons/fa";
 
 import { reservationFormStore } from "../../store/reservation/ReservationFormStore";
 import { eventFormStore } from "../../store/event/EventFormStore";
-import { userSessionStore } from "../../store/user/UserSessionStore";
+import { userSessionStore } from "../../store/auth/UserSessionStore";
 
 import Header from "../../commons/header/Header";
 import Footer from "../../commons/footer/Footer";
@@ -29,7 +29,7 @@ const occupationData = event_mock.reduce<Record<string, string>>(
 );
 
 const ReservationRequestPage = observer(() => {
-  const isLoggedIn = userSessionStore.user;
+  const isLoggedIn = userSessionStore.currentUser;
   const navigate = useNavigate();
 
   const [step, setStep] = useState(1);

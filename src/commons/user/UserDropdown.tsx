@@ -1,8 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { observer } from "mobx-react-lite";
 import { useNavigate } from "react-router-dom";
-import { userSessionStore } from "../../store/user/UserSessionStore";
-import UserRequestPage from "../../pages/user/UserRequestPage";
+import { userSessionStore } from "../../store/auth/UserSessionStore";
 
 const UserDropdown: React.FC = observer(() => {
   const [isOpen, setIsOpen] = useState(false);
@@ -10,7 +9,7 @@ const UserDropdown: React.FC = observer(() => {
   const dropdownRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
 
-  const user = userSessionStore.user;
+  const user = userSessionStore.currentUser;
   if (!user) return null;
 
   useEffect(() => {
@@ -90,7 +89,6 @@ const UserDropdown: React.FC = observer(() => {
         onClick={() => setIsOpen((v) => !v)}
         className="flex items-center gap-2 px-1 py-1 rounded-full hover:bg-white/10 transition-all duration-300 active:scale-95 outline-none border-none"
       >
-        {/* Avatar Circular com Iniciais */}
         <div className="w-9 h-9 rounded-full bg-brand-blue/20 flex items-center justify-center text-white border border-white/20 shadow-sm">
           <span className="text-xs font-bold tracking-tighter">{initials}</span>
         </div>

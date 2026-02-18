@@ -1,9 +1,9 @@
 import { action, makeObservable } from "mobx";
 import BookingDomain from "../../domain/reservation/ReservationDomain";
 import IndexStoreBase from "../base/IndexStoreBase";
-import { BookingShift } from "../../domain/enums/ReservationShift";
+import { ReservationShift } from "../../domain/enums/ReservationShift";
 import BookingService from "../../services/ReservationService";
-import { userSessionStore } from "../user/UserSessionStore";
+import { userSessionStore } from "../auth/UserSessionStore";
 
 class ReservationIndexStore extends IndexStoreBase<BookingDomain> {
   constructor() {
@@ -12,11 +12,11 @@ class ReservationIndexStore extends IndexStoreBase<BookingDomain> {
   }
 
   async fetch() {
-    const user = userSessionStore.user;
+    const user = userSessionStore.currentUser;
     if (!user) return;
 
     await this.runFetch(async () => {
-      if (user.type === 'ADMIN' || user.type === 'FUNCIONARIO') {
+      if (user.type === 'ADMIN' || user.type === 'SERVIDOR_TECNICO_ADMINISTRATIVO') {
         return await BookingService.getAll();
       } else {
         return await BookingService.getMyBookings();
@@ -33,7 +33,7 @@ class ReservationIndexStore extends IndexStoreBase<BookingDomain> {
     return this.allRecords.filter(b => b.date === date);
   }
 
-  hasConflict(date: string, shift: BookingShift, roomIds: number[]): boolean {
+  hasConflict(date: string, shift: ReservationShift, roomIds: number[]): boolean {
     return this.allRecords.some(b =>
       b.date === date &&
       b.shift === shift &&

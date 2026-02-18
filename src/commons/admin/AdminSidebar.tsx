@@ -11,12 +11,12 @@ import {
 } from "react-icons/fa";
 import { useNavigate, useLocation } from "react-router-dom";
 import { observer } from "mobx-react-lite";
-import { userSessionStore } from "../../store/user/UserSessionStore";
+import { userSessionStore } from "../../store/auth/UserSessionStore";
 
 const AdminSidebar: React.FC = observer(() => {
   const navigate = useNavigate();
   const location = useLocation();
-  const user = userSessionStore.user;
+  const user = userSessionStore.currentUser;
 
   const menuItems = [
     {

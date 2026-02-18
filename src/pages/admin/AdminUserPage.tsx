@@ -64,11 +64,9 @@ const AdminUserPage = observer(() => {
     switch (type) {
       case UserType.ADMIN:
         return "Administrador";
-      case UserType.DOCENTE:
-        return "Docente";
+      case UserType.USUARIO:
+        return "Usuário";
       case UserType.SERVIDOR_TECNICO_ADMINISTRATIVO:
-        return "Servidor Técnico Administrativo";
-      case UserType.FUNCIONARIO:
         return "Funcionário";
       default:
         return type;
@@ -97,8 +95,7 @@ const AdminUserPage = observer(() => {
 
   const typeStyles = {
     [UserType.ADMIN]: "bg-purple-50 text-purple-600 border-purple-100",
-    [UserType.DOCENTE]: "bg-blue-50 text-blue-600 border-blue-100",
-    [UserType.FUNCIONARIO]: "bg-emerald-50 text-emerald-600 border-emerald-100",
+    [UserType.USUARIO]: "bg-blue-50 text-blue-600 border-blue-100",
     [UserType.SERVIDOR_TECNICO_ADMINISTRATIVO]: "bg-rose-50 text-rose-600 border-rose-100",
   };
 
@@ -143,7 +140,7 @@ const AdminUserPage = observer(() => {
 
 
   return (
-    <div className="flex min-h-screen bg-[#f8fafc] w-full font-inter">
+    <div className="flex min-h-screen bg-bg-main w-full font-inter">
       {toast && (
         <Toast
           type={toast.type}
@@ -177,13 +174,12 @@ const AdminUserPage = observer(() => {
                   <select
                     value={typeFilter}
                     onChange={(e) => handleTypeChange(e.target.value as UserType | "ALL")}
-                    className="cursor-pointer px-4 py-2 rounded-lg border-2 border-slate-200 text-sm font-semibold text-slate-600"
+                    className="cursor-pointer px-4 py-2 rounded-lg border-2 border-slate-200 bg-white text-sm font-semibold text-slate-600"
                   >
                     <option value="ALL">Todos os tipos</option>
                     <option value={UserType.ADMIN}>Admin</option>
-                    <option value={UserType.DOCENTE}>Docente</option>
+                    <option value={UserType.USUARIO}>Usuário</option>
                     <option value={UserType.SERVIDOR_TECNICO_ADMINISTRATIVO}>Servidor Técnico</option>
-                    <option value={UserType.FUNCIONARIO}>Funcionário</option>
                   </select>
                 </div>
 
@@ -194,7 +190,7 @@ const AdminUserPage = observer(() => {
                     value={search}
                     onChange={(e) => handleSearchChange(e.target.value)}
                     placeholder="Buscar por usuário..."
-                    className="w-full pl-11 pr-4 py-3 rounded-xl border border-slate-200 text-sm font-bold outline-none focus:ring-4 focus:ring-brand-blue/10"
+                    className="w-full pl-11 pr-4 py-3 rounded-xl border border-slate-200 text-sm font-bold outline-none focus:ring-4 bg-white focus:ring-brand-blue/10"
                   />
                 </div>
               </div>
@@ -233,13 +229,6 @@ const AdminUserPage = observer(() => {
                             </span>
                           </td>
 
-                          <td className="px-6 py-5">
-                            {user.registrationNumber || (
-                              <span className="text-slate-400 italic text-xs">
-                                Não informado
-                              </span>
-                            )}
-                          </td>
                           <td className="px-6 py-5">
                             <div className="flex justify-center gap-2">
                               <button
@@ -333,15 +322,6 @@ const AdminUserPage = observer(() => {
                 </div>
 
                 <div className="grid grid-cols-2 gap-4 text-sm">
-
-                  <div className="bg-slate-50 p-3 rounded-xl border border-slate-100">
-                    <span className="text-[10px] uppercase font-bold text-slate-400 block mb-1">
-                      Matrícula
-                    </span>
-                    <p className="font-semibold text-slate-700">
-                      {confirmUser.registrationNumber || "Não informado"}
-                    </p>
-                  </div>
 
                   <div className="bg-slate-50 p-3 rounded-xl border border-slate-100">
                     <span className="text-[10px] uppercase font-bold text-slate-400 block mb-1">

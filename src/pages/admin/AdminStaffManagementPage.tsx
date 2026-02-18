@@ -5,6 +5,7 @@ import {
   FaExclamationTriangle,
   FaUser,
   FaSearch,
+  FaEye,
 } from "react-icons/fa";
 
 import AdminSidebar from "../../commons/admin/AdminSidebar";
@@ -20,11 +21,15 @@ import UserDomain from "../../domain/user/UserDomain";
 
 const ITEMS_PER_PAGE = 6;
 
+type ModalAction = "VIEW" | "DEMOTE" | null;
+
 const AdminStaffManagementPage = observer(() => {
   const [search, setSearch] = useState("");
-  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
-  const [selectedUser, setSelectedUser] = useState<UserDomain | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const [selectedUser, setSelectedUser] = useState<UserDomain | null>(null);
+  const [modalAction, setModalAction] = useState<ModalAction>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   const [toast, setToast] = useState<{
     type: ToastType;
     message: string;
@@ -41,8 +46,7 @@ const AdminStaffManagementPage = observer(() => {
       new UserDomain({
         id: "1",
         name: "Nicole Brito Maracajá",
-        registrationNumber: "123111413",
-        type: UserType.FUNCIONARIO,
+        type: UserType.SERVIDOR_TECNICO_ADMINISTRATIVO,
         email: "nicole.brito.maracaja@ccc.ufcg.edu.br",
       }),
     ],
@@ -73,27 +77,31 @@ const AdminStaffManagementPage = observer(() => {
     currentPage * ITEMS_PER_PAGE,
   );
 
-  const openRemoveConfirm = (user: UserDomain) => {
+  const handleOpenModal = (user: UserDomain, action: ModalAction) => {
     setSelectedUser(user);
-    setIsConfirmModalOpen(true);
+    setModalAction(action);
+    setIsModalOpen(true);
   };
 
-  const handleConfirmRemove = async () => {
+  const handleConfirmAction = async () => {
     if (!selectedUser) return;
+
     try {
-      setToast({
-        type: "success",
-        message: `Privilégios de ${selectedUser.name} revogados com sucesso.`,
-      });
-      setIsConfirmModalOpen(false);
+      if (modalAction === "DEMOTE") {
+        setToast({
+          type: "success",
+          message: `Privilégios de ${selectedUser.name} revogados. Usuário agora é comum.`,
+        });
+      }
+      setIsModalOpen(false);
       setSelectedUser(null);
     } catch (error) {
-      setToast({ type: "error", message: "Erro ao remover privilégios." });
+      setToast({ type: "error", message: "Erro ao processar solicitação." });
     }
   };
 
   return (
-    <div className="flex min-h-screen bg-[#f8fafc] w-full font-inter">
+    <div className="flex min-h-screen bg-bg-main w-full font-inter">
       {toast && (
         <Toast
           type={toast.type}
@@ -134,7 +142,7 @@ const AdminStaffManagementPage = observer(() => {
                       setCurrentPage(1);
                     }}
                     placeholder="Buscar funcionário..."
-                    className="w-full pl-11 pr-4 py-3 rounded-xl border border-slate-200 text-sm font-bold outline-none focus:ring-4 focus:ring-brand-blue/10"
+                    className="w-full pl-11 pr-4 py-3 rounded-xl border border-slate-200 text-sm font-bold bg-white outline-none focus:ring-4 focus:ring-brand-blue/10"
                   />
                 </div>
               </div>
@@ -144,7 +152,6 @@ const AdminStaffManagementPage = observer(() => {
                   <thead>
                     <tr className="bg-slate-50 border-b border-slate-200 text-[11px] font-black uppercase tracking-widest text-slate-600">
                       <th className="px-6 py-5">Funcionário</th>
-                      <th className="px-6 py-5">Matrícula</th>
                       <th className="px-6 py-5 text-center">Ações</th>
                     </tr>
                   </thead>
@@ -168,22 +175,22 @@ const AdminStaffManagementPage = observer(() => {
                             </div>
                           </td>
 
-                          <td className="px-6 py-5 text-slate-600">
-                            {staff.registrationNumber || (
-                              <span className="text-slate-400 italic text-xs">
-                                Não informado
-                              </span>
-                            )}
-                          </td>
-
                           <td className="px-6 py-5">
-                            <div className="flex justify-center gap-2">
+                            <div className="flex justify-center gap-4">
                               <button
-                                onClick={() => openRemoveConfirm(staff)}
-                                className="cursor-pointer p-2 text-slate-400 hover:text-red-500 transition"
+                                onClick={() => handleOpenModal(staff, "VIEW")}
+                                className="cursor-pointer p-2 text-slate-400 hover:text-brand-blue transition"
+                                title="Visualizar Detalhes"
+                              >
+                                <FaEye size={16} />
+                              </button>
+
+                              <button
+                                onClick={() => handleOpenModal(staff, "DEMOTE")}
+                                className="cursor-pointer p-2 text-slate-400 hover:text-orange-500 transition"
                                 title="Revogar Permissões"
                               >
-                                <FaTrash size={16} />
+                                <FaTrash size={14} />
                               </button>
                             </div>
                           </td>
@@ -191,7 +198,7 @@ const AdminStaffManagementPage = observer(() => {
                       ))
                     ) : (
                       <tr>
-                        <td colSpan={3} className="py-20 text-center">
+                        <td colSpan={2} className="py-20 text-center">
                           <FaUser
                             className="mx-auto text-slate-200 mb-4"
                             size={36}
@@ -218,21 +225,34 @@ const AdminStaffManagementPage = observer(() => {
         </main>
 
         <Modal
-          isOpen={isConfirmModalOpen}
-          title="Confirmação de Revogação"
-          onClose={() => setIsConfirmModalOpen(false)}
+          isOpen={isModalOpen}
+          title={
+            modalAction === "DEMOTE"
+              ? "Revogar Privilégios de Staff"
+              : "Informações do Funcionário"
+          }
+          onClose={() => setIsModalOpen(false)}
         >
           <div className="space-y-6">
             <p className="text-sm text-slate-600 font-medium">
-              Você realmente deseja remover os privilégios deste funcionário?
-              Ele perderá acesso às áreas de gestão.
+              {modalAction === "DEMOTE"
+                ? "Este usuário deixará de ser um funcionário e voltará a ter uma conta de usuário comum."
+                : "Visualização dos dados cadastrais do membro da equipe."}
             </p>
 
             {selectedUser && (
               <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-5">
                 <div className="flex items-center gap-4">
-                  <div className="w-14 h-14 bg-red-600 text-white rounded-2xl flex items-center justify-center shadow-lg shadow-red-600/20">
-                    <FaExclamationTriangle size={22} />
+                  <div
+                    className={`w-14 h-14 text-white rounded-2xl flex items-center justify-center shadow-lg 
+                    ${modalAction === "DEMOTE" ? "bg-orange-600 shadow-orange-600/20" : "bg-brand-blue shadow-brand-blue/20"}
+                  `}
+                  >
+                    {modalAction === "DEMOTE" ? (
+                      <FaExclamationTriangle size={22} />
+                    ) : (
+                      <FaUser size={22} />
+                    )}
                   </div>
 
                   <div>
@@ -248,19 +268,28 @@ const AdminStaffManagementPage = observer(() => {
                 <div className="grid grid-cols-2 gap-4 text-sm">
                   <div className="bg-slate-50 p-3 rounded-xl border border-slate-100">
                     <span className="text-[10px] uppercase font-bold text-slate-400 block mb-1">
-                      Matrícula
+                      Cargo Atual
                     </span>
-                    <p className="font-semibold text-slate-700">
-                      {selectedUser.registrationNumber || "Não informado"}
-                    </p>
+                    <span className="inline-flex w-fit uppercase items-center px-3 py-1 rounded-full text-[10px] font-bold border bg-emerald-50 text-emerald-600 border-emerald-100">
+                      Funcionário
+                    </span>
                   </div>
 
                   <div className="bg-slate-50 p-3 rounded-xl border border-slate-100">
                     <span className="text-[10px] uppercase font-bold text-slate-400 block mb-1">
-                      Tipo Atual
+                      Novo Cargo
                     </span>
-                    <span className="inline-flex w-fit uppercase items-center px-3 py-1 rounded-full text-[10px] font-bold border bg-emerald-50 text-emerald-600 border-emerald-100">
-                      Funcionário
+                    <span className="text-slate-700 font-bold">
+                      {modalAction === "DEMOTE"
+                        ? "Usuário Comum"
+                        : "Permanecer"}
+                    </span>
+                  </div>
+
+                  <div className="col-span-2 text-[11px] text-slate-400 font-bold mt-2">
+                    ID DO REGISTRO:{" "}
+                    <span className="text-slate-300 font-mono">
+                      #{selectedUser.id}
                     </span>
                   </div>
                 </div>
@@ -268,19 +297,30 @@ const AdminStaffManagementPage = observer(() => {
             )}
 
             <div className="flex gap-3">
-              <button
-                onClick={() => setIsConfirmModalOpen(false)}
-                className="cursor-pointer flex-1 py-3 rounded-xl bg-slate-100 text-slate-700 font-bold hover:bg-slate-200 transition"
-              >
-                Cancelar
-              </button>
+              {modalAction === "DEMOTE" ? (
+                <>
+                  <button
+                    onClick={() => setIsModalOpen(false)}
+                    className="cursor-pointer flex-1 py-3 rounded-xl bg-slate-100 text-slate-700 font-bold hover:bg-slate-200 transition"
+                  >
+                    Cancelar
+                  </button>
 
-              <button
-                onClick={handleConfirmRemove}
-                className="cursor-pointer flex-1 py-3 rounded-xl bg-red-600 text-white font-bold hover:bg-red-700 transition"
-              >
-                Revogar Acesso
-              </button>
+                  <button
+                    onClick={handleConfirmAction}
+                    className="cursor-pointer flex-1 py-3 rounded-xl bg-orange-600 text-white font-bold hover:bg-orange-700 transition"
+                  >
+                    Revogar Acesso
+                  </button>
+                </>
+              ) : (
+                <button
+                  onClick={() => setIsModalOpen(false)}
+                  className="w-full cursor-pointer py-3 rounded-xl bg-slate-900 text-white font-bold hover:bg-slate-800 transition"
+                >
+                  Fechar Detalhes
+                </button>
+              )}
             </div>
           </div>
         </Modal>

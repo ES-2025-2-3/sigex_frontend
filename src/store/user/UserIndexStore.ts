@@ -7,7 +7,7 @@ class UserIndexStore extends IndexStoreBase<UserDomain> {
 
   @computed
   get staffMembers() {
-    return this.allRecords.filter(user => user.type === UserType.FUNCIONARIO);
+    return this.allRecords.filter(user => user.type === UserType.SERVIDOR_TECNICO_ADMINISTRATIVO);
   }
   
   async fetch() {
