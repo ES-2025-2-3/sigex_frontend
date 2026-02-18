@@ -70,6 +70,7 @@ yarn dev
 ```bash
 yarn build
 ```
+---
 
 🖇️ **Integração com o Backend**
 
