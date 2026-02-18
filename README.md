@@ -68,4 +68,4 @@ yarn build
 
 🖇️ **Integração com o Backend**
 
-Para o funcionamento pleno das funcionalidades de reserva e login, certifique-se de que o servidor backend (**Spring Boot**) esteja rodando. A URL base da API deve ser configurada na camada de `services` ou via variáveis de ambiente.
+Para o funcionamento pleno das funcionalidades do sistema, certifique-se de que o servidor backend (**Spring Boot**) esteja rodando.
