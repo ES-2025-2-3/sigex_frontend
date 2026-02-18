@@ -11,19 +11,6 @@ Este é o repositório do frontend da aplicação, desenvolvido com o objetivo d
     MobX: Gerenciamento de estado global reativo e escalável.
     Axios: Cliente HTTP para integração com a API REST.
 
-📁 Estrutura de Pastas
-
-A arquitetura foi pensada para manter a separação de responsabilidades e facilitar a manutenção:
-Bash
-
-src/
-├── commons/      # Componentes compartilhados (Buttons, Modals, Toasts)
-├── domain/       # Modelos de dados e Enums (Regras de negócio)
-├── pages/        # Telas principais da aplicação
-├── services/     # Camada de comunicação com o Backend (API)
-├── store/        # Gerenciamento de estado global (MobX Stores)
-└── routes/       # Configuração de roteamento e proteção de páginas
-
 🔐 Segurança e Autenticação
 
 O sistema utiliza um modelo de segurança híbrido:
