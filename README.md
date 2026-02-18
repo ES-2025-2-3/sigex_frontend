@@ -3,6 +3,8 @@
 
 Este é o repositório do frontend da aplicação, desenvolvido com o objetivo de oferecer uma interface moderna, rápida e segura para a gestão e reserva de eventos de extensão da UFCG.
 
+---
+
 🛠 **Tecnologias Utilizadas**
 
 * **React.js**: Biblioteca principal para a construção da interface.
@@ -11,6 +13,8 @@ Este é o repositório do frontend da aplicação, desenvolvido com o objetivo d
 * **Tailwind CSS**: Framework CSS utilitário para design responsivo.
 * **MobX**: Gerenciamento de estado global reativo e escalável.
 * **Axios**: Cliente HTTP para integração com a API REST.
+
+---
 
 📁 **Estrutura de Pastas**
 
@@ -25,6 +29,7 @@ src/
 ├── store/        # Gerenciamento de estado global (MobX Stores)
 └── routes/       # Configuração de roteamento e proteção de páginas
 ```
+---
 
 🔐 **Segurança e Autenticação**
 
