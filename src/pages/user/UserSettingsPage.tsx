@@ -14,7 +14,7 @@ import { UserType } from "../../domain/enums/UserType";
 import { FaUserEdit, FaEnvelope, FaTrashAlt } from "react-icons/fa";
 
 const USER_TYPE_LABEL: Partial<Record<UserType, string>> = {
-  [UserType.DOCENTE]: "Docente",
+  [UserType.USUARIO]: "Usuário Comum",
   [UserType.SERVIDOR_TECNICO_ADMINISTRATIVO]:
     "Servidor Técnico-Administrativo",
 };

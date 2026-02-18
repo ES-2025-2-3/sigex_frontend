@@ -10,27 +10,36 @@ import Toast, { ToastType } from "../../commons/toast/Toast";
 
 import { userSessionStore } from "../../store/auth/UserSessionStore";
 
-import { FaEnvelope, FaUserShield, FaUserCog } from "react-icons/fa";
+import {
+  FaEnvelope,
+  FaUserShield,
+  FaUserCog,
+  FaArrowLeft,
+} from "react-icons/fa";
 
 const AdminProfilePage = observer(() => {
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState(true);
-  const user = userSessionStore.user;
+  const user = userSessionStore.currentUser;
 
   const [draftCurrentPassword, setDraftCurrentPassword] = useState("");
   const [draftNewPassword, setDraftNewPassword] = useState("");
   const [draftConfirmPassword, setDraftConfirmPassword] = useState("");
 
   const [confirmPasswordOpen, setConfirmPasswordOpen] = useState(false);
-  const [toast, setToast] = useState<{ type: ToastType; message: string } | null>(null);
+  const [toast, setToast] = useState<{
+    type: ToastType;
+    message: string;
+  } | null>(null);
 
   useEffect(() => {
     const timer = setTimeout(() => setLoading(false), 600);
     return () => clearTimeout(timer);
   }, []);
 
-  const showToast = (type: ToastType, message: string) => setToast({ type, message });
+  const showToast = (type: ToastType, message: string) =>
+    setToast({ type, message });
 
   const getRoleLabel = () => {
     if (user?.isAdmin) return "Administrador do Sistema";
@@ -68,13 +77,21 @@ const AdminProfilePage = observer(() => {
             <div className="mb-8 space-y-4">
               <button
                 onClick={() => navigate(-1)}
-                className="flex items-center gap-2 px-5 py-2 rounded-full border border-slate-200 text-sm font-bold text-slate-600 hover:bg-white transition-all shadow-sm"
+                className="flex items-center gap-2 text-gray-400 hover:text-brand-blue font-bold transition-all group text-sm cursor-pointer bg-transparent border-none"
               >
-                ← Voltar
+                <FaArrowLeft
+                  size={12}
+                  className="group-hover:-translate-x-1 transition-transform"
+                />
+                VOLTAR PARA O INÍCIO
               </button>
 
               <div className="flex items-center gap-2 text-brand-blue mb-1">
-                {user?.isAdmin ? <FaUserShield size={14} /> : <FaUserCog size={14} />}
+                {user?.isAdmin ? (
+                  <FaUserShield size={14} />
+                ) : (
+                  <FaUserCog size={14} />
+                )}
                 <span className="text-xs font-black uppercase tracking-[0.2em]">
                   Perfil de {user?.isAdmin ? "Administrador" : "Gestor"}
                 </span>
@@ -160,7 +177,9 @@ const AdminProfilePage = observer(() => {
 
                 <div className="flex justify-end">
                   <button
-                    onClick={() => validatePasswordChange() && setConfirmPasswordOpen(true)}
+                    onClick={() =>
+                      validatePasswordChange() && setConfirmPasswordOpen(true)
+                    }
                     className="px-10 py-4 bg-slate-900 text-white rounded-2xl font-black uppercase text-xs tracking-widest hover:bg-brand-blue transition-all shadow-lg active:scale-95"
                   >
                     Atualizar Senha
@@ -181,7 +200,8 @@ const AdminProfilePage = observer(() => {
       >
         <div className="space-y-6">
           <p className="text-slate-600 font-medium">
-            Por motivos de segurança, sua sessão poderá ser reiniciada após a alteração da senha. Deseja continuar?
+            Por motivos de segurança, sua sessão poderá ser reiniciada após a
+            alteração da senha. Deseja continuar?
           </p>
 
           <div className="flex justify-end gap-3">

@@ -140,7 +140,7 @@ const AdminUserPage = observer(() => {
 
 
   return (
-    <div className="flex min-h-screen bg-[#f8fafc] w-full font-inter">
+    <div className="flex min-h-screen bg-bg-main w-full font-inter">
       {toast && (
         <Toast
           type={toast.type}
@@ -174,7 +174,7 @@ const AdminUserPage = observer(() => {
                   <select
                     value={typeFilter}
                     onChange={(e) => handleTypeChange(e.target.value as UserType | "ALL")}
-                    className="cursor-pointer px-4 py-2 rounded-lg border-2 border-slate-200 text-sm font-semibold text-slate-600"
+                    className="cursor-pointer px-4 py-2 rounded-lg border-2 border-slate-200 bg-white text-sm font-semibold text-slate-600"
                   >
                     <option value="ALL">Todos os tipos</option>
                     <option value={UserType.ADMIN}>Admin</option>
@@ -190,7 +190,7 @@ const AdminUserPage = observer(() => {
                     value={search}
                     onChange={(e) => handleSearchChange(e.target.value)}
                     placeholder="Buscar por usuário..."
-                    className="w-full pl-11 pr-4 py-3 rounded-xl border border-slate-200 text-sm font-bold outline-none focus:ring-4 focus:ring-brand-blue/10"
+                    className="w-full pl-11 pr-4 py-3 rounded-xl border border-slate-200 text-sm font-bold outline-none focus:ring-4 bg-white focus:ring-brand-blue/10"
                   />
                 </div>
               </div>

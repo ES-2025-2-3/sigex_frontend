@@ -16,7 +16,7 @@ import { userSessionStore } from "../../store/auth/UserSessionStore";
 const AdminSidebar: React.FC = observer(() => {
   const navigate = useNavigate();
   const location = useLocation();
-  const user = userSessionStore.user;
+  const user = userSessionStore.currentUser;
 
   const menuItems = [
     {

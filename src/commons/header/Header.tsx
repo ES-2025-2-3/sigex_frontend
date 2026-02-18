@@ -8,12 +8,6 @@ import { userSessionStore } from "../../store/auth/UserSessionStore";
 import AdminDropdown from "../admin/AdminDropdown";
 
 const Header: React.FC = observer(() => {
-  console.log("ESTADO ATUAL:", {
-    userNoLocal: localStorage.getItem("sigex_user_data"),
-    userNaStore: userSessionStore.currentUser,
-    logado: userSessionStore.isLoggedIn
-  });
-
   const navigate = useNavigate();
   const location = useLocation();
 

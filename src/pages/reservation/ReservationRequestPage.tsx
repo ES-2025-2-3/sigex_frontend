@@ -29,7 +29,7 @@ const occupationData = event_mock.reduce<Record<string, string>>(
 );
 
 const ReservationRequestPage = observer(() => {
-  const isLoggedIn = userSessionStore.user;
+  const isLoggedIn = userSessionStore.currentUser;
   const navigate = useNavigate();
 
   const [step, setStep] = useState(1);

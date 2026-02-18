@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { FaUserShield, FaChevronDown, FaChartPie, FaSignOutAlt } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+import { userSessionStore } from "../../store/auth/UserSessionStore";
 
 const AdminDropdown: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -8,6 +9,7 @@ const AdminDropdown: React.FC = () => {
 
   const handleLogout = () => {
     setIsOpen(false);
+    userSessionStore.logout();
     navigate('/login');
   };
 
