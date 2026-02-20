@@ -17,6 +17,7 @@ import AdminProfilePage from "../pages/admin/AdminProfilePage";
 import AdminUserPage from "../pages/admin/AdminUserPage";
 import AdminRequestPage from "../pages/admin/AdminRequestPage";
 import AdminRoomPage from "../pages/admin/AdminSpacePage";
+import AdminEquipmentPage from "../pages/admin/AdminEquipmentPage";
 import AdminStaffManagementPage from "../pages/admin/AdminStaffManagementPage";
 
 import UserBookingPage from "../pages/user/UserReservationPage";
@@ -27,10 +28,6 @@ import EditBookingPage from "../pages/user/EditRequestPage";
 import ForgotPasswordEmailPage from "../pages/login/forgotPassword/ForgotPasswordEmailPage";
 import ForgotPasswordCodePage from "../pages/login/forgotPassword/ForgotPasswordCodePage";
 import ForgotPasswordNewPasswordPage from "../pages/login/forgotPassword/ForgotPasswordNewPasswordPage";
-import AdminRequestPage from "../pages/admin/AdminRequestPage";
-import AdminRoomPage from "../pages/admin/AdminRoomPage";
-import AdminEquipmentPage from "../pages/admin/AdminEquipmentPage";
-import AdminStaffManagementPage from "../pages/admin/AdminStaffManagementPage";
 import RegisterSuccessPage from "../pages/register/RegisterSucessPage";
 
 const AppRoutes = observer(() => {

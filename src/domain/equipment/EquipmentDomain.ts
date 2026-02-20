@@ -4,60 +4,40 @@ import DomainBase from "../DomainBase";
 class EquipmentDomain extends DomainBase {
   @observable accessor id: number | null = null;
   @observable accessor name = "";
-  @observable accessor available = true;
+  @observable accessor description = "";
 
-  constructor(eq?: Record<string, unknown>) {
+  constructor(data?: Record<string, unknown>) {
     super();
     makeObservable(this);
-    if (eq) this.setData(eq);
+    if (data) this.setData(data);
   }
 
   @action
-  setName(value: string) {
-    this.name = value;
-  }
-
-  @action
-  setAvailable(value: boolean) {
-    this.available = value;
-  }
-
-  @action
-  validate(field?: string) {
-    if (field) {
-      super.validate(field);
-      return;
-    }
-
+  validate() {
     super.validate(undefined, () => {
       if (!this.name || !this.name.trim()) {
-        this.errors["name"] = "Nome do equipamento é obrigatório";
+        this.errors["name"] = "Nome é obrigatório";
       }
-
-      if (this.name && this.name.length > 100) {
-        this.errors["name"] =
-          "Nome do equipamento deve ter no máximo 100 caracteres";
+      if (this.name.length > 100) {
+        this.errors["name"] = "Máx. 100 caracteres";
+      }
+      if (this.description && this.description.length > 255) {
+        this.errors["description"] = "Máx. 255 caracteres";
       }
     });
   }
 
   getBackendObject() {
-    const payload: Record<string, unknown> = {
+    return {
       name: this.name.trim(),
-      available: this.available,
+      description: this.description?.trim() || null,
     };
-
-    if (this.id) {
-      payload.id = this.id;
-    }
-
-    return payload;
   }
 
   clear() {
     this.id = null;
     this.name = "";
-    this.available = true;
+    this.description = "";
     this.clearErrors?.();
   }
 }

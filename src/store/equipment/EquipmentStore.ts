@@ -1,27 +1,43 @@
 import { makeAutoObservable, runInAction } from "mobx";
-import api from "../../services/api";
 import EquipmentDomain from "../../domain/equipment/EquipmentDomain";
-import { Equipment } from "../../types/equipment/EquipmentType";
+import EquipmentService from "../../services/EquipmentService";
+import InstituteEquipmentService from "../../services/InstituteEquipmentService";
+import {
+  EquipmentAmountOperation,
+  InstituteEquipmentStock,
+} from "../../types/equipment/EquipmentType";
+
+export type EquipmentCatalogItem = {
+  id: number;
+  name: string;
+  description?: string | null;
+};
 
 class EquipmentStore {
-  equipments: Equipment[] = [];
+
+  catalog: EquipmentCatalogItem[] = [];
+
+  stocks: InstituteEquipmentStock[] = [];
+
   isLoading = false;
 
   constructor() {
-    makeAutoObservable(this);
+    makeAutoObservable(this, {}, { autoBind: true });
   }
 
-  async fetchEquipments() {
+  async fetchCatalog() {
     try {
       this.isLoading = true;
-
-      const response = await api.get("/equipments");
+      const data = await EquipmentService.getAll();
 
       runInAction(() => {
-        this.equipments = response.data;
+        this.catalog = Array.isArray(data) ? data : [];
       });
     } catch (error) {
-      console.error("Erro ao buscar equipamentos:", error);
+      console.error("Erro ao buscar catálogo de equipamentos:", error);
+      runInAction(() => {
+        this.catalog = [];
+      });
     } finally {
       runInAction(() => {
         this.isLoading = false;
@@ -29,41 +45,73 @@ class EquipmentStore {
     }
   }
 
-  async save(domain: EquipmentDomain) {
+  async fetchStocks(instituteId: string) {
     try {
-      const payload = domain.getBackendObject();
+      this.isLoading = true;
+      const data = await InstituteEquipmentService.getAllStocks(instituteId);
 
-      await api.post("/equipments", payload);
-
-      await this.fetchEquipments();
-
-      return true;
+      runInAction(() => {
+        this.stocks = Array.isArray(data) ? data : [];
+      });
     } catch (error) {
-      console.error("Erro ao salvar equipamento:", error);
-      return false;
+      console.error("Erro ao buscar estoques do instituto:", error);
+      runInAction(() => {
+        this.stocks = [];
+      });
+    } finally {
+      runInAction(() => {
+        this.isLoading = false;
+      });
     }
   }
 
-  async enable(id: number) {
-    try {
-      await api.put(`/equipments/${id}/enable`);
-      await this.fetchEquipments();
-      return true;
-    } catch (error) {
-      console.error("Erro ao ativar equipamento:", error);
-      return false;
+  async createEquipmentWithStock(instituteId: string, domain: EquipmentDomain, total: number) {
+    const created = await EquipmentService.create(domain);
+    const equipmentId = created?.id;
+
+    if (!equipmentId) {
+      throw new Error("Não foi possível obter o id do equipamento criado.");
     }
+
+    await InstituteEquipmentService.createStock(instituteId, equipmentId, total);
+
+    await Promise.all([this.fetchCatalog(), this.fetchStocks(instituteId)]);
+    return true;
   }
 
-  async disable(id: number) {
+  async linkExistingToInstitute(instituteId: string, equipmentId: number, total: number) {
+    await InstituteEquipmentService.createStock(instituteId, equipmentId, total);
+    await this.fetchStocks(instituteId);
+    return true;
+  }
+
+  async updateAmount(
+    instituteId: string,
+    equipmentId: number,
+    amount: number,
+    operation: EquipmentAmountOperation
+  ) {
+    await InstituteEquipmentService.updateAmount(instituteId, equipmentId, amount, operation);
+    await this.fetchStocks(instituteId);
+    return true;
+  }
+
+  async deleteFromInstitute(instituteId: string, equipmentId: number) {
+    await InstituteEquipmentService.deleteStock(instituteId, equipmentId);
+    await this.fetchStocks(instituteId);
+    return true;
+  }
+
+  async deleteEquipmentFully(instituteId: string, equipmentId: number) {
     try {
-      await api.put(`/equipments/${id}/disable`);
-      await this.fetchEquipments();
-      return true;
-    } catch (error) {
-      console.error("Erro ao desativar equipamento:", error);
-      return false;
+      await InstituteEquipmentService.deleteStock(instituteId, equipmentId);
+    } catch (_) {
     }
+
+    await EquipmentService.delete(equipmentId);
+
+    await Promise.all([this.fetchCatalog(), this.fetchStocks(instituteId)]);
+    return true;
   }
 }
 
