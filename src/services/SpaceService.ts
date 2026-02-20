@@ -16,7 +16,7 @@ class SpaceService {
   /**
    * Busca um local específico pelo ID.
    */
-  async getById(id: number) {
+  async getById(id: string) {
     const response = await axios.get(`${API_URL}/${id}`);
     return response.data;
   }
@@ -39,7 +39,7 @@ class SpaceService {
   /**
    * Atualiza os dados de um local existente.
    */
-  async update(id: number, domain: RoomDomain) {
+  async update(id: string, domain: RoomDomain) {
     const payload = {
       name: domain.name,
       capacity: domain.capacity,
@@ -53,7 +53,7 @@ class SpaceService {
   /**
    * Remove um local do sistema.
    */
-  async delete(id: number) {
+  async delete(id: string) {
     await axios.delete(`${API_URL}/${id}`);
   }
 }

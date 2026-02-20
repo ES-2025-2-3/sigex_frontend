@@ -6,7 +6,6 @@ const API_URL = '/event-types';
 class EventTypeService {
   /**
    * Lista todos os tipos de eventos ativos no sistema.
-   * Útil para popular Selects e Checkboxes no formulário.
    */
   async getAll() {
     const response = await axios.get(API_URL);
@@ -16,7 +15,7 @@ class EventTypeService {
   /**
    * Busca um tipo de evento específico pelo ID.
    */
-  async getById(id: number) {
+  async getById(id: string) {
     const response = await axios.get(`${API_URL}/${id}`);
     return response.data;
   }
@@ -33,16 +32,16 @@ class EventTypeService {
   /**
    * Atualiza nome ou descrição de uma categoria.
    */
-  async update(id: number, domain: EventDomain) {
+  async update(id: string, domain: EventDomain) {
     const payload = domain.getBackendObject();
     const response = await axios.put(`${API_URL}/${id}`, payload);
     return response.data;
   }
 
   /**
-   * Desativa uma categoria sem excluí-la (Mapeia para o @PatchMapping do seu controller).
+   * Desativa uma categoria sem excluí-la.
    */
-  async disable(id: number) {
+  async disable(id: string) {
     const response = await axios.patch(`${API_URL}/${id}/disable`);
     return response.data;
   }
@@ -50,7 +49,7 @@ class EventTypeService {
   /**
    * Remove permanentemente uma categoria.
    */
-  async delete(id: number) {
+  async delete(id: string) {
     await axios.delete(`${API_URL}/${id}`);
   }
 }

@@ -1,7 +1,7 @@
 import axios from 'axios';
-import BookingDomain from '../domain/reservation/ReservationDomain';
+import ReservationDomain from '../domain/reservation/ReservationDomain';
 
-const API_URL = '/booking';
+const API_URL = '/reservation';
 
 class ReservationService {
 
@@ -11,7 +11,7 @@ class ReservationService {
    * * @param domain Objeto de domínio.
    * @param eventId ID do evento que já deve ter sido criado previamente.
    */
-  async create(domain: BookingDomain, eventId: number) {
+  async create(domain: ReservationDomain, eventId: string) {
     const payload = {
       roomIds: domain.roomIds, 
       eventId: eventId,        
@@ -26,7 +26,7 @@ class ReservationService {
   /**
    * Atualiza uma reserva existente.
    */
-  async update(id: number, domain: BookingDomain) {
+  async update(id: string, domain: ReservationDomain) {
 
     const payload = {
       roomIds: domain.roomIds,
@@ -41,7 +41,7 @@ class ReservationService {
   /**
    * Remove uma reserva do sistema.
    */
-  async delete(id: number) {
+  async delete(id: string) {
     await axios.delete(`${API_URL}/${id}`);
   }
 
@@ -57,7 +57,7 @@ class ReservationService {
    * Busca as reservas vinculadas ao usuário autenticado (Docente).
    * O backend identifica o usuário pelo Token JWT.
    */
-  async getMyBookings(): Promise<BookingDomain[]> {
+  async getMyBookings(): Promise<ReservationDomain[]> {
     const response = await axios.get(`${API_URL}/my`); 
     return response.data;
   }
@@ -65,7 +65,7 @@ class ReservationService {
   /**
    * Busca uma reserva específica pelo ID.
    */
-  async getById(id: number) {
+  async getById(id: string) {
     const response = await axios.get(`${API_URL}/${id}`);
     return response.data;
   }

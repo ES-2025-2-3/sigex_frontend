@@ -7,11 +7,8 @@ import LoadingSpinner from "../../commons/components/LoadingSpinner";
 import Pagination from "../../commons/pagination/Pagination";
 import Modal from "../../commons/modal/Modal";
 
-import { reservation_mock } from "../../../mock/reservation";
-import { event_mock } from "../../../mock/event";
 import { ReservationStatus } from "../../domain/enums/ReservationStatus";
 import { userSessionStore } from "../../store/auth/UserSessionStore";
-import { Reservation } from "../../types/reservation/ReservationType";
 
 import {
   FaCalendarAlt,
@@ -24,49 +21,76 @@ import {
 } from "react-icons/fa";
 import UserBanner from "../../commons/user/UserBanner";
 import FilterDropdown from "../../commons/components/FilterDropdown";
+import ReservationService from "../../services/ReservationService";
+import ReservationDomain from "../../domain/reservation/ReservationDomain";
+import EventDomain from "../../domain/event/EventDomain";
+import EventService from "../../services/EventService";
 
 const ITEMS_PER_PAGE = 5;
 
 const UserReservationPage = observer(() => {
+  const [reservations, setReservations] = useState<ReservationDomain[]>([]);
+  const [events, setEvents] = useState<EventDomain[]>([]);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("ALL");
   const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
-  const [selectedReservation, setSelectedReservation] = useState<Reservation | null>(null);
+  const [selectedReservation, setSelectedReservation] =
+    useState<ReservationDomain | null>(null);
 
-  const loggedUserId = userSessionStore.currentUser?.id || 1;
+  const loggedUserId = userSessionStore.currentUser?.id;
 
   useEffect(() => {
-    const timer = setTimeout(() => setLoading(false), 600);
-    return () => clearTimeout(timer);
+    const loadData = async () => {
+      try {
+        setLoading(true);
+        const [resData, eventsData] = await Promise.all([
+          ReservationService.getMyBookings(),
+          EventService.getAll(),
+        ]);
+
+        setReservations(resData);
+        setEvents(eventsData);
+      } catch (error) {
+        console.error("Erro ao carregar reservas:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadData();
   }, []);
 
-  const getEventTitle = (eventId: number) => {
-    const event = event_mock.find((e) => e.id === eventId);
+  const getEventTitle = (eventId: number | string | null) => {
+    if (!eventId) return "Evento não identificado";
+    const event = events.find((e) => String(e.id) === String(eventId));
     return event ? event.title : `Evento #${eventId}`;
   };
 
   const filteredReservations = useMemo(() => {
-    return (reservation_mock as Reservation[])
+    return reservations
       .filter((b) => {
         const isFromLoggedUser = b.bookerId === loggedUserId;
-        const isHistoryStatus =
-          b.status === ReservationStatus.APROVADA ||
-          b.status === ReservationStatus.INDEFERIDA;
+
         const matchesStatus =
           statusFilter === "ALL" || b.status === statusFilter;
+
         const eventTitle = getEventTitle(b.eventId).toLowerCase();
+        const reservationId = b.id ? b.id.toString() : "";
+
         const matchesSearch =
           eventTitle.includes(search.toLowerCase()) ||
-          b.id.toString().includes(search);
+          reservationId.includes(search);
 
-        return (
-          isFromLoggedUser && isHistoryStatus && matchesStatus && matchesSearch
-        );
+        return isFromLoggedUser && matchesStatus && matchesSearch;
       })
-      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-  }, [search, statusFilter, loggedUserId]);
+      .sort((a, b) => {
+        const dateA = a.date ? new Date(a.date).getTime() : 0;
+        const dateB = b.date ? new Date(b.date).getTime() : 0;
+        return dateB - dateA;
+      });
+  }, [search, statusFilter, reservations, events, loggedUserId]);
 
   const totalPages = Math.ceil(filteredReservations.length / ITEMS_PER_PAGE);
   const paginatedReservations = useMemo(() => {
@@ -113,7 +137,10 @@ const UserReservationPage = observer(() => {
                   options={[
                     { label: "TODOS OS STATUS", value: "ALL" },
                     { label: "APROVADAS", value: ReservationStatus.APROVADA },
-                    { label: "INDEFERIDAS", value: ReservationStatus.INDEFERIDA },
+                    {
+                      label: "INDEFERIDAS",
+                      value: ReservationStatus.INDEFERIDA,
+                    },
                   ]}
                 />
 
@@ -149,7 +176,7 @@ const UserReservationPage = observer(() => {
                     {paginatedReservations.length > 0 ? (
                       paginatedReservations.map((b) => (
                         <tr
-                          key={b.id}
+                          key={b.id!}
                           className="group hover:bg-slate-50 transition-colors"
                         >
                           <td className="px-8 py-6 text-gray-700">
