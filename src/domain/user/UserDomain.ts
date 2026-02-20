@@ -15,7 +15,7 @@ class UserDomain extends DomainBase {
       this.id = user.id || null;
       this.name = user.name || "";
       this.email = user.email || "";
-      this.type = user.userType || user.type || null;
+      this.type = user.type ?? user.userType ?? null;;
     }
   }
 

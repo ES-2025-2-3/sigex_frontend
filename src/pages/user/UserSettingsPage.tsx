@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { observer } from "mobx-react-lite";
 
 import Header from "../../commons/header/Header";
@@ -10,28 +10,31 @@ import Toast, { ToastType } from "../../commons/toast/Toast";
 
 import { userSessionStore } from "../../store/auth/UserSessionStore";
 import { UserType } from "../../domain/enums/UserType";
+import UserService from "../../services/UserService";
 
 import { FaUserEdit, FaEnvelope, FaTrashAlt } from "react-icons/fa";
 
 const USER_TYPE_LABEL: Partial<Record<UserType, string>> = {
   [UserType.USUARIO]: "Usuário Comum",
-  [UserType.SERVIDOR_TECNICO_ADMINISTRATIVO]:
-    "Servidor Técnico-Administrativo",
+  [UserType.SERVIDOR_TECNICO_ADMINISTRATIVO]: "Servidor Técnico-Administrativo",
 };
 
+type FieldKey =
+  | "name"
+  | "email"
+  | "currentPassword"
+  | "newPassword"
+  | "confirmPassword";
+
+type FieldError = { type: ToastType; message: string };
+
 const UserSettingsPage = observer(() => {
-  const [loading, setLoading] = useState(true);
   const user = userSessionStore.currentUser;
 
-  const [name, setName] = useState(user?.name ?? "");
-  const [email, setEmail] = useState(user?.email ?? "");
+  const [loading, setLoading] = useState(true);
 
-  const [draftName, setDraftName] = useState(name);
-  const [draftEmail, setDraftEmail] = useState(email);
-
-  const [currentPassword, setCurrentPassword] = useState("");
-  const [newPassword, setNewPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
+  const [draftName, setDraftName] = useState(user?.name ?? "");
+  const [draftEmail, setDraftEmail] = useState(user?.email ?? "");
 
   const [draftCurrentPassword, setDraftCurrentPassword] = useState("");
   const [draftNewPassword, setDraftNewPassword] = useState("");
@@ -43,10 +46,11 @@ const UserSettingsPage = observer(() => {
 
   const [deleteCountdown, setDeleteCountdown] = useState(5);
 
-  const [toast, setToast] = useState<{
-    type: ToastType;
-    message: string;
-  } | null>(null);
+  const [toast, setToast] = useState<{ type: ToastType; message: string } | null>(null);
+
+  const [fieldErrors, setFieldErrors] = useState<Partial<Record<FieldKey, FieldError>>>(
+    {}
+  );
 
   useEffect(() => {
     const timer = setTimeout(() => setLoading(false), 600);
@@ -54,19 +58,9 @@ const UserSettingsPage = observer(() => {
   }, []);
 
   useEffect(() => {
-    if (confirmProfileOpen) {
-      setDraftName(name);
-      setDraftEmail(email);
-    }
-  }, [confirmProfileOpen, name, email]);
-
-  useEffect(() => {
-    if (confirmPasswordOpen) {
-      setDraftCurrentPassword(currentPassword);
-      setDraftNewPassword(newPassword);
-      setDraftConfirmPassword(confirmPassword);
-    }
-  }, [confirmPasswordOpen]);
+    setDraftName(user?.name ?? "");
+    setDraftEmail(user?.email ?? "");
+  }, [user?.id, user?.name, user?.email]);
 
   useEffect(() => {
     if (!deleteAccountOpen) return;
@@ -93,48 +87,173 @@ const UserSettingsPage = observer(() => {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
   }
 
+  function clearFieldError(field: FieldKey) {
+    setFieldErrors((prev) => {
+      const next = { ...prev };
+      delete next[field];
+      return next;
+    });
+  }
+
+  function setFieldError(field: FieldKey, type: ToastType, message: string) {
+    setFieldErrors((prev) => ({ ...prev, [field]: { type, message } }));
+  }
+
+  const baseInputClass =
+    "w-full px-4 py-3 rounded-2xl bg-white border font-bold text-sm text-gray-700 outline-none focus:ring-4 focus:ring-brand-blue/10";
+
+  function fieldClass(field: FieldKey, extra?: string) {
+    const err = fieldErrors[field];
+    const border =
+      err?.type === "error"
+        ? "border-red-400 focus:ring-red-500/15"
+        : err?.type === "warning"
+          ? "border-amber-400 focus:ring-amber-500/15"
+          : "border-gray-200";
+    return `${baseInputClass} ${border} ${extra ?? ""}`;
+  }
+
+  const FieldErrorText = ({ field }: { field: FieldKey }) => {
+    const err = fieldErrors[field];
+    if (!err) return null;
+
+    const color =
+      err.type === "error"
+        ? "text-red-600"
+        : err.type === "warning"
+          ? "text-amber-600"
+          : "text-slate-500";
+
+    return (
+      <p className={`mt-1 text-[11px] font-bold ${color}`}>
+        {err.message}
+      </p>
+    );
+  };
+
   function validateProfile() {
+    let ok = true;
+    setFieldErrors((prev) => {
+      const next = { ...prev };
+      delete next.name;
+      delete next.email;
+      return next;
+    });
+
     if (!draftName.trim()) {
+      setFieldError("name", "error", "O nome não pode estar em branco.");
       showToast("error", "O nome não pode estar em branco.");
-      return false;
+      ok = false;
     }
 
     if (!draftEmail.trim()) {
+      setFieldError("email", "error", "O e-mail não pode estar em branco.");
       showToast("error", "O e-mail não pode estar em branco.");
-      return false;
-    }
-
-    if (!isValidEmail(draftEmail)) {
+      ok = false;
+    } else if (!isValidEmail(draftEmail)) {
+      setFieldError("email", "warning", "Informe um e-mail válido.");
       showToast("warning", "Informe um e-mail válido.");
-      return false;
+      ok = false;
     }
 
-    return true;
+    return ok;
   }
 
   function validatePassword() {
+    let ok = true;
+    setFieldErrors((prev) => {
+      const next = { ...prev };
+      delete next.currentPassword;
+      delete next.newPassword;
+      delete next.confirmPassword;
+      return next;
+    });
+
     if (!draftCurrentPassword) {
+      setFieldError("currentPassword", "error", "Informe a senha atual.");
       showToast("error", "Informe a senha atual.");
-      return false;
+      ok = false;
     }
 
     if (draftNewPassword.length < 8) {
+      setFieldError("newPassword", "warning", "Mínimo de 8 caracteres.");
       showToast("warning", "A nova senha deve ter no mínimo 8 caracteres.");
-      return false;
+      ok = false;
     }
 
     if (draftNewPassword !== draftConfirmPassword) {
+      setFieldError("confirmPassword", "warning", "As senhas não coincidem.");
       showToast("warning", "As senhas novas não coincidem.");
-      return false;
+      ok = false;
     }
 
-    const senhaAtualCorreta = true;
-    if (!senhaAtualCorreta) {
-      showToast("error", "Senha atual incorreta.");
-      return false;
-    }
+    return ok;
+  }
 
-    return true;
+  async function handleUpdateProfile() {
+    if (!user?.id) return;
+
+    if (!validateProfile()) return;
+
+    try {
+      const updated = await UserService.update(user.id, {
+        name: draftName.trim(),
+        email: draftEmail.trim(),
+      });
+
+      userSessionStore.currentUser?.setData(updated);
+
+      const stored = localStorage.getItem("sigex_user_data");
+      if (stored) {
+        localStorage.setItem(
+          "sigex_user_data",
+          JSON.stringify({ ...JSON.parse(stored), ...updated })
+        );
+      }
+
+      setConfirmProfileOpen(false);
+      showToast("success", "Dados atualizados com sucesso!");
+    } catch (err: any) {
+      console.error("Erro ao atualizar:", err?.response?.status, err?.response?.data, err);
+
+      const msg = err?.response?.data?.message ?? "Erro ao atualizar dados, tente outro e-mail.";
+      showToast("error", msg);
+    }
+  }
+
+  async function handleChangePassword() {
+    if (!validatePassword()) return;
+
+    try {
+      await UserService.changePassword({
+        currentPassword: draftCurrentPassword,
+        newPassword: draftNewPassword,
+      });
+
+      setConfirmPasswordOpen(false);
+
+      setDraftCurrentPassword("");
+      setDraftNewPassword("");
+      setDraftConfirmPassword("");
+
+      showToast("success", "Senha alterada com sucesso!");
+    } catch (err: any) {
+      console.error("Erro ao alterar senha:", err?.response?.status, err?.response?.data, err);
+      showToast("error", "Erro ao alterar senha. Verifique se sua senha atual está correta");
+    }
+  }
+
+  async function handleDeleteAccount() {
+    if (!user?.id) return;
+
+    try {
+      await UserService.delete(user.id);
+      userSessionStore.logout();
+      window.location.href = "/login";
+    } catch (err: any) {
+      console.error("Erro ao excluir conta:", err?.response?.status, err?.response?.data, err);
+      showToast("error", "Erro ao excluir conta.");
+    }
   }
 
   return (
@@ -145,7 +264,7 @@ const UserSettingsPage = observer(() => {
         <UserBanner />
 
         {loading ? (
-          <div className="flex flex-col justify-center items-center py-32">
+          <div className="flex justify-center items-center py-32">
             <LoadingSpinner size="medium" />
           </div>
         ) : (
@@ -157,35 +276,18 @@ const UserSettingsPage = observer(() => {
                   Configurações da Conta
                 </span>
               </div>
-              <h1 className="text-3xl font-bold text-text-primary">
-                Meus Dados
-              </h1>
+              <h1 className="text-3xl font-bold text-text-primary">Meus Dados</h1>
             </div>
 
             <div className="space-y-8">
-              {/* Dados pessoais */}
               <div className="bg-white rounded-2xl shadow-sm border border-slate-300 p-6 space-y-6">
                 <h2 className="text-xs font-bold uppercase tracking-widest text-slate-500">
                   Dados Pessoais
                 </h2>
 
                 <div className="flex flex-col md:flex-row gap-6 items-center">
-                  <div className="relative">
-                    <div className="w-20 h-20 bg-brand-blue rounded-2xl text-white flex items-center justify-center text-2xl font-black select-none">
-                      {draftName.charAt(0) || "?"}
-                    </div>
-
-                    <button
-                      className="
-                        absolute -bottom-2 -right-2 z-10
-                        p-2 bg-white border border-slate-300 rounded-lg
-                        text-brand-blue shadow-sm
-                        hover:bg-brand-blue/5 transition-all
-                        focus:outline-none focus:ring-4 focus:ring-brand-blue/10
-                      "
-                    >
-                      <FaUserEdit size={12} />
-                    </button>
+                  <div className="w-20 h-20 bg-brand-blue rounded-2xl text-white flex items-center justify-center text-2xl font-black select-none">
+                    {draftName.charAt(0) || "?"}
                   </div>
 
                   <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -195,9 +297,13 @@ const UserSettingsPage = observer(() => {
                       </label>
                       <input
                         value={draftName}
-                        onChange={(e) => setDraftName(e.target.value)}
-                        className="mt-1 w-full px-4 py-3 rounded-2xl bg-white border border-gray-200 font-bold text-sm text-gray-700 outline-none focus:ring-4 focus:ring-brand-blue/10"
+                        onChange={(e) => {
+                          setDraftName(e.target.value);
+                          clearFieldError("name");
+                        }}
+                        className={fieldClass("name", "mt-1")}
                       />
+                      <FieldErrorText field="name" />
                     </div>
 
                     <div>
@@ -217,68 +323,78 @@ const UserSettingsPage = observer(() => {
                         <FaEnvelope className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
                         <input
                           value={draftEmail}
-                          onChange={(e) => setDraftEmail(e.target.value)}
-                          className="pl-11 pr-4 py-3 w-full rounded-2xl bg-white border border-gray-200 font-bold text-sm text-gray-700 outline-none focus:ring-4 focus:ring-brand-blue/10"
+                          onChange={(e) => {
+                            setDraftEmail(e.target.value);
+                            clearFieldError("email");
+                          }}
+                          className={fieldClass("email", "pl-11 pr-4")}
                         />
                       </div>
+                      <FieldErrorText field="email" />
                     </div>
                   </div>
                 </div>
 
                 <div className="flex justify-end pt-2">
                   <button
-                    onClick={() => {
-                      if (validateProfile()) {
-                        setConfirmProfileOpen(true);
-                      }
-                    }}
-                    className="px-6 py-3 bg-brand-blue text-white rounded-xl font-black uppercase text-xs"
+                    onClick={() => validateProfile() && setConfirmProfileOpen(true)}
+                    className="px-6 py-3 bg-brand-blue text-white rounded-xl font-black uppercase text-xs cursor-pointer"
                   >
                     Salvar Alterações
                   </button>
                 </div>
               </div>
 
-              {/* Alterar senha */}
               <div className="bg-white rounded-2xl shadow-sm border border-slate-300 p-6 space-y-4">
                 <h2 className="text-xs font-bold uppercase tracking-widest text-slate-500">
                   Alterar Senha
                 </h2>
 
-                {[
-                  {
-                    placeholder: "Senha Atual",
-                    value: draftCurrentPassword,
-                    onChange: setDraftCurrentPassword,
-                  },
-                  {
-                    placeholder: "Nova Senha",
-                    value: draftNewPassword,
-                    onChange: setDraftNewPassword,
-                  },
-                  {
-                    placeholder: "Confirmar Nova Senha",
-                    value: draftConfirmPassword,
-                    onChange: setDraftConfirmPassword,
-                  },
-                ].map((field, i) => (
+                <div>
                   <input
-                    key={i}
                     type="password"
-                    placeholder={field.placeholder}
-                    value={field.value}
-                    onChange={(e) => field.onChange(e.target.value)}
-                    className="w-full px-4 py-3.5 rounded-2xl bg-white border border-gray-200 font-bold text-sm text-gray-700 outline-none focus:ring-4 focus:ring-brand-blue/10"
+                    placeholder="Senha Atual"
+                    value={draftCurrentPassword}
+                    onChange={(e) => {
+                      setDraftCurrentPassword(e.target.value);
+                      clearFieldError("currentPassword");
+                    }}
+                    className={fieldClass("currentPassword")}
                   />
-                ))}
+                  <FieldErrorText field="currentPassword" />
+                </div>
+
+                <div>
+                  <input
+                    type="password"
+                    placeholder="Nova Senha"
+                    value={draftNewPassword}
+                    onChange={(e) => {
+                      setDraftNewPassword(e.target.value);
+                      clearFieldError("newPassword");
+                    }}
+                    className={fieldClass("newPassword")}
+                  />
+                  <FieldErrorText field="newPassword" />
+                </div>
+
+                <div>
+                  <input
+                    type="password"
+                    placeholder="Confirmar Nova Senha"
+                    value={draftConfirmPassword}
+                    onChange={(e) => {
+                      setDraftConfirmPassword(e.target.value);
+                      clearFieldError("confirmPassword");
+                    }}
+                    className={fieldClass("confirmPassword")}
+                  />
+                  <FieldErrorText field="confirmPassword" />
+                </div>
 
                 <button
-                  onClick={() => {
-                    if (validatePassword()) {
-                      setConfirmPasswordOpen(true);
-                    }
-                  }}
-                  className="w-full py-3.5 bg-slate-900 text-white rounded-xl font-black uppercase text-sm"
+                  onClick={() => validatePassword() && setConfirmPasswordOpen(true)}
+                  className="w-full py-3.5 bg-slate-900 text-white rounded-xl font-black uppercase text-sm cursor-pointer"
                 >
                   Confirmar Alteração
                 </button>
@@ -305,25 +421,18 @@ const UserSettingsPage = observer(() => {
         title="Confirmar Alteração"
         onClose={() => setConfirmProfileOpen(false)}
       >
-        <p className="text-sm mb-6">
-          Deseja confirmar a alteração dos seus dados pessoais?
-        </p>
+        <p className="text-sm mb-6">Deseja confirmar a alteração dos seus dados pessoais?</p>
 
         <div className="flex justify-end gap-3">
           <button
             onClick={() => setConfirmProfileOpen(false)}
-            className="px-4 py-2 font-bold text-slate-500"
+            className="px-4 py-2 font-bold text-slate-500 cursor-pointer"
           >
             Cancelar
           </button>
           <button
-            onClick={() => {
-              setName(draftName);
-              setEmail(draftEmail);
-              setConfirmProfileOpen(false);
-              showToast("success", "Dados atualizados com sucesso!");
-            }}
-            className="px-6 py-2 bg-brand-blue text-white rounded-lg font-bold"
+            onClick={handleUpdateProfile}
+            className="px-6 py-2 bg-brand-blue text-white rounded-lg font-bold cursor-pointer"
           >
             Confirmar
           </button>
@@ -335,35 +444,23 @@ const UserSettingsPage = observer(() => {
         title="Alterar Senha"
         onClose={() => setConfirmPasswordOpen(false)}
       >
-        <p className="text-sm mb-6">
-          Tem certeza que deseja alterar sua senha?
-        </p>
+        <p className="text-sm mb-6">Tem certeza que deseja alterar sua senha?</p>
 
         <div className="flex justify-end gap-3">
           <button
             onClick={() => setConfirmPasswordOpen(false)}
-            className="px-4 py-2 font-bold text-slate-500"
+            className="px-4 py-2 font-bold text-slate-500 cursor-pointer"
           >
             Cancelar
           </button>
           <button
-            onClick={() => {
-              if (!validatePassword()) return;
-
-              setCurrentPassword(draftCurrentPassword);
-              setNewPassword(draftNewPassword);
-              setConfirmPassword(draftConfirmPassword);
-              setConfirmPasswordOpen(false);
-
-              showToast("success", "Senha alterada com sucesso!");
-            }}
-            className="px-6 py-2 bg-brand-blue text-white rounded-lg font-bold"
+            onClick={handleChangePassword}
+            className="px-6 py-2 bg-brand-blue text-white rounded-lg font-bold cursor-pointer"
           >
             Confirmar
           </button>
         </div>
       </Modal>
-
 
       <Modal
         isOpen={deleteAccountOpen}
@@ -381,17 +478,18 @@ const UserSettingsPage = observer(() => {
         <div className="flex justify-end gap-3">
           <button
             onClick={() => setDeleteAccountOpen(false)}
-            className="px-4 py-2 font-bold text-slate-500"
+            className="px-4 py-2 font-bold text-slate-500 cursor-pointer"
           >
             Cancelar
           </button>
 
           <button
             disabled={deleteCountdown > 0}
+            onClick={handleDeleteAccount}
             className={`px-6 py-2 rounded-lg font-bold text-white transition ${
               deleteCountdown > 0
                 ? "bg-red-300 cursor-not-allowed"
-                : "bg-red-600 hover:bg-red-700"
+                : "bg-red-600 hover:bg-red-700 cursor-pointer"
             }`}
           >
             Excluir
@@ -399,13 +497,7 @@ const UserSettingsPage = observer(() => {
         </div>
       </Modal>
 
-      {toast && (
-        <Toast
-          type={toast.type}
-          message={toast.message}
-          onClose={() => setToast(null)}
-        />
-      )}
+      {toast && <Toast type={toast.type} message={toast.message} onClose={() => setToast(null)} />}
     </div>
   );
 });

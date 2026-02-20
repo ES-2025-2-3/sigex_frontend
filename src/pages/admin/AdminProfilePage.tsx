@@ -9,13 +9,12 @@ import Modal from "../../commons/modal/Modal";
 import Toast, { ToastType } from "../../commons/toast/Toast";
 
 import { userSessionStore } from "../../store/auth/UserSessionStore";
+import UserService from "../../services/UserService";
 
-import {
-  FaEnvelope,
-  FaUserShield,
-  FaUserCog,
-  FaArrowLeft,
-} from "react-icons/fa";
+import { FaEnvelope, FaUserShield, FaUserCog, FaArrowLeft } from "react-icons/fa";
+
+type FieldKey = "currentPassword" | "newPassword" | "confirmPassword";
+type FieldError = { type: ToastType; message: string };
 
 const AdminProfilePage = observer(() => {
   const navigate = useNavigate();
@@ -28,18 +27,23 @@ const AdminProfilePage = observer(() => {
   const [draftConfirmPassword, setDraftConfirmPassword] = useState("");
 
   const [confirmPasswordOpen, setConfirmPasswordOpen] = useState(false);
-  const [toast, setToast] = useState<{
-    type: ToastType;
-    message: string;
-  } | null>(null);
+
+  const [toast, setToast] = useState<{ type: ToastType; message: string } | null>(
+    null
+  );
+
+  const [fieldErrors, setFieldErrors] = useState<
+    Partial<Record<FieldKey, FieldError>>
+  >({});
+
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
 
   useEffect(() => {
     const timer = setTimeout(() => setLoading(false), 600);
     return () => clearTimeout(timer);
   }, []);
 
-  const showToast = (type: ToastType, message: string) =>
-    setToast({ type, message });
+  const showToast = (type: ToastType, message: string) => setToast({ type, message });
 
   const getRoleLabel = () => {
     if (user?.isAdmin) return "Administrador do Sistema";
@@ -47,21 +51,100 @@ const AdminProfilePage = observer(() => {
     return "Servidor";
   };
 
-  const validatePasswordChange = () => {
-    if (!draftCurrentPassword) {
-      showToast("error", "Informe a senha atual.");
-      return false;
-    }
-    if (draftNewPassword.length < 8) {
-      showToast("warning", "A nova senha deve ter no mínimo 8 caracteres.");
-      return false;
-    }
-    if (draftNewPassword !== draftConfirmPassword) {
-      showToast("warning", "As senhas novas não coincidem.");
-      return false;
-    }
-    return true;
+  function setFieldError(field: FieldKey, type: ToastType, message: string) {
+    setFieldErrors((prev) => ({ ...prev, [field]: { type, message } }));
+  }
+
+  function resetPasswordErrors() {
+    setFieldErrors((prev) => {
+      const next = { ...prev };
+      delete next.currentPassword;
+      delete next.newPassword;
+      delete next.confirmPassword;
+      return next;
+    });
+  }
+
+  const FieldErrorText = ({ field }: { field: FieldKey }) => {
+    const err = fieldErrors[field];
+    if (!err) return null;
+
+    const color =
+      err.type === "error"
+        ? "text-red-600"
+        : err.type === "warning"
+          ? "text-amber-600"
+          : "text-slate-500";
+
+    return <p className={`mt-1 text-[11px] font-bold ${color}`}>{err.message}</p>;
   };
+
+  const validatePasswordChange = () => {
+    resetPasswordErrors();
+
+    let ok = true;
+
+    if (!draftCurrentPassword) {
+      setFieldError("currentPassword", "error", "Informe a senha atual.");
+      showToast("error", "Informe a senha atual.");
+      ok = false;
+    }
+
+    if (draftNewPassword.length < 8) {
+      setFieldError("newPassword", "warning", "Mínimo de 8 caracteres.");
+      showToast("warning", "A nova senha deve ter no mínimo 8 caracteres.");
+      ok = false;
+    }
+
+    if (draftNewPassword !== draftConfirmPassword) {
+      setFieldError("confirmPassword", "warning", "As senhas não coincidem.");
+      showToast("warning", "As senhas novas não coincidem.");
+      ok = false;
+    }
+
+    return ok;
+  };
+
+  async function handleConfirmChangePassword() {
+    if (!validatePasswordChange()) return;
+
+    try {
+      setIsChangingPassword(true);
+
+      await UserService.changePassword({
+        currentPassword: draftCurrentPassword,
+        newPassword: draftNewPassword,
+      });
+
+      setConfirmPasswordOpen(false);
+
+      setDraftCurrentPassword("");
+      setDraftNewPassword("");
+      setDraftConfirmPassword("");
+
+      showToast("success", "Senha alterada com sucesso!");
+    } catch (err: any) {
+      console.error(
+        "Erro ao alterar senha:",
+        err?.response?.status,
+        err?.response?.data,
+        err
+      );
+
+      const msg =
+        err?.response?.data?.message ??
+        "Erro ao alterar senha. Verifique a senha atual e tente novamente.";
+
+      showToast("error", msg);
+
+
+      if (String(msg).toLowerCase().includes("atual")) {
+        setFieldError("currentPassword", "error", "Senha atual incorreta.");
+      }
+    } finally {
+      setIsChangingPassword(false);
+    }
+  }
 
   return (
     <div className="flex flex-col min-h-screen bg-[#f8fafc]">
@@ -87,11 +170,7 @@ const AdminProfilePage = observer(() => {
               </button>
 
               <div className="flex items-center gap-2 text-brand-blue mb-1">
-                {user?.isAdmin ? (
-                  <FaUserShield size={14} />
-                ) : (
-                  <FaUserCog size={14} />
-                )}
+                {user?.isAdmin ? <FaUserShield size={14} /> : <FaUserCog size={14} />}
                 <span className="text-xs font-black uppercase tracking-[0.2em]">
                   Perfil de {user?.isAdmin ? "Administrador" : "Gestor"}
                 </span>
@@ -145,42 +224,56 @@ const AdminProfilePage = observer(() => {
                 </div>
               </div>
 
-              {/* SEGURANÇA */}
               <div className="bg-white rounded-3xl shadow-sm border border-slate-200 p-8 space-y-6">
                 <h2 className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400">
                   Segurança e Senha
                 </h2>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <input
-                    type="password"
-                    placeholder="Senha Atual"
-                    value={draftCurrentPassword}
-                    onChange={(e) => setDraftCurrentPassword(e.target.value)}
-                    className="px-5 py-4 rounded-2xl bg-white border border-slate-200 font-bold text-sm focus:ring-4 focus:ring-brand-blue/10 outline-none transition-all"
-                  />
-                  <input
-                    type="password"
-                    placeholder="Nova Senha"
-                    value={draftNewPassword}
-                    onChange={(e) => setDraftNewPassword(e.target.value)}
-                    className="px-5 py-4 rounded-2xl bg-white border border-slate-200 font-bold text-sm focus:ring-4 focus:ring-brand-blue/10 outline-none transition-all"
-                  />
-                  <input
-                    type="password"
-                    placeholder="Confirmar Nova Senha"
-                    value={draftConfirmPassword}
-                    onChange={(e) => setDraftConfirmPassword(e.target.value)}
-                    className="px-5 py-4 rounded-2xl bg-white border border-slate-200 font-bold text-sm focus:ring-4 focus:ring-brand-blue/10 outline-none transition-all"
-                  />
+                  <div>
+                    <div className="px-5 py-4 rounded-2xl bg-white border border-slate-200 font-bold text-sm transition-all focus-within:ring-4 focus-within:ring-brand-blue/10">
+                      <input
+                        type="password"
+                        placeholder="Senha Atual"
+                        value={draftCurrentPassword}
+                        onChange={(e) => setDraftCurrentPassword(e.target.value)}
+                        className="w-full bg-transparent outline-none"
+                      />
+                    </div>
+                    <FieldErrorText field="currentPassword" />
+                  </div>
+
+                  <div>
+                    <div className="px-5 py-4 rounded-2xl bg-white border border-slate-200 font-bold text-sm transition-all focus-within:ring-4 focus-within:ring-brand-blue/10">
+                      <input
+                        type="password"
+                        placeholder="Nova Senha"
+                        value={draftNewPassword}
+                        onChange={(e) => setDraftNewPassword(e.target.value)}
+                        className="w-full bg-transparent outline-none"
+                      />
+                    </div>
+                    <FieldErrorText field="newPassword" />
+                  </div>
+
+                  <div>
+                    <div className="px-5 py-4 rounded-2xl bg-white border border-slate-200 font-bold text-sm transition-all focus-within:ring-4 focus-within:ring-brand-blue/10">
+                      <input
+                        type="password"
+                        placeholder="Confirmar Nova Senha"
+                        value={draftConfirmPassword}
+                        onChange={(e) => setDraftConfirmPassword(e.target.value)}
+                        className="w-full bg-transparent outline-none"
+                      />
+                    </div>
+                    <FieldErrorText field="confirmPassword" />
+                  </div>
                 </div>
 
                 <div className="flex justify-end">
                   <button
-                    onClick={() =>
-                      validatePasswordChange() && setConfirmPasswordOpen(true)
-                    }
-                    className="px-10 py-4 bg-slate-900 text-white rounded-2xl font-black uppercase text-xs tracking-widest hover:bg-brand-blue transition-all shadow-lg active:scale-95"
+                    onClick={() => validatePasswordChange() && setConfirmPasswordOpen(true)}
+                    className="px-10 py-4 bg-slate-900 text-white rounded-2xl font-black uppercase text-xs tracking-widest hover:bg-brand-blue transition-all shadow-lg active:scale-95 cursor-pointer"
                   >
                     Atualizar Senha
                   </button>
@@ -207,32 +300,27 @@ const AdminProfilePage = observer(() => {
           <div className="flex justify-end gap-3">
             <button
               onClick={() => setConfirmPasswordOpen(false)}
-              className="px-6 py-3 font-bold text-slate-400 hover:text-slate-600 transition-colors uppercase text-xs"
+              className="px-6 py-3 font-bold text-slate-400 hover:text-slate-600 transition-colors uppercase text-xs cursor-pointer"
             >
               Cancelar
             </button>
             <button
-              onClick={() => {
-                setConfirmPasswordOpen(false);
-                setDraftCurrentPassword("");
-                setDraftNewPassword("");
-                setDraftConfirmPassword("");
-                showToast("success", "Senha alterada com sucesso!");
-              }}
-              className="px-8 py-3 bg-brand-blue text-white rounded-xl font-black uppercase text-xs tracking-widest shadow-lg shadow-brand-blue/20"
+              disabled={isChangingPassword}
+              onClick={handleConfirmChangePassword}
+              className={`px-8 py-3 rounded-xl font-black uppercase text-xs tracking-widest shadow-lg shadow-brand-blue/20 cursor-pointer ${
+                isChangingPassword
+                  ? "bg-slate-200 text-slate-500 cursor-not-allowed shadow-none"
+                  : "bg-brand-blue text-white"
+              }`}
             >
-              Confirmar
+              {isChangingPassword ? "Alterando..." : "Confirmar"}
             </button>
           </div>
         </div>
       </Modal>
 
       {toast && (
-        <Toast
-          type={toast.type}
-          message={toast.message}
-          onClose={() => setToast(null)}
-        />
+        <Toast type={toast.type} message={toast.message} onClose={() => setToast(null)} />
       )}
     </div>
   );
