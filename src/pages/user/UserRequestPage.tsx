@@ -56,10 +56,20 @@ const UserRequestPage = observer(() => {
           EventService.getAll(),
         ]);
 
-        setReservations(resData);
-        setEvents(eventsData);
+        const safeReservations = Array.isArray(resData)
+          ? resData
+          : (resData as any)?.content || [];
+
+        const safeEvents = Array.isArray(eventsData)
+          ? eventsData
+          : (eventsData as any)?.content || [];
+
+        setReservations(safeReservations);
+        setEvents(safeEvents);
       } catch (error) {
         console.error("Erro ao carregar solicitações:", error);
+        setReservations([]);
+        setEvents([]);
       } finally {
         setLoading(false);
       }
@@ -72,7 +82,7 @@ const UserRequestPage = observer(() => {
     try {
       if (!reservationToCancel?.id) return;
 
-      await ReservationService.delete(reservationToCancel.id);
+      await ReservationService.delete(String(reservationToCancel.id));
 
       setReservations((prev) => {
         const newReservations = prev.filter(
@@ -98,12 +108,14 @@ const UserRequestPage = observer(() => {
   };
 
   const getEventTitle = (eventId: number | string | null) => {
-    if (!eventId) return "Evento não identificado";
+    if (!eventId || !Array.isArray(events)) return "Evento não identificado";
     const event = events.find((e) => String(e.id) === String(eventId));
     return event ? event.title : `Evento #${eventId}`;
   };
 
   const filteredReservations = useMemo(() => {
+    if (!Array.isArray(reservations)) return [];
+
     return reservations
       .filter((b) => {
         const isFromLoggedUser = b.bookerId === loggedUserId;
