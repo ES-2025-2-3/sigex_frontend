@@ -20,7 +20,7 @@ import Toast, { ToastType } from "../../commons/toast/Toast";
 import { UserType } from "../../domain/enums/UserType";
 import { userIndexStore } from "../../store/user/UserIndexStore";
 
-type ConfirmAction = "PROMOTE" | "DEMOTE" | "REMOVE" | "VIEW";
+type ConfirmAction = "PROMOTE" | "REMOVE" | "VIEW";
 
 const ITEMS_PER_PAGE = 6;
 
@@ -49,12 +49,6 @@ const AdminUserPage = observer(() => {
     setConfirmUser(user);
     setConfirmAction("PROMOTE");
     setIsConfirmModalOpen(true);
-  };
-
-  const openDemoteConfirm = (user: User) => {
-  setConfirmUser(user);
-  setConfirmAction("DEMOTE");
-  setIsConfirmModalOpen(true);
   };
 
   const openRemoveConfirm = (user: User) => {
@@ -116,8 +110,6 @@ const AdminUserPage = observer(() => {
 
     if (confirmAction === "PROMOTE") {
       handlePromote(confirmUser);
-    } else if (confirmAction === "DEMOTE") {
-      handleDemote(confirmUser);
     } else if (confirmAction === "REMOVE") {
       handleRemove(confirmUser);
     }
@@ -151,17 +143,6 @@ const AdminUserPage = observer(() => {
       message: "Erro ao promover usuário",
     });
   }
-  };
-
-  const handleDemote = async (user: User) => {
-    const success = await userIndexStore.demote(user.id);
-
-    setToast({
-      type: success ? "success" : "error",
-      message: success
-        ? `Usuário #${user.id} rebaixado para USUARIO`
-        : "Erro ao rebaixar usuário",
-    });
   };
 
   const handleRemove = (user: User) => {
@@ -280,14 +261,6 @@ const AdminUserPage = observer(() => {
                               </button>
 
                               <button
-                                onClick={() => openDemoteConfirm(user)}
-                                disabled={user.type !== UserType.SERVIDOR_TECNICO_ADMINISTRATIVO}
-                                className="cursor-pointer p-2 rounded-lg text-red-600 hover:bg-red-50 disabled:opacity-40"
-                              >
-                                <FaArrowDown />
-                              </button>
-
-                              <button
                                 onClick={() => openRemoveConfirm(user)}
                                 disabled={user.type === UserType.ADMIN}
                                 className="cursor-pointer p-2 rounded-lg text-red-600 hover:bg-red-50 disabled:opacity-40"
@@ -346,8 +319,6 @@ const AdminUserPage = observer(() => {
             <p className="text-sm text-slate-600 font-medium">
               {confirmAction === "PROMOTE"
                 ? "Esta ação concederá privilégios administrativos ao usuário."
-                : confirmAction === "DEMOTE"
-                  ? "Esta ação rebaixará o servidor para usuário."
                   : confirmAction === "REMOVE"
                     ? "Você realmente deseja excluir este usuário?"
                     : "Visualização dos dados do usuário."}
