@@ -34,7 +34,10 @@ class UserSessionStore {
   }
 
   async login(credentials: any) {
-    this.isLoading = true;
+    runInAction(() => {
+      this.isLoading = true;
+    });
+
     try {
       const data = await AuthService.login(credentials);
       this.saveSession(data);
@@ -43,7 +46,9 @@ class UserSessionStore {
       console.error("Erro no login:", e);
       throw e;
     } finally {
-      runInAction(() => (this.isLoading = false));
+      runInAction(() => {
+        this.isLoading = false;
+      });
     }
   }
 

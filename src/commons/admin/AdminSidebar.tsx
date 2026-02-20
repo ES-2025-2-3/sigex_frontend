@@ -59,7 +59,7 @@ const AdminSidebar: React.FC = observer(() => {
       label: "Termos & Regras",
       icon: <FaCog />,
       path: "/admin/configuracoes",
-      visible: user?.isStaff || user?.isAdmin,
+      visible: user?.isAdmin,
     },
   ];
 

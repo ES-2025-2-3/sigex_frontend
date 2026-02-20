@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from "react";
 import { observer } from "mobx-react-lite";
-import { useNavigate } from "react-router-dom"; // Importado
+import { useNavigate } from "react-router-dom";
 
 import Header from "../../commons/header/Header";
 import Footer from "../../commons/footer/Footer";
@@ -8,11 +8,12 @@ import LoadingSpinner from "../../commons/components/LoadingSpinner";
 import Pagination from "../../commons/pagination/Pagination";
 import Modal from "../../commons/modal/Modal";
 
-import { reservation_mock } from "../../../mock/reservation";
-import { event_mock } from "../../../mock/event";
 import { ReservationStatus } from "../../domain/enums/ReservationStatus";
 import { userSessionStore } from "../../store/auth/UserSessionStore";
-import { Reservation } from "../../types/reservation/ReservationType";
+import ReservationDomain from "../../domain/reservation/ReservationDomain";
+import EventDomain from "../../domain/event/EventDomain";
+import ReservationService from "../../services/ReservationService";
+import EventService from "../../services/EventService";
 
 import {
   FaCalendarAlt,
@@ -36,30 +37,47 @@ const UserRequestPage = observer(() => {
   const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
-  const [selectedReservation, setSelectedReservation] = useState<Reservation | null>(null);
+  const [selectedReservation, setSelectedReservation] = useState<ReservationDomain | null>(null);
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
-  const [reservationToCancel, setReservationToCancel] = useState<Reservation | null>(null);
+  const [reservationToCancel, setReservationToCancel] = useState<ReservationDomain | null>(null);
   const [isCancelSuccessOpen, setIsCancelSuccessOpen] = useState(false);
   const [isCancelErrorOpen, setIsCancelErrorOpen] = useState(false);
+  const [reservations, setReservations] = useState<ReservationDomain[]>([]);
+  const [events, setEvents] = useState<EventDomain[]>([]);
 
-  const [userReservations, setUserReservations] = useState<Reservation[]>([]);
-  const loggedUserId = userSessionStore.currentUser?.id || 1;
+  const loggedUserId = userSessionStore.currentUser?.id;
 
   useEffect(() => {
-    const timer = setTimeout(() => setLoading(false), 600);
-    return () => clearTimeout(timer);
+    const loadData = async () => {
+      try {
+        setLoading(true);
+        const [resData, eventsData] = await Promise.all([
+          ReservationService.getMyBookings(),
+          EventService.getAll(),
+        ]);
+
+        setReservations(resData);
+        setEvents(eventsData);
+      } catch (error) {
+        console.error("Erro ao carregar solicitações:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadData();
   }, []);
-
-  useEffect(() => {
-    setUserReservations(
-      (reservation_mock as Reservation[]).filter((b) => b.bookerId === loggedUserId),
-    );
-  }, [loggedUserId]);
 
   const handleConfirmCancel = async () => {
     try {
-      setUserReservations((prev) => {
-        const newReservations = prev.filter((b) => b.id !== reservationToCancel!.id);
+      if (!reservationToCancel?.id) return;
+
+      await ReservationService.delete(reservationToCancel.id);
+
+      setReservations((prev) => {
+        const newReservations = prev.filter(
+          (b) => b.id !== reservationToCancel.id,
+        );
 
         const totalPagesAfterDelete = Math.ceil(
           newReservations.length / ITEMS_PER_PAGE,
@@ -79,24 +97,32 @@ const UserRequestPage = observer(() => {
     }
   };
 
-  const getEventTitle = (eventId: number) => {
-    const event = event_mock.find((e) => e.id === eventId);
+  const getEventTitle = (eventId: number | string | null) => {
+    if (!eventId) return "Evento não identificado";
+    const event = events.find((e) => String(e.id) === String(eventId));
     return event ? event.title : `Evento #${eventId}`;
   };
 
   const filteredReservations = useMemo(() => {
-    return userReservations
+    return reservations
       .filter((b) => {
+        const isFromLoggedUser = b.bookerId === loggedUserId;
         const isPending = b.status === ReservationStatus.SOLICITADA;
+
         const eventTitle = getEventTitle(b.eventId).toLowerCase();
+        const reservationId = b.id ? b.id.toString() : "";
         const matchesSearch =
           eventTitle.includes(search.toLowerCase()) ||
-          b.id.toString().includes(search);
+          reservationId.includes(search);
 
-        return isPending && matchesSearch;
+        return isFromLoggedUser && isPending && matchesSearch;
       })
-      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-  }, [search, userReservations]);
+      .sort((a, b) => {
+        const dateA = a.date ? new Date(a.date).getTime() : 0;
+        const dateB = b.date ? new Date(b.date).getTime() : 0;
+        return dateB - dateA;
+      });
+  }, [search, reservations, events, loggedUserId]);
 
   const totalPages = Math.ceil(filteredReservations.length / ITEMS_PER_PAGE);
   const paginatedReservations = useMemo(() => {
@@ -167,7 +193,7 @@ const UserRequestPage = observer(() => {
                     {paginatedReservations.length > 0 ? (
                       paginatedReservations.map((b) => (
                         <tr
-                          key={b.id}
+                          key={b.id!}
                           className="group hover:bg-slate-50 transition-colors"
                         >
                           <td className="px-8 py-6 text-gray-700">
@@ -185,7 +211,7 @@ const UserRequestPage = observer(() => {
                           <td className="px-6 py-6">
                             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 text-amber-600 border-amber-100 border text-[10px] font-bold uppercase">
                               <FaHourglassHalf size={10} />
-                              SOLICITADA
+                              {b.status}
                             </div>
                           </td>
                           <td className="px-8 py-6 text-center">
@@ -203,7 +229,9 @@ const UserRequestPage = observer(() => {
 
                               <button
                                 onClick={() =>
-                                  navigate(`/usuario/solicitacoes/editar/${b.id}`)
+                                  navigate(
+                                    `/usuario/solicitacoes/editar/${b.id}`,
+                                  )
                                 }
                                 className="p-2.5 text-gray-400 hover:text-amber-600
                                                 bg-gray-50 rounded-xl hover:bg-amber-50 transition-all"
@@ -298,7 +326,7 @@ const UserRequestPage = observer(() => {
             >
               <FaHourglassHalf size={14} />
               <span className="text-xs font-bold uppercase tracking-wider">
-                Status: SOLICITADA (aguardando aprovação)
+                Status: {selectedReservation.status} (aguardando aprovação)
               </span>
             </div>
 
@@ -398,11 +426,7 @@ const UserRequestPage = observer(() => {
       >
         <div className="space-y-6">
           <div className="flex items-center gap-4 bg-slate-50 p-5 rounded-2xl border border-slate-100">
-            <div
-              className="w-10 h-10 bg-emerald-600 text-white rounded-xl
-                                flex items-center justify-center
-                                shadow-lg shadow-emerald-600/20"
-            >
+            <div className="w-10 h-10 bg-emerald-600 text-white rounded-xl flex items-center justify-center shadow-lg shadow-emerald-600/20">
               <FaCheckCircle size={18} />
             </div>
             <div>
@@ -414,23 +438,9 @@ const UserRequestPage = observer(() => {
               </p>
             </div>
           </div>
-
-          <div
-            className="p-4 rounded-xl border flex items-center gap-3
-                bg-emerald-50/50 border-emerald-100 text-emerald-700"
-          >
-            <FaCheckCircle />
-            <span className="text-xs font-bold">
-              A sua solicitação foi cancelada e já não está aguardando
-              aprovação.
-            </span>
-          </div>
-
           <button
             onClick={() => setIsCancelSuccessOpen(false)}
-            className="w-full py-3.5 bg-slate-900 text-white rounded-xl
-                            font-bold hover:bg-slate-800 transition-all
-                            text-sm shadow-xl shadow-slate-200"
+            className="w-full py-3.5 bg-slate-900 text-white rounded-xl font-bold"
           >
             Fechar
           </button>
@@ -444,11 +454,7 @@ const UserRequestPage = observer(() => {
       >
         <div className="space-y-6">
           <div className="flex items-center gap-4 bg-slate-50 p-5 rounded-2xl border border-slate-100">
-            <div
-              className="w-10 h-10 bg-red-600 text-white rounded-xl
-                                flex items-center justify-center
-                                shadow-lg shadow-red-600/20"
-            >
+            <div className="w-10 h-10 bg-red-600 text-white rounded-xl flex items-center justify-center shadow-lg shadow-red-600/20">
               <FaTimesCircle size={18} />
             </div>
             <div>
@@ -460,23 +466,9 @@ const UserRequestPage = observer(() => {
               </p>
             </div>
           </div>
-
-          <div
-            className="p-4 rounded-xl border flex items-center gap-3
-                bg-red-50/50 border-red-100 text-red-700"
-          >
-            <FaTimesCircle />
-            <span className="text-xs font-bold">
-              Algo correu mal ao cancelar a solicitação. Tente novamente mais
-              tarde.
-            </span>
-          </div>
-
           <button
             onClick={() => setIsCancelErrorOpen(false)}
-            className="w-full py-3.5 bg-slate-900 text-white rounded-xl
-                            font-bold hover:bg-slate-800 transition-all
-                            text-sm shadow-xl shadow-slate-200"
+            className="w-full py-3.5 bg-slate-900 text-white rounded-xl font-bold"
           >
             Fechar
           </button>
