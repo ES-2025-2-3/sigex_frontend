@@ -1,16 +1,77 @@
-# React + Vite
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+🚀 **Frontend - SIGEX**
 
-Currently, two official plugins are available:
+Este é o repositório do frontend da aplicação, desenvolvido com o objetivo de oferecer uma interface moderna, rápida e segura para a gestão e reserva de eventos de extensão da UFCG.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+---
 
-## React Compiler
+🛠 **Tecnologias Utilizadas**
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+* **React.js**: Biblioteca principal para a construção da interface.
+* **TypeScript**: Adição de tipagem estática para maior segurança e produtividade.
+* **Vite**: Ferramenta de build de última geração para um desenvolvimento ágil.
+* **Tailwind CSS**: Framework CSS utilitário para design responsivo.
+* **MobX**: Gerenciamento de estado global reativo e escalável.
+* **Axios**: Cliente HTTP para integração com a API REST.
 
-## Expanding the ESLint configuration
+---
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+📁 **Estrutura de Pastas**
+
+A arquitetura foi pensada para manter a separação de responsabilidades e facilitar a manutenção:
+
+```bash
+src/
+├── commons/      # Componentes compartilhados (Buttons, Modals, Toasts)
+├── domain/       # Modelos de dados e Enums (Regras de negócio)
+├── pages/        # Telas principais da aplicação
+├── services/     # Camada de comunicação com o Backend (API)
+├── store/        # Gerenciamento de estado global (MobX Stores)
+└── routes/       # Configuração de roteamento e proteção de páginas
+```
+---
+
+🔐 **Segurança e Autenticação**
+
+O sistema utiliza um modelo de segurança híbrido:
+
+* **Rotas Públicas**: Visualização de eventos disponível para todos os usuários.
+* **Rotas Privadas**: Ações como reservas e gestão administrativa exigem um **Token JWT**.
+* **Persistência**: O token é armazenado no `LocalStorage` e injetado automaticamente em todas as requisições protegidas via interceptores do `Axios`.
+
+---
+
+🚀 **Como Executar o Projeto**
+
+Certifique-se de ter o **Node.js** e o **Yarn** instalados em sua máquina.
+
+1. **Clone o repositório:**
+
+```bash
+git clone [https://github.com/seu-usuario/seu-repositorio.git](https://github.com/seu-usuario/seu-repositorio.git)
+```
+
+2. **Instale as dependências:**
+
+```bash
+yarn install
+```
+
+3. **Inicie o servidor de desenvolvimento:**
+
+```bash
+yarn dev
+```
+
+> O projeto estará disponível em `http://localhost:5173`
+
+4. **Build para produção:**
+
+```bash
+yarn build
+```
+---
+
+🖇️ **Integração com o Backend**
+
+Para o funcionamento pleno das funcionalidades do sistema, certifique-se de que o servidor backend (**Spring Boot**) esteja rodando.

@@ -6,13 +6,22 @@ class UserDomain extends DomainBase {
   @observable accessor id: string | null = null;
   @observable accessor name = "";
   @observable accessor email = "";
-  @observable accessor registrationNumber = ""; 
   @observable accessor type: UserType | null = null;
 
   constructor(user?: any) {
     super();
     makeObservable(this);
-    if (user) this.setData(user);
+    if (user) {
+      this.id = user.id || null;
+      this.name = user.name || "";
+      this.email = user.email || "";
+      this.type = user.userType || user.type || null;
+    }
+  }
+
+  @computed
+  get canBePromotedToStaff(): boolean {
+    return this.type === UserType.USUARIO;
   }
 
   @computed
@@ -22,15 +31,17 @@ class UserDomain extends DomainBase {
 
   @computed
   get isStaff(): boolean {
-    return this.type === UserType.FUNCIONARIO;
+    return this.type === UserType.SERVIDOR_TECNICO_ADMINISTRATIVO;
   }
 
   @computed
   get isRegularUser(): boolean {
-    return (
-      this.type === UserType.DOCENTE || 
-      this.type === UserType.SERVIDOR_TECNICO_ADMINISTRATIVO
-    );
+    return this.type === UserType.USUARIO;
+  }
+
+  @computed
+  get canAccessAdminArea(): boolean {
+    return this.isAdmin || this.isStaff;
   }
 
   @computed
@@ -41,11 +52,6 @@ class UserDomain extends DomainBase {
       return (names[0][0] + names[names.length - 1][0]).toUpperCase();
     }
     return names[0].substring(0, 2).toUpperCase();
-  }
-
-  @computed
-  get canBePromotedToStaff(): boolean {
-    return this.type === UserType.SERVIDOR_TECNICO_ADMINISTRATIVO;
   }
 
   @action
@@ -61,7 +67,6 @@ class UserDomain extends DomainBase {
     } else {
       super.validate(undefined, () => {
         if (!this.name) this.errors["name"] = "Nome é obrigatório";
-        if (!this.registrationNumber) this.errors["registrationNumber"] = "Matrícula é obrigatória";
         if (!this.email) {
           this.errors["email"] = "E-mail é obrigatório";
         } else {
@@ -74,13 +79,6 @@ class UserDomain extends DomainBase {
   private validateEmail(email: string) {
     const re = /\S+@\S+\.\S+/;
     if (!re.test(email)) this.errors["email"] = "E-mail inválido";
-  }
-
-  getPromotionObject() {
-    return {
-      userId: this.id,
-      newType: UserType.FUNCIONARIO
-    };
   }
 }
 

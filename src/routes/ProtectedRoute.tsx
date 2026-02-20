@@ -1,27 +1,27 @@
-import { Navigate, Outlet } from 'react-router-dom';
-import { userSessionStore } from '../store/user/UserSessionStore';
+import { Navigate, Outlet, useLocation } from 'react-router-dom';
+import { userSessionStore } from '../store/auth/UserSessionStore';
 import { observer } from 'mobx-react-lite';
 
-const ProtectedRoute = observer(() => {
-  const user = userSessionStore.user;
+interface ProtectedRouteProps {
+  adminOnly?: boolean;
+}
 
-  if (!user) {
-    return (
-      <div className="h-screen w-screen flex items-center justify-center bg-slate-50">
-        <div className="animate-pulse font-black text-slate-300 uppercase tracking-widest">
-          Verificando credenciais...
-        </div>
-      </div>
-    );
+const ProtectedRoute = observer(({ adminOnly = false }: ProtectedRouteProps) => {
+  const location = useLocation();
+  const user = userSessionStore.currentUser;
+  const hasToken = !!localStorage.getItem('sigex_token');
+
+  if (!user && hasToken) {
+    return <div className="p-10 text-center animate-pulse">Verificando acesso...</div>;
   }
 
-  const hasAccess = user.isAdmin || user.isStaff;
+  if (!user) {
+    return <Navigate to="/login" state={{ from: location }} replace />;
+  }
 
-  if (!hasAccess) {
-    console.error("Acesso negado: O usuário não possui permissões administrativas.", {
-      nome: user.name,
-      tipo: user.type
-    });
+  const isManagement = user.type === 'ADMIN' || user.type === 'SERVIDOR_TECNICO_ADMINISTRATIVO';
+
+  if (adminOnly && !isManagement) {
     return <Navigate to="/" replace />;
   }
 

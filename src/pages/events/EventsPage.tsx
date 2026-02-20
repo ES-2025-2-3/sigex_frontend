@@ -19,12 +19,12 @@ import {
   FaFilter,
   FaCalendarCheck,
   FaHistory,
+  FaRegCalendarTimes,
 } from "react-icons/fa";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
 import EventDomain from "../../domain/event/EventDomain";
-import { booking_mock } from "../../../mock/booking";
 
 const EventosPage = observer(() => {
   const navigate = useNavigate();
@@ -97,11 +97,8 @@ const EventosPage = observer(() => {
     return upcomingEvents.filter((evento) => {
       if (evento.isPublic === false) return false;
 
-      const reservaConfirmada = booking_mock.find(
-        (b) => b.eventId === evento.id && b.status === "APROVADA",
-      );
-
-      if (!reservaConfirmada) return false;
+      const reserva = eventIndexStore.getBookingByEventId(evento.id!) as any;
+      if (!reserva) return false;
 
       const matchesSearch =
         evento.title.toLowerCase().includes(filterTerm.toLowerCase()) ||
@@ -114,9 +111,9 @@ const EventosPage = observer(() => {
         (evento.tags && evento.tags.includes(selectedCategory));
 
       const matchesDateFilter =
-        selectedDate === "" || reservaConfirmada.date === selectedDate;
+        selectedDate === "" || reserva.date === selectedDate;
 
-      const dataReserva = new Date(reservaConfirmada.date + "T00:00:00");
+      const dataReserva = new Date(reserva.date + "T00:00:00");
       const isEncerrado = dataReserva < hoje;
       const matchesTab = activeTab === "futuros" ? !isEncerrado : isEncerrado;
 
@@ -139,7 +136,7 @@ const EventosPage = observer(() => {
         <div className="flex justify-between items-center mb-8">
           <button
             onClick={() => navigate("/")}
-            className="flex items-center gap-2 text-gray-400 hover:text-brand-blue font-bold transition-all group text-sm cursor-pointer"
+            className="flex items-center gap-2 text-gray-400 hover:text-brand-blue font-bold transition-all group text-sm cursor-pointer bg-transparent border-none"
           >
             <FaArrowLeft
               size={12}
@@ -149,7 +146,7 @@ const EventosPage = observer(() => {
           </button>
 
           <button
-            className="bg-brand-blue text-white px-6 py-2.5 rounded-xl font-bold hover:bg-brand-blue-hover transition shadow-lg shadow-brand-blue/20 cursor-pointer"
+            className="bg-brand-blue text-white px-6 py-2.5 rounded-xl font-bold hover:bg-brand-blue-hover transition shadow-lg shadow-brand-blue/20 cursor-pointer border-none"
             onClick={() => navigate("/reserva")}
           >
             Solicitar Reserva
@@ -162,7 +159,7 @@ const EventosPage = observer(() => {
               setActiveTab("futuros");
               setCurrentPage(1);
             }}
-            className={`pb-4 flex items-center gap-2 font-bold text-sm cursor-pointer transition-all relative ${activeTab === "futuros" ? "text-brand-blue" : "text-gray-400 hover:text-gray-600"}`}
+            className={`pb-4 flex items-center gap-2 font-bold text-sm cursor-pointer transition-all relative border-none bg-transparent ${activeTab === "futuros" ? "text-brand-blue" : "text-gray-400 hover:text-gray-600"}`}
           >
             <FaCalendarCheck size={16} />
             PRÓXIMOS EVENTOS
@@ -175,7 +172,7 @@ const EventosPage = observer(() => {
               setActiveTab("encerrados");
               setCurrentPage(1);
             }}
-            className={`pb-4 flex items-center gap-2 font-bold text-sm cursor-pointer transition-all relative ${activeTab === "encerrados" ? "text-brand-blue" : "text-gray-400 hover:text-gray-600"}`}
+            className={`pb-4 flex items-center gap-2 font-bold text-sm cursor-pointer transition-all relative border-none bg-transparent ${activeTab === "encerrados" ? "text-brand-blue" : "text-gray-400 hover:text-gray-600"}`}
           >
             <FaHistory size={16} />
             EVENTOS ENCERRADOS
@@ -227,7 +224,7 @@ const EventosPage = observer(() => {
                   </span>
                   <button
                     onClick={() => setIsFilterOpen(false)}
-                    className="text-gray-300 hover:text-gray-600 cursor-pointer"
+                    className="text-gray-300 hover:text-gray-600 cursor-pointer bg-transparent border-none"
                   >
                     <FaTimes size={16} />
                   </button>
@@ -293,14 +290,13 @@ const EventosPage = observer(() => {
                     dateFormat="dd/MM/yyyy"
                     isClearable
                     className="w-full bg-gray-50 border-none rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-brand-blue/20 outline-none text-gray-700"
-                    calendarClassName="bg-white rounded-2xl shadow-2xl border-none p-4"
                   />
                 </div>
 
                 {(selectedCategory || selectedDate) && (
                   <button
                     onClick={clearFilters}
-                    className="w-full py-3 text-xs font-bold text-red-500 bg-red-50 rounded-xl hover:bg-red-100 transition flex items-center justify-center gap-2"
+                    className="w-full py-3 text-xs font-bold text-red-500 bg-red-50 rounded-xl hover:bg-red-100 transition flex items-center justify-center gap-2 border-none cursor-pointer"
                   >
                     <FaTimes size={12} /> LIMPAR TODOS OS FILTROS
                   </button>
@@ -310,7 +306,7 @@ const EventosPage = observer(() => {
           </div>
         </div>
 
-        <h2 className="text-2xl font-bold text-text-primary mb-8 border-l-4 border-brand-blue pl-4">
+        <h2 className="text-2xl font-bold text-text-primary mb-8 border-l-4 border-brand-blue pl-4 italic tracking-tight uppercase text-xs">
           {activeTab === "futuros" ? "Próximos Eventos" : "Eventos Encerrados"}
         </h2>
 
@@ -320,22 +316,41 @@ const EventosPage = observer(() => {
           </div>
         ) : (
           <>
-            {currentEvents.length > 0 ? (
+            {upcomingEvents.length === 0 ? (
+              <div className="text-center py-32 bg-white rounded-[40px] border border-gray-100 shadow-sm flex flex-col items-center">
+                <div className="text-5xl mb-6">
+                  <FaRegCalendarTimes className="text-gray-200" />
+                </div>
+                <p className="text-gray-400 text-lg font-medium italic">
+                  Ainda não há eventos cadastrados no sistema.
+                </p>
+              </div>
+            ) : currentEvents.length > 0 ? (
               <>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-                  {currentEvents.map((evento) => (
-                    <EventCard
-                      key={evento.id}
-                      id={evento.id!}
-                      titulo={evento.title}
-                      data={evento.date}
-                      descricao={evento.description}
-                      imagemUrl={evento.imageUrl}
-                      local={evento.location}
-                      tags={evento.tags}
-                      onClickDetails={handleOpenModal}
-                    />
-                  ))}
+                  {currentEvents.map((evento) => {
+                    const reserva = eventIndexStore.getBookingByEventId(
+                      evento.id!,
+                    ) as any;
+                    const localNome =
+                      reserva?.room?.name ||
+                      reserva?.roomName ||
+                      "Local a definir";
+
+                    return (
+                      <EventCard
+                        key={evento.id}
+                        id={evento.id!}
+                        titulo={evento.title}
+                        data={reserva?.date || "Data não definida"}
+                        descricao={evento.description}
+                        imagemUrl={evento.imageUrl}
+                        local={localNome}
+                        tags={evento.tags}
+                        onClickDetails={handleOpenModal}
+                      />
+                    );
+                  })}
                 </div>
 
                 <Pagination
@@ -350,12 +365,12 @@ const EventosPage = observer(() => {
             ) : (
               <div className="text-center py-32 bg-white rounded-[40px] border border-gray-100 shadow-sm flex flex-col items-center">
                 <div className="text-5xl mb-6">🔍</div>
-                <p className="text-gray-500 text-lg font-medium">
-                  Nenhum evento encontrado nesta aba.
+                <p className="text-gray-400 text-lg font-medium italic">
+                  Nenhum evento encontrado para esta busca ou filtros.
                 </p>
                 <button
                   onClick={clearFilters}
-                  className="mt-4 text-brand-blue font-bold hover:underline"
+                  className="mt-4 text-brand-blue font-bold hover:underline bg-transparent border-none cursor-pointer"
                 >
                   Limpar busca e filtros
                 </button>
@@ -377,16 +392,32 @@ const EventosPage = observer(() => {
             <img
               src={eventoSelecionado.imageUrl}
               className="w-full h-auto max-h-[250px] object-cover rounded-2xl shadow-sm"
+              alt={eventoSelecionado.title}
             />
             <div className="space-y-2 text-base">
-              <p className="text-gray-600">
-                <strong className="text-brand-dark font-bold">Data:</strong>{" "}
-                {eventoSelecionado.date}
-              </p>
-              <p className="text-gray-600">
-                <strong className="text-brand-dark font-bold">Local:</strong>{" "}
-                {eventoSelecionado.location}
-              </p>
+              {(() => {
+                const res = eventIndexStore.getBookingByEventId(
+                  eventoSelecionado.id!,
+                ) as any;
+                const localNome =
+                  res?.room?.name || res?.roomName || "Local a definir";
+                return (
+                  <>
+                    <p className="text-gray-600">
+                      <strong className="text-brand-dark font-bold">
+                        Data:
+                      </strong>{" "}
+                      {res?.date || "A definir"}
+                    </p>
+                    <p className="text-gray-600">
+                      <strong className="text-brand-dark font-bold">
+                        Local:
+                      </strong>{" "}
+                      {localNome}
+                    </p>
+                  </>
+                );
+              })()}
               <p className="text-gray-600 line-clamp-3">
                 <strong className="text-brand-dark font-bold">
                   Descrição:

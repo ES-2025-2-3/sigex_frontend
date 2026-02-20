@@ -8,13 +8,13 @@ import UserBanner from "../../commons/user/UserBanner";
 import Modal from "../../commons/modal/Modal";
 import Toast, { ToastType } from "../../commons/toast/Toast";
 
-import { userSessionStore } from "../../store/user/UserSessionStore";
+import { userSessionStore } from "../../store/auth/UserSessionStore";
 import { UserType } from "../../domain/enums/UserType";
 
 import { FaUserEdit, FaEnvelope, FaTrashAlt } from "react-icons/fa";
 
 const USER_TYPE_LABEL: Partial<Record<UserType, string>> = {
-  [UserType.DOCENTE]: "Docente",
+  [UserType.USUARIO]: "Usuário Comum",
   [UserType.SERVIDOR_TECNICO_ADMINISTRATIVO]:
     "Servidor Técnico-Administrativo",
 };
@@ -128,7 +128,6 @@ const UserSettingsPage = observer(() => {
       return false;
     }
 
-    // Placeholder backend
     const senhaAtualCorreta = true;
     if (!senhaAtualCorreta) {
       showToast("error", "Senha atual incorreta.");

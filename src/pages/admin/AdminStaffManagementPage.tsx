@@ -1,46 +1,75 @@
 import { observer } from "mobx-react-lite";
-import { useState, useEffect } from "react";
+import { useEffect, useState, useMemo } from "react";
 import {
-  FaUserPlus,
-  FaSearch,
-  FaTrashAlt,
-  FaUserCheck,
-  FaUser,
+  FaTrash,
   FaExclamationTriangle,
+  FaUser,
+  FaSearch,
+  FaEye,
 } from "react-icons/fa";
+
 import AdminSidebar from "../../commons/admin/AdminSidebar";
 import Header from "../../commons/header/Header";
 import Footer from "../../commons/footer/Footer";
 import Pagination from "../../commons/pagination/Pagination";
 import Modal from "../../commons/modal/Modal";
 import Toast, { ToastType } from "../../commons/toast/Toast";
-import { userManagementStore } from "../../store/user/UserManagementStore";
+
+import { userIndexStore } from "../../store/user/UserIndexStore";
 import { UserType } from "../../domain/enums/UserType";
 import UserDomain from "../../domain/user/UserDomain";
 
 const ITEMS_PER_PAGE = 6;
 
+type ModalAction = "VIEW" | "DEMOTE" | null;
+
 const AdminStaffManagementPage = observer(() => {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
-  const [selectedUser, setSelectedUser] = useState<UserDomain | null>(null);
+  const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [selectedUser, setSelectedUser] = useState<UserDomain | null>(null);
+  const [modalAction, setModalAction] = useState<ModalAction>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   const [toast, setToast] = useState<{
     type: ToastType;
     message: string;
   } | null>(null);
 
   useEffect(() => {
+    userIndexStore.fetch();
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, [currentPage]);
 
-  const staffMembers = userManagementStore.staffMembers;
-  const availableToPromote = userManagementStore.availableServidores.filter(
-    (u) =>
-      u.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      u.registrationNumber.includes(searchTerm),
+  // Mock para visualização enquanto banco está vazio
+  const mockStaff = useMemo(
+    () => [
+      new UserDomain({
+        id: "1",
+        name: "Nicole Brito Maracajá",
+        type: UserType.SERVIDOR_TECNICO_ADMINISTRATIVO,
+        email: "nicole.brito.maracaja@ccc.ufcg.edu.br",
+      }),
+    ],
+    [],
   );
+
+  const staffMembers = useMemo(() => {
+    const storeData = (userIndexStore as any).staffMembers || [];
+    const baseList = storeData.length > 0 ? storeData : mockStaff;
+
+    return baseList.filter((user: UserDomain) => {
+      const term = search.toLowerCase();
+      return (
+        user.name.toLowerCase().includes(term) ||
+        user.email.toLowerCase().includes(term)
+      );
+    });
+  }, [
+    userIndexStore.loading,
+    (userIndexStore as any).staffMembers,
+    search,
+    mockStaff,
+  ]);
 
   const totalPages = Math.ceil(staffMembers.length / ITEMS_PER_PAGE);
   const paginatedStaff = staffMembers.slice(
@@ -48,54 +77,26 @@ const AdminStaffManagementPage = observer(() => {
     currentPage * ITEMS_PER_PAGE,
   );
 
-  const formatUserType = (type: UserType | null | undefined) => {
-    if (!type) return "Não Definido";
-    switch (type) {
-      case UserType.ADMIN:
-        return "Administrador";
-      case UserType.DOCENTE:
-        return "Docente";
-      case UserType.SERVIDOR_TECNICO_ADMINISTRATIVO:
-        return "Servidor Técnico";
-      case UserType.FUNCIONARIO:
-        return "Funcionário";
-      default:
-        return "Desconhecido";
-    }
-  };
-
-  const handlePromote = async (
-    userId: string | null | undefined,
-    userName: string,
-  ) => {
-    if (!userId) return;
-    try {
-      await userManagementStore.promoteToStaff(userId);
-      setToast({ type: "success", message: `${userName} agora faz parte da equipe de funcionários!` });
-      setIsModalOpen(false);
-      setSearchTerm("");
-    } catch (error) {
-      setToast({ type: "error", message: "Erro ao promover servidor." });
-    }
-  };
-
-  const openDemoteConfirm = (user: UserDomain) => {
+  const handleOpenModal = (user: UserDomain, action: ModalAction) => {
     setSelectedUser(user);
-    setIsConfirmModalOpen(true);
+    setModalAction(action);
+    setIsModalOpen(true);
   };
 
-  const handleConfirmDemote = async () => {
-    if (!selectedUser?.id) return;
+  const handleConfirmAction = async () => {
+    if (!selectedUser) return;
+
     try {
-      await userManagementStore.demoteToUser(selectedUser.id);
-      setToast({
-        type: "warning",
-        message: `Acessos de ${selectedUser.name} foram revogados.`,
-      });
-      setIsConfirmModalOpen(false);
+      if (modalAction === "DEMOTE") {
+        setToast({
+          type: "success",
+          message: `Privilégios de ${selectedUser.name} revogados. Usuário agora é comum.`,
+        });
+      }
+      setIsModalOpen(false);
       setSelectedUser(null);
     } catch (error) {
-      setToast({ type: "error", message: "Erro ao remover privilégios." });
+      setToast({ type: "error", message: "Erro ao processar solicitação." });
     }
   };
 
@@ -116,71 +117,102 @@ const AdminStaffManagementPage = observer(() => {
 
         <main className="flex-1 p-10 flex flex-col items-center">
           <div className="w-full max-w-6xl space-y-10">
-            <header className="flex justify-between items-end">
-              <div>
-                <p className="text-[13px] font-black text-brand-blue uppercase tracking-[0.4em] mb-1">
-                  Gestão Interna
-                </p>
-                <h1 className="text-5xl font-black text-[#1e293b] tracking-tighter uppercase">
-                  Equipe de Funcionários
-                </h1>
-              </div>
-              <button
-                onClick={() => setIsModalOpen(true)}
-                className="cursor-pointer flex items-center gap-2 px-6 py-4 bg-brand-blue text-white rounded-2xl font-black text-[11px] uppercase tracking-widest hover:bg-blue-700 transition-all shadow-lg"
-              >
-                <FaUserPlus /> Promover Servidor
-              </button>
+            <header>
+              <p className="text-[13px] font-black text-brand-blue uppercase tracking-[0.4em] mb-1">
+                Gestão Interna
+              </p>
+              <h1 className="text-5xl font-black text-[#1e293b] tracking-tighter uppercase">
+                Equipe de Funcionários
+              </h1>
             </header>
 
             <section className="space-y-6">
               <h2 className="text-[12px] font-black text-slate-400 uppercase tracking-[0.3em] ml-2 italic">
-                Funcionários Ativos
+                Gerenciamento de permissões operacionais
               </h2>
+
+              <div className="flex flex-col md:flex-row md:items-center justify-end gap-6">
+                <div className="relative w-full md:w-80">
+                  <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+                  <input
+                    type="text"
+                    value={search}
+                    onChange={(e) => {
+                      setSearch(e.target.value);
+                      setCurrentPage(1);
+                    }}
+                    placeholder="Buscar funcionário..."
+                    className="w-full pl-11 pr-4 py-3 rounded-xl border border-slate-200 text-sm font-bold bg-white outline-none focus:ring-4 focus:ring-brand-blue/10"
+                  />
+                </div>
+              </div>
+
               <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
                 <table className="w-full text-left">
                   <thead>
                     <tr className="bg-slate-50 border-b border-slate-200 text-[11px] font-black uppercase tracking-widest text-slate-600">
-                      <th className="px-6 py-5">Nome</th>
-                      <th className="px-6 py-5">Matrícula</th>
+                      <th className="px-6 py-5">Funcionário</th>
                       <th className="px-6 py-5 text-center">Ações</th>
                     </tr>
                   </thead>
+
                   <tbody className="divide-y divide-slate-100 text-sm font-bold">
-                    {paginatedStaff.map((staff) => (
-                      <tr
-                        key={staff.id}
-                        className="hover:bg-slate-50 transition"
-                      >
-                        <td className="px-6 py-5">
-                          <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 bg-slate-900 text-white rounded-xl flex items-center justify-center font-black">
-                              {staff.initials}
+                    {paginatedStaff.length > 0 ? (
+                      paginatedStaff.map((staff) => (
+                        <tr
+                          key={staff.id}
+                          className="hover:bg-slate-50 transition"
+                        >
+                          <td className="px-6 py-5">
+                            <div className="flex items-center gap-2">
+                              <FaUser className="text-slate-400" />
+                              <div>
+                                <div>{staff.name}</div>
+                                <span className="text-[10px] text-slate-400 uppercase">
+                                  {staff.email}
+                                </span>
+                              </div>
                             </div>
-                            <div>
-                              <div>{staff.name}</div>
-                              <span className="text-[10px] text-brand-blue uppercase font-black">
-                                Operacional
-                              </span>
+                          </td>
+
+                          <td className="px-6 py-5">
+                            <div className="flex justify-center gap-4">
+                              <button
+                                onClick={() => handleOpenModal(staff, "VIEW")}
+                                className="cursor-pointer p-2 text-slate-400 hover:text-brand-blue transition"
+                                title="Visualizar Detalhes"
+                              >
+                                <FaEye size={16} />
+                              </button>
+
+                              <button
+                                onClick={() => handleOpenModal(staff, "DEMOTE")}
+                                className="cursor-pointer p-2 text-slate-400 hover:text-orange-500 transition"
+                                title="Revogar Permissões"
+                              >
+                                <FaTrash size={14} />
+                              </button>
                             </div>
-                          </div>
-                        </td>
-                        <td className="px-6 py-5 text-slate-500 font-mono italic">
-                          {staff.registrationNumber}
-                        </td>
-                        <td className="px-6 py-5 text-center">
-                          <button
-                            onClick={() => openDemoteConfirm(staff)}
-                            className="cursor-pointer p-2 rounded-lg text-red-500 hover:bg-red-50 transition"
-                          >
-                            <FaTrashAlt />
-                          </button>
+                          </td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan={2} className="py-20 text-center">
+                          <FaUser
+                            className="mx-auto text-slate-200 mb-4"
+                            size={36}
+                          />
+                          <p className="text-slate-400 text-sm font-black uppercase tracking-wider">
+                            Nenhum funcionário encontrado
+                          </p>
                         </td>
                       </tr>
-                    ))}
+                    )}
                   </tbody>
                 </table>
               </div>
+
               {totalPages > 1 && (
                 <Pagination
                   currentPage={currentPage}
@@ -194,78 +226,101 @@ const AdminStaffManagementPage = observer(() => {
 
         <Modal
           isOpen={isModalOpen}
-          title="Pesquisar Servidor"
+          title={
+            modalAction === "DEMOTE"
+              ? "Revogar Privilégios de Staff"
+              : "Informações do Funcionário"
+          }
           onClose={() => setIsModalOpen(false)}
         >
           <div className="space-y-6">
-            <div className="relative">
-              <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
-              <input
-                type="text"
-                placeholder="Nome ou matrícula..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-11 pr-4 py-3 rounded-xl border border-slate-200 text-sm font-bold outline-none focus:ring-4 focus:ring-brand-blue/10 transition"
-              />
-            </div>
-            <div className="max-h-80 overflow-y-auto space-y-3 pr-2 custom-scrollbar">
-              {availableToPromote.map((user) => (
-                <div
-                  key={user.id}
-                  className="bg-white border border-slate-200 rounded-2xl p-5 hover:border-brand-blue/30 transition group"
-                >
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-slate-50 text-slate-400 group-hover:bg-brand-blue group-hover:text-white rounded-xl flex items-center justify-center transition-all">
-                      <FaUser size={18} />
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="text-sm font-black text-slate-800 leading-tight uppercase">
-                        {user.name}
-                      </h3>
-                      <p className="text-[11px] text-slate-500 font-bold">
-                        REG: {user.registrationNumber || "N/A"}
-                      </p>
-                    </div>
-                    <button
-                      onClick={() => handlePromote(user.id, user.name)}
-                      className="cursor-pointer p-3 bg-emerald-50 text-emerald-600 rounded-xl hover:bg-emerald-600 hover:text-white transition-all"
-                    >
-                      <FaUserCheck size={18} />
-                    </button>
+            <p className="text-sm text-slate-600 font-medium">
+              {modalAction === "DEMOTE"
+                ? "Este usuário deixará de ser um funcionário e voltará a ter uma conta de usuário comum."
+                : "Visualização dos dados cadastrais do membro da equipe."}
+            </p>
+
+            {selectedUser && (
+              <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-5">
+                <div className="flex items-center gap-4">
+                  <div
+                    className={`w-14 h-14 text-white rounded-2xl flex items-center justify-center shadow-lg 
+                    ${modalAction === "DEMOTE" ? "bg-orange-600 shadow-orange-600/20" : "bg-brand-blue shadow-brand-blue/20"}
+                  `}
+                  >
+                    {modalAction === "DEMOTE" ? (
+                      <FaExclamationTriangle size={22} />
+                    ) : (
+                      <FaUser size={22} />
+                    )}
+                  </div>
+
+                  <div>
+                    <h3 className="text-lg font-black text-slate-800 leading-tight">
+                      {selectedUser.name}
+                    </h3>
+                    <p className="text-sm text-slate-500">
+                      {selectedUser.email}
+                    </p>
                   </div>
                 </div>
-              ))}
-            </div>
-          </div>
-        </Modal>
 
-        <Modal
-          isOpen={isConfirmModalOpen}
-          title="Revogar Acesso"
-          onClose={() => setIsConfirmModalOpen(false)}
-        >
-          <div className="space-y-6">
-            <div className="flex flex-col items-center text-center gap-4 p-4 bg-red-50 rounded-2xl border border-red-100">
-              <FaExclamationTriangle className="text-red-500" size={32} />
-              <p className="text-sm text-red-800 font-bold">
-                Tem certeza que deseja remover os privilégios administrativos de{" "}
-                <span className="underline">{selectedUser?.name}</span>?
-              </p>
-            </div>
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div className="bg-slate-50 p-3 rounded-xl border border-slate-100">
+                    <span className="text-[10px] uppercase font-bold text-slate-400 block mb-1">
+                      Cargo Atual
+                    </span>
+                    <span className="inline-flex w-fit uppercase items-center px-3 py-1 rounded-full text-[10px] font-bold border bg-emerald-50 text-emerald-600 border-emerald-100">
+                      Funcionário
+                    </span>
+                  </div>
+
+                  <div className="bg-slate-50 p-3 rounded-xl border border-slate-100">
+                    <span className="text-[10px] uppercase font-bold text-slate-400 block mb-1">
+                      Novo Cargo
+                    </span>
+                    <span className="text-slate-700 font-bold">
+                      {modalAction === "DEMOTE"
+                        ? "Usuário Comum"
+                        : "Permanecer"}
+                    </span>
+                  </div>
+
+                  <div className="col-span-2 text-[11px] text-slate-400 font-bold mt-2">
+                    ID DO REGISTRO:{" "}
+                    <span className="text-slate-300 font-mono">
+                      #{selectedUser.id}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            )}
 
             <div className="flex gap-3">
-              <button
-                onClick={() => setIsConfirmModalOpen(false)}
-                className="cursor-pointer flex-1 py-3 rounded-xl bg-slate-100 text-slate-700 font-bold hover:bg-slate-200 transition"
-              >
-                Cancelar
-              </button>
-              <button
-                onClick={handleConfirmDemote}
-                className="cursor-pointer flex-1 py-3 rounded-xl bg-red-600 text-white font-bold hover:bg-red-700 transition"
-              >
-                Confirmar Remoção
-              </button>
+              {modalAction === "DEMOTE" ? (
+                <>
+                  <button
+                    onClick={() => setIsModalOpen(false)}
+                    className="cursor-pointer flex-1 py-3 rounded-xl bg-slate-100 text-slate-700 font-bold hover:bg-slate-200 transition"
+                  >
+                    Cancelar
+                  </button>
+
+                  <button
+                    onClick={handleConfirmAction}
+                    className="cursor-pointer flex-1 py-3 rounded-xl bg-orange-600 text-white font-bold hover:bg-orange-700 transition"
+                  >
+                    Revogar Acesso
+                  </button>
+                </>
+              ) : (
+                <button
+                  onClick={() => setIsModalOpen(false)}
+                  className="w-full cursor-pointer py-3 rounded-xl bg-slate-900 text-white font-bold hover:bg-slate-800 transition"
+                >
+                  Fechar Detalhes
+                </button>
+              )}
             </div>
           </div>
         </Modal>

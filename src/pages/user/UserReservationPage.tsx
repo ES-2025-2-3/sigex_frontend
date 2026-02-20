@@ -7,11 +7,8 @@ import LoadingSpinner from "../../commons/components/LoadingSpinner";
 import Pagination from "../../commons/pagination/Pagination";
 import Modal from "../../commons/modal/Modal";
 
-import { booking_mock } from "../../../mock/booking";
-import { event_mock } from "../../../mock/event";
-import { BookingStatus } from "../../domain/enums/BookingStatus";
-import { userSessionStore } from "../../store/user/UserSessionStore";
-import { Booking } from "../../types/booking/Booking";
+import { ReservationStatus } from "../../domain/enums/ReservationStatus";
+import { userSessionStore } from "../../store/auth/UserSessionStore";
 
 import {
   FaCalendarAlt,
@@ -24,55 +21,99 @@ import {
 } from "react-icons/fa";
 import UserBanner from "../../commons/user/UserBanner";
 import FilterDropdown from "../../commons/components/FilterDropdown";
+import ReservationService from "../../services/ReservationService";
+import ReservationDomain from "../../domain/reservation/ReservationDomain";
+import EventDomain from "../../domain/event/EventDomain";
+import EventService from "../../services/EventService";
 
 const ITEMS_PER_PAGE = 5;
 
-const UserBookingPage = observer(() => {
+const UserReservationPage = observer(() => {
+  const [reservations, setReservations] = useState<ReservationDomain[]>([]);
+  const [events, setEvents] = useState<EventDomain[]>([]);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("ALL");
   const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
-  const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
+  const [selectedReservation, setSelectedReservation] =
+    useState<ReservationDomain | null>(null);
 
-  const loggedUserId = userSessionStore.currentUser?.id || 1;
+  const loggedUserId = userSessionStore.currentUser?.id;
 
   useEffect(() => {
-    const timer = setTimeout(() => setLoading(false), 600);
-    return () => clearTimeout(timer);
+    const loadData = async () => {
+      try {
+        setLoading(true);
+        const [resData, eventsData] = await Promise.all([
+          ReservationService.getMyBookings(),
+          EventService.getAll(),
+        ]);
+
+        const safeReservations = Array.isArray(resData)
+          ? resData
+          : resData && typeof resData === "object" && "content" in resData
+            ? (resData as any).content
+            : [];
+
+        const safeEvents = Array.isArray(eventsData)
+          ? eventsData
+          : eventsData &&
+              typeof eventsData === "object" &&
+              "content" in eventsData
+            ? (eventsData as any).content
+            : [];
+
+        setReservations(safeReservations);
+        setEvents(safeEvents);
+      } catch (error) {
+        console.error("Erro ao carregar reservas:", error);
+        setReservations([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadData();
   }, []);
 
-  const getEventTitle = (eventId: number) => {
-    const event = event_mock.find((e) => e.id === eventId);
+  const getEventTitle = (eventId: number | string | null) => {
+    if (!eventId || !Array.isArray(events)) return "Evento não identificado";
+    const event = events.find((e) => String(e.id) === String(eventId));
     return event ? event.title : `Evento #${eventId}`;
   };
 
-  const filteredBookings = useMemo(() => {
-    return (booking_mock as Booking[])
+  const filteredReservations = useMemo(() => {
+    if (!Array.isArray(reservations)) return [];
+
+    return reservations
       .filter((b) => {
         const isFromLoggedUser = b.bookerId === loggedUserId;
-        const isHistoryStatus =
-          b.status === BookingStatus.APROVADA ||
-          b.status === BookingStatus.INDEFERIDA;
+
         const matchesStatus =
           statusFilter === "ALL" || b.status === statusFilter;
+
         const eventTitle = getEventTitle(b.eventId).toLowerCase();
+        const reservationId = b.id ? b.id.toString() : "";
+
         const matchesSearch =
           eventTitle.includes(search.toLowerCase()) ||
-          b.id.toString().includes(search);
+          reservationId.includes(search);
 
-        return (
-          isFromLoggedUser && isHistoryStatus && matchesStatus && matchesSearch
-        );
+        return isFromLoggedUser && matchesStatus && matchesSearch;
       })
-      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-  }, [search, statusFilter, loggedUserId]);
+      .sort((a, b) => {
+        const dateA = a.date ? new Date(a.date).getTime() : 0;
+        const dateB = b.date ? new Date(b.date).getTime() : 0;
+        return dateB - dateA;
+      });
+  }, [search, statusFilter, reservations, events, loggedUserId]);
 
-  const totalPages = Math.ceil(filteredBookings.length / ITEMS_PER_PAGE);
-  const paginatedBookings = useMemo(() => {
+  const totalPages = Math.ceil(filteredReservations.length / ITEMS_PER_PAGE);
+  const paginatedReservations = useMemo(() => {
     const start = (currentPage - 1) * ITEMS_PER_PAGE;
-    return filteredBookings.slice(start, start + ITEMS_PER_PAGE);
-  }, [filteredBookings, currentPage]);
+    return filteredReservations.slice(start, start + ITEMS_PER_PAGE);
+  }, [filteredReservations, currentPage]);
 
   useEffect(() => {
     setCurrentPage(1);
@@ -112,8 +153,11 @@ const UserBookingPage = observer(() => {
                   onSelect={setStatusFilter}
                   options={[
                     { label: "TODOS OS STATUS", value: "ALL" },
-                    { label: "APROVADAS", value: BookingStatus.APROVADA },
-                    { label: "INDEFERIDAS", value: BookingStatus.INDEFERIDA },
+                    { label: "APROVADAS", value: ReservationStatus.APROVADA },
+                    {
+                      label: "INDEFERIDAS",
+                      value: ReservationStatus.INDEFERIDA,
+                    },
                   ]}
                 />
 
@@ -146,10 +190,10 @@ const UserBookingPage = observer(() => {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 text-sm font-bold">
-                    {paginatedBookings.length > 0 ? (
-                      paginatedBookings.map((b) => (
+                    {paginatedReservations.length > 0 ? (
+                      paginatedReservations.map((b) => (
                         <tr
-                          key={b.id}
+                          key={b.id!}
                           className="group hover:bg-slate-50 transition-colors"
                         >
                           <td className="px-8 py-6 text-gray-700">
@@ -167,12 +211,12 @@ const UserBookingPage = observer(() => {
                           <td className="px-6 py-6">
                             <div
                               className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full border text-[10px] font-bold uppercase ${
-                                b.status === BookingStatus.APROVADA
+                                b.status === ReservationStatus.APROVADA
                                   ? "bg-emerald-50 text-emerald-600 border-emerald-100"
                                   : "bg-red-50 text-red-600 border-red-100"
                               }`}
                             >
-                              {b.status === BookingStatus.APROVADA ? (
+                              {b.status === ReservationStatus.APROVADA ? (
                                 <FaCheckCircle />
                               ) : (
                                 <FaTimesCircle />
@@ -183,7 +227,7 @@ const UserBookingPage = observer(() => {
                           <td className="px-8 py-6 text-center">
                             <button
                               onClick={() => {
-                                setSelectedBooking(b);
+                                setSelectedReservation(b);
                                 setIsDetailsModalOpen(true);
                               }}
                               className="p-2.5 text-gray-400 hover:text-brand-blue bg-gray-50 rounded-xl hover:bg-brand-blue/5 transition-all"
@@ -225,7 +269,7 @@ const UserBookingPage = observer(() => {
         title="Resumo da Reserva"
         onClose={() => setIsDetailsModalOpen(false)}
       >
-        {selectedBooking && (
+        {selectedReservation && (
           <div className="space-y-6">
             <div className="flex items-center gap-4 bg-slate-50 p-5 rounded-2xl border border-slate-100">
               <div className="w-10 h-10 bg-brand-blue text-white rounded-xl flex items-center justify-center shadow-lg shadow-brand-blue/20">
@@ -233,10 +277,10 @@ const UserBookingPage = observer(() => {
               </div>
               <div>
                 <h3 className="font-bold text-slate-800 leading-tight">
-                  {getEventTitle(selectedBooking.eventId)}
+                  {getEventTitle(selectedReservation.eventId)}
                 </h3>
                 <p className="text-[10px] text-slate-400 font-bold mt-0.5">
-                  REFERÊNCIA: #{selectedBooking.id}
+                  REFERÊNCIA: #{selectedReservation.id}
                 </p>
               </div>
             </div>
@@ -247,7 +291,7 @@ const UserBookingPage = observer(() => {
                   Data
                 </span>
                 <p className="text-slate-700 font-bold text-sm">
-                  {selectedBooking.date}
+                  {selectedReservation.date}
                 </p>
               </div>
               <div className="p-3 bg-white border border-slate-100 rounded-xl">
@@ -255,25 +299,25 @@ const UserBookingPage = observer(() => {
                   Período
                 </span>
                 <p className="text-slate-700 font-bold text-sm uppercase">
-                  {selectedBooking.shift}
+                  {selectedReservation.shift}
                 </p>
               </div>
             </div>
 
             <div
               className={`p-4 rounded-xl border flex items-center gap-3 ${
-                selectedBooking.status === BookingStatus.APROVADA
+                selectedReservation.status === ReservationStatus.APROVADA
                   ? "bg-emerald-50/50 border-emerald-100 text-emerald-700"
                   : "bg-red-50/50 border-red-100 text-red-700"
               }`}
             >
-              {selectedBooking.status === BookingStatus.APROVADA ? (
+              {selectedReservation.status === ReservationStatus.APROVADA ? (
                 <FaCheckCircle />
               ) : (
                 <FaTimesCircle />
               )}
               <span className="text-xs font-bold uppercase tracking-wider">
-                Status: {selectedBooking.status}
+                Status: {selectedReservation.status}
               </span>
             </div>
 
@@ -292,4 +336,4 @@ const UserBookingPage = observer(() => {
   );
 });
 
-export default UserBookingPage;
+export default UserReservationPage;

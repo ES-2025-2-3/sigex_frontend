@@ -1,15 +1,15 @@
-import { BookingShift } from "../src/domain/enums/BookingShift";
-import { BookingStatus } from "../src/domain/enums/BookingStatus";
+import { ReservationShift } from "../src/domain/enums/ReservationShift";
+import { ReservationStatus } from "../src/domain/enums/ReservationStatus";
 
-export const booking_mock = [
+export const reservation_mock = [
   {
     id: 101,
     bookerId: "1",
     roomIds: [1, 2],
     eventId: 2,
     date: "2026-03-03",
-    shift: BookingShift.MANHA, 
-    status: BookingStatus.APROVADA, 
+    shift: ReservationShift.MANHA, 
+    status: ReservationStatus.APROVADA, 
   },
   {
     id: 102,
@@ -17,8 +17,8 @@ export const booking_mock = [
     roomIds: [3],
     eventId: 10, 
     date: "2026-02-03",
-    shift: BookingShift.TARDE, 
-    status: BookingStatus.APROVADA, 
+    shift: ReservationShift.TARDE, 
+    status: ReservationStatus.APROVADA, 
   },
   {
     id: 103,
@@ -26,8 +26,8 @@ export const booking_mock = [
     roomIds: [5, 6],
     eventId: 1, 
     date: "2026-02-09",
-    shift: BookingShift.MANHA, 
-    status: BookingStatus.APROVADA, 
+    shift: ReservationShift.MANHA, 
+    status: ReservationStatus.APROVADA, 
   },
   {
     id: 104,
@@ -35,8 +35,8 @@ export const booking_mock = [
     roomIds: [10],
     eventId: 12, 
     date: "2026-04-20",
-    shift: BookingShift.MANHA,
-    status: BookingStatus.SOLICITADA, 
+    shift: ReservationShift.MANHA,
+    status: ReservationStatus.SOLICITADA, 
   },
   {
     id: 105,
@@ -44,8 +44,8 @@ export const booking_mock = [
     roomIds: [4],
     eventId: 8, 
     date: "2026-05-10",
-    shift: BookingShift.NOITE,
-    status: BookingStatus.INDEFERIDA, 
+    shift: ReservationShift.NOITE,
+    status: ReservationStatus.INDEFERIDA, 
   },
   {
     id: 106,
@@ -53,8 +53,8 @@ export const booking_mock = [
     roomIds: [8],
     eventId: 11, 
     date: "2026-08-14",
-    shift: BookingShift.MANHA, 
-    status: BookingStatus.APROVADA, 
+    shift: ReservationShift.MANHA, 
+    status: ReservationStatus.APROVADA, 
   },
   {
     id: 113,
@@ -62,8 +62,8 @@ export const booking_mock = [
     roomIds: [4, 5],
     eventId: 11, 
     date: "2026-08-15",
-    shift: BookingShift.TARDE,
-    status: BookingStatus.SOLICITADA,
+    shift: ReservationShift.TARDE,
+    status: ReservationStatus.SOLICITADA,
   },
   {
     id: 107,
@@ -71,8 +71,8 @@ export const booking_mock = [
     roomIds: [1],
     eventId: 3, 
     date: "2026-06-05",
-    shift: BookingShift.NOITE,
-    status: BookingStatus.APROVADA,
+    shift: ReservationShift.NOITE,
+    status: ReservationStatus.APROVADA,
   },
   {
     id: 108,
@@ -80,8 +80,8 @@ export const booking_mock = [
     roomIds: [2, 3],
     eventId: 4, 
     date: "2026-10-12",
-    shift: BookingShift.TARDE,
-    status: BookingStatus.APROVADA,
+    shift: ReservationShift.TARDE,
+    status: ReservationStatus.APROVADA,
   },
   {
     id: 116,
@@ -89,8 +89,8 @@ export const booking_mock = [
     roomIds: [9],
     eventId: 4, 
     date: "2026-10-13",
-    shift: BookingShift.TARDE,
-    status: BookingStatus.SOLICITADA,
+    shift: ReservationShift.TARDE,
+    status: ReservationStatus.SOLICITADA,
   },
   {
     id: 109,
@@ -98,8 +98,8 @@ export const booking_mock = [
     roomIds: [1],
     eventId: 5,
     date: "2026-09-22",
-    shift: BookingShift.MANHA,
-    status: BookingStatus.SOLICITADA,
+    shift: ReservationShift.MANHA,
+    status: ReservationStatus.SOLICITADA,
   },
   {
     id: 110,
@@ -107,8 +107,8 @@ export const booking_mock = [
     roomIds: [15],
     eventId: 6, 
     date: "2026-01-15",
-    shift: BookingShift.MANHA,
-    status: BookingStatus.APROVADA,
+    shift: ReservationShift.MANHA,
+    status: ReservationStatus.APROVADA,
   },
   {
     id: 115,
@@ -116,8 +116,8 @@ export const booking_mock = [
     roomIds: [7],
     eventId: 6, 
     date: "2026-02-20",
-    shift: BookingShift.NOITE,
-    status: BookingStatus.SOLICITADA,
+    shift: ReservationShift.NOITE,
+    status: ReservationStatus.SOLICITADA,
   },
   {
     id: 111,
@@ -125,8 +125,8 @@ export const booking_mock = [
     roomIds: [20],
     eventId: 7, 
     date: "2026-07-30",
-    shift: BookingShift.TARDE,
-    status: BookingStatus.APROVADA,
+    shift: ReservationShift.TARDE,
+    status: ReservationStatus.APROVADA,
   },
   {
     id: 112,
@@ -134,7 +134,7 @@ export const booking_mock = [
     roomIds: [12],
     eventId: 9, 
     date: "2026-12-02",
-    shift: BookingShift.MANHA,
-    status: BookingStatus.SOLICITADA,
+    shift: ReservationShift.MANHA,
+    status: ReservationStatus.SOLICITADA,
   }
 ];

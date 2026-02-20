@@ -10,8 +10,8 @@ import {
 import Header from "../../commons/header/Header";
 import Footer from "../../commons/footer/Footer";
 import { event_mock } from "../../../mock/event";
-import { booking_mock } from "../../../mock/booking";
-import { BookingShift } from "../../domain/enums/BookingShift";
+import { reservation_mock } from "../../../mock/reservation";
+import { ReservationShift } from "../../domain/enums/ReservationShift";
 
 import "react-datepicker/dist/react-datepicker.css";
 import Toast from "../../commons/toast/Toast";
@@ -20,25 +20,25 @@ const EditRequestPage = observer(() => {
   const { id } = useParams();
   const navigate = useNavigate();
   
-  const [bookingData, setBookingData] = useState<any>(null);
+  const [reservationData, setReservationData] = useState<any>(null);
   const [eventData, setEventData] = useState<any>(null);
   
   const [showToast, setShowToast] = useState(false);
 
   useEffect(() => {
-    const booking = booking_mock.find(b => b.id === Number(id));
-    if (booking) {
-      setBookingData({ ...booking });
-      const event = event_mock.find(e => e.id === booking.eventId);
+    const reservation = reservation_mock.find(b => b.id === Number(id));
+    if (reservation) {
+      setReservationData({ ...reservation });
+      const event = event_mock.find(e => e.id === reservation.eventId);
       if (event) setEventData({ ...event });
     }
   }, [id]);
 
   const handleSave = () => {
-    const bIndex = booking_mock.findIndex(b => b.id === Number(id));
-    const eIndex = event_mock.findIndex(e => e.id === bookingData.eventId);
+    const bIndex = reservation_mock.findIndex(b => b.id === Number(id));
+    const eIndex = event_mock.findIndex(e => e.id === reservationData.eventId);
 
-    if (bIndex !== -1) booking_mock[bIndex] = bookingData;
+    if (bIndex !== -1) reservation_mock[bIndex] = reservationData;
     if (eIndex !== -1) event_mock[eIndex] = eventData;
 
     setShowToast(true);
@@ -48,7 +48,7 @@ const EditRequestPage = observer(() => {
     }, 500);
   };
 
-  if (!bookingData || !eventData) return null;
+  if (!reservationData || !eventData) return null;
 
   return (
     <div className="flex flex-col min-h-screen bg-bg-main">
@@ -85,11 +85,11 @@ const EditRequestPage = observer(() => {
                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2">Data do Evento</p>
                 <div className="bg-white p-6 rounded-[2.5rem] border border-slate-200/60 shadow-sm flex justify-center custom-datepicker">
                   <DatePicker
-                    selected={bookingData.date ? new Date(bookingData.date + "T00:00:00") : null}
+                    selected={reservationData.date ? new Date(reservationData.date + "T00:00:00") : null}
                     onChange={(date) => {
                       if (date) {
                         const d = date.toISOString().split("T")[0];
-                        setBookingData({ ...bookingData, date: d });
+                        setReservationData({ ...reservationData, date: d });
                       }
                     }}
                     inline
@@ -102,13 +102,13 @@ const EditRequestPage = observer(() => {
                   <FaRegCalendarAlt className="text-brand-blue" /> Selecionar turno
                 </p>
                 <div className="grid gap-3">
-                  {Object.values(BookingShift).map((s) => {
-                    const selected = bookingData.shift === s;
+                  {Object.values(ReservationShift).map((s) => {
+                    const selected = reservationData.shift === s;
                     return (
                       <button
                         key={s}
                         type="button"
-                        onClick={() => setBookingData({ ...bookingData, shift: s })}
+                        onClick={() => setReservationData({ ...reservationData, shift: s })}
                         className={`p-6 rounded-3xl border-2 flex items-center justify-between transition-all duration-200
                           ${selected ? "border-brand-blue/70 bg-blue-50 shadow-sm ring-2 ring-brand-blue/10" : "border-slate-100 bg-white hover:border-slate-200"}`}
                       >

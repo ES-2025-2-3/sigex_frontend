@@ -1,9 +1,9 @@
 import axios from 'axios';
-import RoomDomain from '../domain/room/RoomDomain';
+import RoomDomain from '../domain/space/SpaceDomain';
 
 const API_URL = '/api/rooms';
 
-class RoomService {
+class SpaceService {
   /**
    * Busca todos os locais (rooms) cadastrados no sistema.
    * No backend, o RoomController já possui o endpoint GET.
@@ -16,7 +16,7 @@ class RoomService {
   /**
    * Busca um local específico pelo ID.
    */
-  async getById(id: number) {
+  async getById(id: string) {
     const response = await axios.get(`${API_URL}/${id}`);
     return response.data;
   }
@@ -26,7 +26,6 @@ class RoomService {
    * O backend valida se o usuário logado é o gerente do instituto.
    */
   async create(domain: RoomDomain) {
-    // Seguindo o seu padrão de extrair o objeto do domain
     const payload = {
       name: domain.name,
       capacity: domain.capacity,
@@ -40,7 +39,7 @@ class RoomService {
   /**
    * Atualiza os dados de um local existente.
    */
-  async update(id: number, domain: RoomDomain) {
+  async update(id: string, domain: RoomDomain) {
     const payload = {
       name: domain.name,
       capacity: domain.capacity,
@@ -54,9 +53,9 @@ class RoomService {
   /**
    * Remove um local do sistema.
    */
-  async delete(id: number) {
+  async delete(id: string) {
     await axios.delete(`${API_URL}/${id}`);
   }
 }
 
-export default new RoomService();
+export default new SpaceService();

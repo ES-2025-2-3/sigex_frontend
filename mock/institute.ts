@@ -3,8 +3,6 @@ import { mockStaff } from "./user";
 
 /**
  * Representação da Unidade Única do Sistema.
- * O 'manager' agora aponta para o perfil FUNCIONARIO (Nicole/José Farias),
- * que é quem opera o dia a dia do Centro.
  */
 export const mockInstitute: Institute = {
   id: "unidade-principal",
@@ -12,11 +10,10 @@ export const mockInstitute: Institute = {
   acronym: "PROPEX",
   contactPhone: "(83) 2101-1123",
   manager: {
-    id: String(mockStaff.id), 
+    id: Number(mockStaff.id) || 0, 
     name: mockStaff.name || "",
     email: mockStaff.email || "",
     type: mockStaff.type as any, 
-    registrationNumber: mockStaff.registrationNumber
   },
   rooms: [],
   equipments: []

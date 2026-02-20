@@ -1,4 +1,4 @@
-export interface Room {
+export interface Space {
   id: number;
   name: string;
   capacity: number;

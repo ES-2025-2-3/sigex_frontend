@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from "react";
 import { observer } from "mobx-react-lite";
-import { useNavigate } from "react-router-dom"; // Importado
+import { useNavigate } from "react-router-dom";
 
 import Header from "../../commons/header/Header";
 import Footer from "../../commons/footer/Footer";
@@ -8,11 +8,12 @@ import LoadingSpinner from "../../commons/components/LoadingSpinner";
 import Pagination from "../../commons/pagination/Pagination";
 import Modal from "../../commons/modal/Modal";
 
-import { booking_mock } from "../../../mock/booking";
-import { event_mock } from "../../../mock/event";
-import { BookingStatus } from "../../domain/enums/BookingStatus";
-import { userSessionStore } from "../../store/user/UserSessionStore";
-import { Booking } from "../../types/booking/Booking";
+import { ReservationStatus } from "../../domain/enums/ReservationStatus";
+import { userSessionStore } from "../../store/auth/UserSessionStore";
+import ReservationDomain from "../../domain/reservation/ReservationDomain";
+import EventDomain from "../../domain/event/EventDomain";
+import ReservationService from "../../services/ReservationService";
+import EventService from "../../services/EventService";
 
 import {
   FaCalendarAlt,
@@ -31,44 +32,71 @@ import UserBanner from "../../commons/user/UserBanner";
 const ITEMS_PER_PAGE = 5;
 
 const UserRequestPage = observer(() => {
-  const navigate = useNavigate(); // Hook de navegação
+  const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
-  const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
+  const [selectedReservation, setSelectedReservation] = useState<ReservationDomain | null>(null);
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
-  const [bookingToCancel, setBookingToCancel] = useState<Booking | null>(null);
+  const [reservationToCancel, setReservationToCancel] = useState<ReservationDomain | null>(null);
   const [isCancelSuccessOpen, setIsCancelSuccessOpen] = useState(false);
   const [isCancelErrorOpen, setIsCancelErrorOpen] = useState(false);
+  const [reservations, setReservations] = useState<ReservationDomain[]>([]);
+  const [events, setEvents] = useState<EventDomain[]>([]);
 
-  const [userBookings, setUserBookings] = useState<Booking[]>([]);
-  const loggedUserId = userSessionStore.currentUser?.id || 1;
+  const loggedUserId = userSessionStore.currentUser?.id;
 
   useEffect(() => {
-    const timer = setTimeout(() => setLoading(false), 600);
-    return () => clearTimeout(timer);
+    const loadData = async () => {
+      try {
+        setLoading(true);
+        const [resData, eventsData] = await Promise.all([
+          ReservationService.getMyBookings(),
+          EventService.getAll(),
+        ]);
+
+        const safeReservations = Array.isArray(resData)
+          ? resData
+          : (resData as any)?.content || [];
+
+        const safeEvents = Array.isArray(eventsData)
+          ? eventsData
+          : (eventsData as any)?.content || [];
+
+        setReservations(safeReservations);
+        setEvents(safeEvents);
+      } catch (error) {
+        console.error("Erro ao carregar solicitações:", error);
+        setReservations([]);
+        setEvents([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadData();
   }, []);
-
-  useEffect(() => {
-    setUserBookings(
-      (booking_mock as Booking[]).filter((b) => b.bookerId === loggedUserId),
-    );
-  }, [loggedUserId]);
 
   const handleConfirmCancel = async () => {
     try {
-      setUserBookings((prev) => {
-        const newBookings = prev.filter((b) => b.id !== bookingToCancel!.id);
+      if (!reservationToCancel?.id) return;
+
+      await ReservationService.delete(String(reservationToCancel.id));
+
+      setReservations((prev) => {
+        const newReservations = prev.filter(
+          (b) => b.id !== reservationToCancel.id,
+        );
 
         const totalPagesAfterDelete = Math.ceil(
-          newBookings.length / ITEMS_PER_PAGE,
+          newReservations.length / ITEMS_PER_PAGE,
         );
         if (currentPage > totalPagesAfterDelete && totalPagesAfterDelete > 0) {
           setCurrentPage(totalPagesAfterDelete);
         }
 
-        return newBookings;
+        return newReservations;
       });
 
       setIsCancelModalOpen(false);
@@ -79,30 +107,40 @@ const UserRequestPage = observer(() => {
     }
   };
 
-  const getEventTitle = (eventId: number) => {
-    const event = event_mock.find((e) => e.id === eventId);
+  const getEventTitle = (eventId: number | string | null) => {
+    if (!eventId || !Array.isArray(events)) return "Evento não identificado";
+    const event = events.find((e) => String(e.id) === String(eventId));
     return event ? event.title : `Evento #${eventId}`;
   };
 
-  const filteredBookings = useMemo(() => {
-    return userBookings
+  const filteredReservations = useMemo(() => {
+    if (!Array.isArray(reservations)) return [];
+
+    return reservations
       .filter((b) => {
-        const isPending = b.status === BookingStatus.SOLICITADA;
+        const isFromLoggedUser = b.bookerId === loggedUserId;
+        const isPending = b.status === ReservationStatus.SOLICITADA;
+
         const eventTitle = getEventTitle(b.eventId).toLowerCase();
+        const reservationId = b.id ? b.id.toString() : "";
         const matchesSearch =
           eventTitle.includes(search.toLowerCase()) ||
-          b.id.toString().includes(search);
+          reservationId.includes(search);
 
-        return isPending && matchesSearch;
+        return isFromLoggedUser && isPending && matchesSearch;
       })
-      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-  }, [search, userBookings]);
+      .sort((a, b) => {
+        const dateA = a.date ? new Date(a.date).getTime() : 0;
+        const dateB = b.date ? new Date(b.date).getTime() : 0;
+        return dateB - dateA;
+      });
+  }, [search, reservations, events, loggedUserId]);
 
-  const totalPages = Math.ceil(filteredBookings.length / ITEMS_PER_PAGE);
-  const paginatedBookings = useMemo(() => {
+  const totalPages = Math.ceil(filteredReservations.length / ITEMS_PER_PAGE);
+  const paginatedReservations = useMemo(() => {
     const start = (currentPage - 1) * ITEMS_PER_PAGE;
-    return filteredBookings.slice(start, start + ITEMS_PER_PAGE);
-  }, [filteredBookings, currentPage]);
+    return filteredReservations.slice(start, start + ITEMS_PER_PAGE);
+  }, [filteredReservations, currentPage]);
 
   useEffect(() => {
     setCurrentPage(1);
@@ -164,10 +202,10 @@ const UserRequestPage = observer(() => {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 text-sm font-bold">
-                    {paginatedBookings.length > 0 ? (
-                      paginatedBookings.map((b) => (
+                    {paginatedReservations.length > 0 ? (
+                      paginatedReservations.map((b) => (
                         <tr
-                          key={b.id}
+                          key={b.id!}
                           className="group hover:bg-slate-50 transition-colors"
                         >
                           <td className="px-8 py-6 text-gray-700">
@@ -185,14 +223,14 @@ const UserRequestPage = observer(() => {
                           <td className="px-6 py-6">
                             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 text-amber-600 border-amber-100 border text-[10px] font-bold uppercase">
                               <FaHourglassHalf size={10} />
-                              SOLICITADA
+                              {b.status}
                             </div>
                           </td>
                           <td className="px-8 py-6 text-center">
                             <div className="flex items-center justify-center gap-2">
                               <button
                                 onClick={() => {
-                                  setSelectedBooking(b);
+                                  setSelectedReservation(b);
                                   setIsDetailsModalOpen(true);
                                 }}
                                 className="p-2.5 text-gray-400 hover:text-brand-blue
@@ -203,7 +241,9 @@ const UserRequestPage = observer(() => {
 
                               <button
                                 onClick={() =>
-                                  navigate(`/usuario/solicitacoes/editar/${b.id}`)
+                                  navigate(
+                                    `/usuario/solicitacoes/editar/${b.id}`,
+                                  )
                                 }
                                 className="p-2.5 text-gray-400 hover:text-amber-600
                                                 bg-gray-50 rounded-xl hover:bg-amber-50 transition-all"
@@ -213,7 +253,7 @@ const UserRequestPage = observer(() => {
 
                               <button
                                 onClick={() => {
-                                  setBookingToCancel(b);
+                                  setReservationToCancel(b);
                                   setIsCancelModalOpen(true);
                                 }}
                                 className="p-2.5 text-gray-400 hover:text-red-600
@@ -257,7 +297,7 @@ const UserRequestPage = observer(() => {
         title="Resumo da Reserva"
         onClose={() => setIsDetailsModalOpen(false)}
       >
-        {selectedBooking && (
+        {selectedReservation && (
           <div className="space-y-6">
             <div className="flex items-center gap-4 bg-slate-50 p-5 rounded-2xl border border-slate-100">
               <div className="w-10 h-10 bg-brand-blue text-white rounded-xl flex items-center justify-center shadow-lg shadow-brand-blue/20">
@@ -265,10 +305,10 @@ const UserRequestPage = observer(() => {
               </div>
               <div>
                 <h3 className="font-bold text-slate-800 leading-tight">
-                  {getEventTitle(selectedBooking.eventId)}
+                  {getEventTitle(selectedReservation.eventId)}
                 </h3>
                 <p className="text-[10px] text-slate-400 font-bold mt-0.5">
-                  REFERÊNCIA: #{selectedBooking.id}
+                  REFERÊNCIA: #{selectedReservation.id}
                 </p>
               </div>
             </div>
@@ -279,7 +319,7 @@ const UserRequestPage = observer(() => {
                   Data
                 </span>
                 <p className="text-slate-700 font-bold text-sm">
-                  {selectedBooking.date}
+                  {selectedReservation.date}
                 </p>
               </div>
               <div className="p-3 bg-white border border-slate-100 rounded-xl">
@@ -287,7 +327,7 @@ const UserRequestPage = observer(() => {
                   Período
                 </span>
                 <p className="text-slate-700 font-bold text-sm uppercase">
-                  {selectedBooking.shift}
+                  {selectedReservation.shift}
                 </p>
               </div>
             </div>
@@ -298,7 +338,7 @@ const UserRequestPage = observer(() => {
             >
               <FaHourglassHalf size={14} />
               <span className="text-xs font-bold uppercase tracking-wider">
-                Status: SOLICITADA (aguardando aprovação)
+                Status: {selectedReservation.status} (aguardando aprovação)
               </span>
             </div>
 
@@ -317,7 +357,7 @@ const UserRequestPage = observer(() => {
         title="Cancelar Solicitação"
         onClose={() => setIsCancelModalOpen(false)}
       >
-        {bookingToCancel && (
+        {reservationToCancel && (
           <div className="space-y-6">
             <div className="flex items-center gap-4 bg-slate-50 p-5 rounded-2xl border border-slate-100">
               <div
@@ -343,7 +383,7 @@ const UserRequestPage = observer(() => {
                   Evento
                 </span>
                 <p className="text-slate-700 font-bold text-sm">
-                  {getEventTitle(bookingToCancel.eventId)}
+                  {getEventTitle(reservationToCancel.eventId)}
                 </p>
               </div>
 
@@ -353,7 +393,7 @@ const UserRequestPage = observer(() => {
                     Data
                   </span>
                   <p className="text-slate-700 font-bold text-sm">
-                    {bookingToCancel.date}
+                    {reservationToCancel.date}
                   </p>
                 </div>
 
@@ -362,7 +402,7 @@ const UserRequestPage = observer(() => {
                     Turno
                   </span>
                   <p className="text-slate-700 font-bold text-sm uppercase">
-                    {bookingToCancel.shift}
+                    {reservationToCancel.shift}
                   </p>
                 </div>
               </div>
@@ -398,11 +438,7 @@ const UserRequestPage = observer(() => {
       >
         <div className="space-y-6">
           <div className="flex items-center gap-4 bg-slate-50 p-5 rounded-2xl border border-slate-100">
-            <div
-              className="w-10 h-10 bg-emerald-600 text-white rounded-xl
-                                flex items-center justify-center
-                                shadow-lg shadow-emerald-600/20"
-            >
+            <div className="w-10 h-10 bg-emerald-600 text-white rounded-xl flex items-center justify-center shadow-lg shadow-emerald-600/20">
               <FaCheckCircle size={18} />
             </div>
             <div>
@@ -414,23 +450,9 @@ const UserRequestPage = observer(() => {
               </p>
             </div>
           </div>
-
-          <div
-            className="p-4 rounded-xl border flex items-center gap-3
-                bg-emerald-50/50 border-emerald-100 text-emerald-700"
-          >
-            <FaCheckCircle />
-            <span className="text-xs font-bold">
-              A sua solicitação foi cancelada e já não está aguardando
-              aprovação.
-            </span>
-          </div>
-
           <button
             onClick={() => setIsCancelSuccessOpen(false)}
-            className="w-full py-3.5 bg-slate-900 text-white rounded-xl
-                            font-bold hover:bg-slate-800 transition-all
-                            text-sm shadow-xl shadow-slate-200"
+            className="w-full py-3.5 bg-slate-900 text-white rounded-xl font-bold"
           >
             Fechar
           </button>
@@ -444,11 +466,7 @@ const UserRequestPage = observer(() => {
       >
         <div className="space-y-6">
           <div className="flex items-center gap-4 bg-slate-50 p-5 rounded-2xl border border-slate-100">
-            <div
-              className="w-10 h-10 bg-red-600 text-white rounded-xl
-                                flex items-center justify-center
-                                shadow-lg shadow-red-600/20"
-            >
+            <div className="w-10 h-10 bg-red-600 text-white rounded-xl flex items-center justify-center shadow-lg shadow-red-600/20">
               <FaTimesCircle size={18} />
             </div>
             <div>
@@ -460,23 +478,9 @@ const UserRequestPage = observer(() => {
               </p>
             </div>
           </div>
-
-          <div
-            className="p-4 rounded-xl border flex items-center gap-3
-                bg-red-50/50 border-red-100 text-red-700"
-          >
-            <FaTimesCircle />
-            <span className="text-xs font-bold">
-              Algo correu mal ao cancelar a solicitação. Tente novamente mais
-              tarde.
-            </span>
-          </div>
-
           <button
             onClick={() => setIsCancelErrorOpen(false)}
-            className="w-full py-3.5 bg-slate-900 text-white rounded-xl
-                            font-bold hover:bg-slate-800 transition-all
-                            text-sm shadow-xl shadow-slate-200"
+            className="w-full py-3.5 bg-slate-900 text-white rounded-xl font-bold"
           >
             Fechar
           </button>
