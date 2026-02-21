@@ -1,15 +1,15 @@
 export enum EventTags {
-  LECTURE = "LECTURE",
+  PALESTRA = "PALESTRA",
   WORKSHOP = "WORKSHOP",
-  TRAINING = "TRAINING",
+  TREINAMENTO = "TREINAMENTO",
   HACKATHON = "HACKATHON",
-  CEREMONY = "CEREMONY",
+  CERIMONIA = "CERIMONIA",
 }
 
 export const EventTagsLabels: Record<EventTags, string> = {
-  [EventTags.LECTURE]: "Palestra",
+  [EventTags.PALESTRA]: "Palestra",
   [EventTags.WORKSHOP]: "Workshop",
-  [EventTags.TRAINING]: "Treinamento",
+  [EventTags.TREINAMENTO]: "Treinamento",
   [EventTags.HACKATHON]: "Hackathon",
-  [EventTags.CEREMONY]: "Cerimônia",
+  [EventTags.CERIMONIA]: "Cerimônia",
 };
