@@ -9,7 +9,7 @@ export const reservation_mock = [
     eventId: 2,
     date: "2026-03-03",
     shift: ReservationShift.MANHA, 
-    status: ReservationStatus.APROVADA, 
+    status: ReservationStatus.APROVADO, 
   },
   {
     id: 102,
@@ -18,7 +18,7 @@ export const reservation_mock = [
     eventId: 10, 
     date: "2026-02-03",
     shift: ReservationShift.TARDE, 
-    status: ReservationStatus.APROVADA, 
+    status: ReservationStatus.APROVADO, 
   },
   {
     id: 103,
@@ -27,7 +27,7 @@ export const reservation_mock = [
     eventId: 1, 
     date: "2026-02-09",
     shift: ReservationShift.MANHA, 
-    status: ReservationStatus.APROVADA, 
+    status: ReservationStatus.APROVADO, 
   },
   {
     id: 104,
@@ -36,7 +36,7 @@ export const reservation_mock = [
     eventId: 12, 
     date: "2026-04-20",
     shift: ReservationShift.MANHA,
-    status: ReservationStatus.SOLICITADA, 
+    status: ReservationStatus.PENDENTE, 
   },
   {
     id: 105,
@@ -45,7 +45,7 @@ export const reservation_mock = [
     eventId: 8, 
     date: "2026-05-10",
     shift: ReservationShift.NOITE,
-    status: ReservationStatus.INDEFERIDA, 
+    status: ReservationStatus.RECUSADO, 
   },
   {
     id: 106,
@@ -54,7 +54,7 @@ export const reservation_mock = [
     eventId: 11, 
     date: "2026-08-14",
     shift: ReservationShift.MANHA, 
-    status: ReservationStatus.APROVADA, 
+    status: ReservationStatus.APROVADO, 
   },
   {
     id: 113,
@@ -63,7 +63,7 @@ export const reservation_mock = [
     eventId: 11, 
     date: "2026-08-15",
     shift: ReservationShift.TARDE,
-    status: ReservationStatus.SOLICITADA,
+    status: ReservationStatus.PENDENTE,
   },
   {
     id: 107,
@@ -72,7 +72,7 @@ export const reservation_mock = [
     eventId: 3, 
     date: "2026-06-05",
     shift: ReservationShift.NOITE,
-    status: ReservationStatus.APROVADA,
+    status: ReservationStatus.APROVADO,
   },
   {
     id: 108,
@@ -81,7 +81,7 @@ export const reservation_mock = [
     eventId: 4, 
     date: "2026-10-12",
     shift: ReservationShift.TARDE,
-    status: ReservationStatus.APROVADA,
+    status: ReservationStatus.APROVADO,
   },
   {
     id: 116,
@@ -90,7 +90,7 @@ export const reservation_mock = [
     eventId: 4, 
     date: "2026-10-13",
     shift: ReservationShift.TARDE,
-    status: ReservationStatus.SOLICITADA,
+    status: ReservationStatus.PENDENTE,
   },
   {
     id: 109,
@@ -99,7 +99,7 @@ export const reservation_mock = [
     eventId: 5,
     date: "2026-09-22",
     shift: ReservationShift.MANHA,
-    status: ReservationStatus.SOLICITADA,
+    status: ReservationStatus.PENDENTE,
   },
   {
     id: 110,
@@ -108,7 +108,7 @@ export const reservation_mock = [
     eventId: 6, 
     date: "2026-01-15",
     shift: ReservationShift.MANHA,
-    status: ReservationStatus.APROVADA,
+    status: ReservationStatus.APROVADO,
   },
   {
     id: 115,
@@ -117,7 +117,7 @@ export const reservation_mock = [
     eventId: 6, 
     date: "2026-02-20",
     shift: ReservationShift.NOITE,
-    status: ReservationStatus.SOLICITADA,
+    status: ReservationStatus.PENDENTE,
   },
   {
     id: 111,
@@ -126,7 +126,7 @@ export const reservation_mock = [
     eventId: 7, 
     date: "2026-07-30",
     shift: ReservationShift.TARDE,
-    status: ReservationStatus.APROVADA,
+    status: ReservationStatus.APROVADO,
   },
   {
     id: 112,
@@ -135,6 +135,6 @@ export const reservation_mock = [
     eventId: 9, 
     date: "2026-12-02",
     shift: ReservationShift.MANHA,
-    status: ReservationStatus.SOLICITADA,
+    status: ReservationStatus.PENDENTE,
   }
 ];

@@ -29,6 +29,8 @@ import ForgotPasswordEmailPage from "../pages/login/forgotPassword/ForgotPasswor
 import ForgotPasswordCodePage from "../pages/login/forgotPassword/ForgotPasswordCodePage";
 import ForgotPasswordNewPasswordPage from "../pages/login/forgotPassword/ForgotPasswordNewPasswordPage";
 import RegisterSuccessPage from "../pages/register/RegisterSucessPage";
+import RegisterErrorPage from "../pages/register/RegisterErrorPage";
+import LoginErrorPage from "../pages/login/LoginErrorPage";
 
 const AppRoutes = observer(() => {
   return (
@@ -41,8 +43,10 @@ const AppRoutes = observer(() => {
 
       {/* --- AUTH (Somente quem não está logado) --- */}
       <Route path="/login" element={<LoginPage />} />
+      <Route path="/login-erro" element={<LoginErrorPage />} />
       <Route path="/cadastro" element={<RegisterPage />} />
       <Route path="/cadastro-sucesso" element={<RegisterSuccessPage />} />
+      <Route path="/cadastro-erro" element={<RegisterErrorPage />} />
       <Route path="/recuperar-senha" element={<ForgotPasswordEmailPage />} />
       <Route path="/recuperar-senha/codigo" element={<ForgotPasswordCodePage />} />
       <Route path="/recuperar-senha/nova-senha" element={<ForgotPasswordNewPasswordPage />} />

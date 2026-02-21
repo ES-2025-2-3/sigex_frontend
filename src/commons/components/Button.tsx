@@ -6,12 +6,13 @@ const Button: React.FC<ButtonProps> = ({
   size = "medium",
   className = "",
   children,
+  type = "button",   
   ...props
 }) => {
   const baseStyles =
     "inline-flex items-center justify-center gap-2 font-semibold rounded-md transition-all duration-200 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed font-sans shadow-none";
-  
-    const variants = {
+
+  const variants = {
     primary: "bg-brand-blue text-white hover:bg-brand-blue-hover",
     secondary: "bg-gray-500 text-white hover:bg-gray-600",
     outline:
@@ -28,7 +29,11 @@ const Button: React.FC<ButtonProps> = ({
   const combinedClasses = `${baseStyles} ${variants[variant]} ${sizes[size]} ${className}`;
 
   return (
-    <button className={combinedClasses} {...props}>
+    <button
+      type={type} 
+      className={combinedClasses}
+      {...props}
+    >
       {children}
     </button>
   );

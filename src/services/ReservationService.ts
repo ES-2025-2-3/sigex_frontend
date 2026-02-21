@@ -1,74 +1,56 @@
-import axios from 'axios';
-import ReservationDomain from '../domain/reservation/ReservationDomain';
+import api from "./api";
+import ReservationDomain from "../domain/reservation/ReservationDomain";
 
-const API_URL = '/reservation';
+const API_URL = "/reservations";
 
 class ReservationService {
-
   /**
    * Cria uma nova reserva no sistema.
-   * O backend identifica o autor da reserva pelo Token JWT (UserDetails).
-   * * @param domain Objeto de domínio.
-   * @param eventId ID do evento que já deve ter sido criado previamente.
    */
-  async create(domain: ReservationDomain, eventId: string) {
-    const payload = {
-      roomIds: domain.roomIds, 
-      eventId: eventId,        
-      date: domain.date,       
-      shift: domain.shift,
-    };
-
-    const response = await axios.post(API_URL, payload);
+  async create(payload: any) {
+    const response = await api.post(API_URL, payload);
     return response.data;
   }
 
   /**
-   * Atualiza uma reserva existente.
+   * Atualiza uma reserva existente (apenas se estiver PENDENTE).
    */
-  async update(id: string, domain: ReservationDomain) {
+  async update(id: string | number, payload: any) {
+    const response = await api.put(`${API_URL}/${id}`, payload);
+    return response.data;
+  }
 
-    const payload = {
-      roomIds: domain.roomIds,
-      date: domain.date,
-      shift: domain.shift
-    };
-
-    const response = await axios.put(`${API_URL}/${id}`, payload);
+  /**
+   * Atualiza o status de uma reserva (Ação de Admin).
+   */
+  async updateStatus(id: string | number, status: string) {
+    const response = await api.patch(`${API_URL}/${id}/status`, { status });
     return response.data;
   }
 
   /**
    * Remove uma reserva do sistema.
    */
-  async delete(id: string) {
-    await axios.delete(`${API_URL}/${id}`);
+  async delete(id: string | number) {
+    await api.delete(`${API_URL}/${id}`);
   }
 
   /**
    * Busca todas as reservas.
    */
   async getAll() {
-    const response = await axios.get(API_URL);
-    return response.data;
-  }
-
-  /**
-   * Busca as reservas vinculadas ao usuário autenticado (Docente).
-   * O backend identifica o usuário pelo Token JWT.
-   */
-  async getMyBookings(): Promise<ReservationDomain[]> {
-    const response = await axios.get(`${API_URL}/my`); 
+    const response = await api.get(API_URL);
     return response.data;
   }
 
   /**
    * Busca uma reserva específica pelo ID.
    */
-  async getById(id: string) {
-    const response = await axios.get(`${API_URL}/${id}`);
+  async getById(id: string | number) {
+    const response = await api.get(`${API_URL}/${id}`);
     return response.data;
   }
 }
 
-export default new ReservationService();
+const reservationService = new ReservationService();
+export default reservationService;

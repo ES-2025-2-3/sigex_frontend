@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Navigate, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { observer } from "mobx-react-lite";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import HeaderRegister from "../../commons/header/HeaderRegister";
@@ -40,14 +40,12 @@ const RegisterPage: React.FC = () => {
     if (!formData.name) newErrors.name = "Campo obrigatório";
     if (!formData.email) newErrors.email = "Campo obrigatório";
     if (!formData.password) newErrors.password = "Campo obrigatório";
-
     if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = "As senhas não coincidem";
-
       setToast({
         type: "error",
         message: "As senhas não coincidem.",
       });
+      return;
     }
 
     if (Object.keys(newErrors).length > 0) {
@@ -64,19 +62,14 @@ const RegisterPage: React.FC = () => {
       });
 
       window.location.replace("/cadastro-sucesso");
-
     } catch (error: any) {
-      console.log("ERRO CAPTURADO:", error);
-      const backendMessage =
-        error?.response?.data?.message ||
-        error?.response?.data?.error ||
-        error?.response?.data ||
-        "Erro ao realizar cadastro.";
+      const backendMessage = error?.response?.data?.message || "";
 
-      setToast({
-        type: "error",
-        message: backendMessage,
-      });
+      if (backendMessage === "Email already registered") {
+        window.location.replace("/cadastro-erro?type=email_exists");
+      } else {
+        window.location.replace("/cadastro-erro?type=generic");
+      }
     }
   };
 

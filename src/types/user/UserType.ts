@@ -1,7 +1,7 @@
 import { UserType } from "../../domain/enums/UserType";
 
 export interface User {
-  id: number;
+  id: string;
   name: string;
   email: string;
   affiliation?: string;   

@@ -53,9 +53,9 @@ const AdminCalendarView: React.FC = observer(() => {
   };
 
   const statusStyles: Record<string, string> = {
-    [ReservationStatus.APROVADA]: "bg-green-500 text-white",
-    [ReservationStatus.SOLICITADA]: "bg-amber-500 text-white",
-    [ReservationStatus.INDEFERIDA]: "bg-red-500 text-white",
+    [ReservationStatus.APROVADO]: "bg-green-500 text-white",
+    [ReservationStatus.PENDENTE]: "bg-amber-500 text-white",
+    [ReservationStatus.RECUSADO]: "bg-red-500 text-white",
   };
 
   const getReservationsForDay = (day: number) => {

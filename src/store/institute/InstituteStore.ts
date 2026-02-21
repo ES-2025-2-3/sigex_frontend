@@ -1,10 +1,11 @@
 import { makeAutoObservable, runInAction } from "mobx";
 import instituteService from "../../services/InstituteService";
 import { Institute } from "../../types/institute/InstituteType";
+import InstituteDomain from "../../domain/institute/InstituteDomain";
 
 class InstituteStore {
   current: Institute | null = null;
-  globalId: string | null = null; 
+  globalId: string | null = null;
   isLoading = false;
   error: string | null = null;
 
@@ -60,7 +61,22 @@ class InstituteStore {
 
     this.isLoading = true;
     try {
-      const updated = await instituteService.update(this.globalId, data);
+      const domain = new InstituteDomain({
+        ...this.current, 
+        ...data,
+      });
+
+      const payload = domain.getBackendObject();
+      const finalPayload = {
+        ...payload,
+        managerId: payload.manager?.id, 
+      };
+
+      const updated = await instituteService.update(
+        this.globalId,
+        finalPayload,
+      );
+
       runInAction(() => {
         this.current = updated;
         this.isLoading = false;
