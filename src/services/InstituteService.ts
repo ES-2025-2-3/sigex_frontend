@@ -1,10 +1,9 @@
-import api from './api';
-import InstituteDomain from '../domain/institute/InstituteDomain';
+import api from "./api";
+import InstituteDomain from "../domain/institute/InstituteDomain";
 
-const API_URL = '/institutes';
+const API_URL = "/institutes";
 
 class InstituteService {
-
   /**
    * Busca o UUID do instituto único do sistema
    */
@@ -33,14 +32,10 @@ class InstituteService {
   /**
    * Atualiza o instituto.
    */
-  async update(id: string, domain: InstituteDomain) {
-    const payload = domain.getBackendObject();
+  async update(id: string, data: any) {
+    const payload = data.getBackendObject ? data.getBackendObject() : data;
     const response = await api.put(`${API_URL}/${id}`, payload);
     return response.data;
-  }
-
-  async delete(id: string) {
-    await api.delete(`${API_URL}/${id}`);
   }
 }
 
