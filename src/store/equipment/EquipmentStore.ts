@@ -14,22 +14,20 @@ export type EquipmentCatalogItem = {
 };
 
 class EquipmentStore {
-
   catalog: EquipmentCatalogItem[] = [];
-
   stocks: InstituteEquipmentStock[] = [];
 
-  isLoading = false;
+  isLoadingCatalog = false;
+  isLoadingStocks = false;
 
   constructor() {
     makeAutoObservable(this, {}, { autoBind: true });
   }
 
   async fetchCatalog() {
+    this.isLoadingCatalog = true;
     try {
-      this.isLoading = true;
       const data = await EquipmentService.getAll();
-
       runInAction(() => {
         this.catalog = Array.isArray(data) ? data : [];
       });
@@ -40,16 +38,15 @@ class EquipmentStore {
       });
     } finally {
       runInAction(() => {
-        this.isLoading = false;
+        this.isLoadingCatalog = false;
       });
     }
   }
 
   async fetchStocks(instituteId: string) {
+    this.isLoadingStocks = true;
     try {
-      this.isLoading = true;
       const data = await InstituteEquipmentService.getAllStocks(instituteId);
-
       runInAction(() => {
         this.stocks = Array.isArray(data) ? data : [];
       });
@@ -60,12 +57,16 @@ class EquipmentStore {
       });
     } finally {
       runInAction(() => {
-        this.isLoading = false;
+        this.isLoadingStocks = false;
       });
     }
   }
 
-  async createEquipmentWithStock(instituteId: string, domain: EquipmentDomain, total: number) {
+  async createEquipmentWithStock(
+    instituteId: string,
+    domain: EquipmentDomain,
+    total: number
+  ) {
     const created = await EquipmentService.create(domain);
     const equipmentId = created?.id;
 
@@ -75,11 +76,19 @@ class EquipmentStore {
 
     await InstituteEquipmentService.createStock(instituteId, equipmentId, total);
 
-    await Promise.all([this.fetchCatalog(), this.fetchStocks(instituteId)]);
+    await Promise.all([
+      this.fetchCatalog(),
+      this.fetchStocks(instituteId),
+    ]);
+
     return true;
   }
 
-  async linkExistingToInstitute(instituteId: string, equipmentId: number, total: number) {
+  async linkExistingToInstitute(
+    instituteId: string,
+    equipmentId: number,
+    total: number
+  ) {
     await InstituteEquipmentService.createStock(instituteId, equipmentId, total);
     await this.fetchStocks(instituteId);
     return true;
@@ -91,7 +100,12 @@ class EquipmentStore {
     amount: number,
     operation: EquipmentAmountOperation
   ) {
-    await InstituteEquipmentService.updateAmount(instituteId, equipmentId, amount, operation);
+    await InstituteEquipmentService.updateAmount(
+      instituteId,
+      equipmentId,
+      amount,
+      operation
+    );
     await this.fetchStocks(instituteId);
     return true;
   }
@@ -110,7 +124,11 @@ class EquipmentStore {
 
     await EquipmentService.delete(equipmentId);
 
-    await Promise.all([this.fetchCatalog(), this.fetchStocks(instituteId)]);
+    await Promise.all([
+      this.fetchCatalog(),
+      this.fetchStocks(instituteId),
+    ]);
+
     return true;
   }
 }

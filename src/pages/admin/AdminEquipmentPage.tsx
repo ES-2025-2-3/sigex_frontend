@@ -1,9 +1,17 @@
 import { observer } from "mobx-react-lite";
 import { useEffect, useMemo, useState } from "react";
-import { FaPlus, FaSearch, FaTools, FaTrash, FaWrench } from "react-icons/fa";
+import {
+  FaBuilding,
+  FaPlus,
+  FaSearch,
+  FaTools,
+  FaTrash,
+  FaWrench,
+} from "react-icons/fa";
 
 import EquipmentDomain from "../../domain/equipment/EquipmentDomain";
 import { equipmentStore } from "../../store/equipment/EquipmentStore";
+import { instituteStore } from "../../store/institute/InstituteStore";
 
 import {
   EquipmentAmountOperation,
@@ -30,46 +38,58 @@ const actionToOperation: Record<ManageAction, EquipmentAmountOperation> = {
 
 type CreateMode = "NEW" | "EXISTING";
 
+const getApiErrorMessage = (err: any, fallback: string) => {
+  const data = err?.response?.data;
+
+  if (!data) return fallback;
+  if (typeof data === "string") return data;
+
+  return data.message || data.error || data.details || fallback;
+};
+
 const AdminEquipmentPage = observer(() => {
   const [domain] = useState(() => new EquipmentDomain());
 
+  const { stocks, catalog, isLoadingStocks, isLoadingCatalog } = equipmentStore;
+  const { globalId, current: institute } = instituteStore;
+
   const [search, setSearch] = useState("");
-  const [toast, setToast] = useState<{ type: ToastType; message: string } | null>(null);
+  const [toast, setToast] = useState<{ type: ToastType; message: string } | null>(
+    null
+  );
 
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [createMode, setCreateMode] = useState<CreateMode>("NEW");
-
   const [initialTotal, setInitialTotal] = useState<number | "">("");
 
   const [catalogSearch, setCatalogSearch] = useState("");
   const [selectedCatalogId, setSelectedCatalogId] = useState<number | null>(null);
 
   const [isManageModalOpen, setIsManageModalOpen] = useState(false);
-  const [selectedStock, setSelectedStock] = useState<InstituteEquipmentStock | null>(null);
+  const [selectedStock, setSelectedStock] = useState<InstituteEquipmentStock | null>(
+    null
+  );
   const [manageAction, setManageAction] = useState<ManageAction>("ADD_TOTAL");
   const [manageAmount, setManageAmount] = useState<number | "">("");
 
-  const instituteId = "7d264488-db6f-447c-a8bb-4f67e139a5ed"; // id para teste
 
   const requireInstituteId = (): string | null => {
-    if (!instituteId) {
-      setToast({ type: "error", message: "Instituto não configurado." });
+    if (!globalId) {
+      setToast({ type: "error", message: "Instituto não carregado." });
       return null;
     }
-    return instituteId;
+    return globalId;
   };
 
-  const stocks = Array.isArray(equipmentStore.stocks) ? equipmentStore.stocks : [];
-  const catalog = Array.isArray(equipmentStore.catalog) ? equipmentStore.catalog : [];
-  const isLoading = equipmentStore.isLoading;
+  useEffect(() => {
+    equipmentStore.fetchCatalog();
+    instituteStore.fetchDetails();
+  }, []);
 
   useEffect(() => {
-    const id = requireInstituteId();
-    if (!id) return;
-
-    equipmentStore.fetchCatalog();
-    equipmentStore.fetchStocks(id);
-  }, []);
+    if (!globalId) return;
+    equipmentStore.fetchStocks(globalId);
+  }, [globalId]);
 
   const filteredStocks = useMemo(() => {
     const s = search.toLowerCase();
@@ -78,10 +98,13 @@ const AdminEquipmentPage = observer(() => {
 
   const filteredCatalog = useMemo(() => {
     const s = catalogSearch.toLowerCase();
+    const linked = new Set(stocks.map((st) => st.equipmentId));
+
     return catalog
-      .filter((c) => c.name.toLowerCase().includes(s))
-      .sort((a, b) => a.name.localeCompare(b.name));
-  }, [catalog, catalogSearch]);
+      .filter((c: any) => !linked.has(c.id))
+      .filter((c: any) => c.name.toLowerCase().includes(s))
+      .sort((a: any, b: any) => a.name.localeCompare(b.name));
+  }, [catalog, catalogSearch, stocks]);
 
   const openCreate = () => {
     domain.clear();
@@ -113,7 +136,10 @@ const AdminEquipmentPage = observer(() => {
         }
 
         await equipmentStore.createEquipmentWithStock(id, domain, total);
-        setToast({ type: "success", message: "Equipamento criado e vinculado ao instituto!" });
+        setToast({
+          type: "success",
+          message: "Equipamento criado e vinculado ao instituto!",
+        });
       } else {
         if (!selectedCatalogId) {
           setToast({ type: "error", message: "Selecione um equipamento do catálogo." });
@@ -129,10 +155,12 @@ const AdminEquipmentPage = observer(() => {
       console.error("Erro no cadastro/vínculo:", err);
       setToast({
         type: "error",
-        message:
+        message: getApiErrorMessage(
+          err,
           createMode === "EXISTING"
-            ? "Erro ao vincular. Pode já existir no instituto."
-            : "Erro ao cadastrar. Verifique nome duplicado e regras.",
+            ? "Erro ao vincular equipamento."
+            : "Erro ao cadastrar equipamento."
+        ),
       });
     }
   };
@@ -166,8 +194,7 @@ const AdminEquipmentPage = observer(() => {
       console.error("Erro ao atualizar estoque:", err);
       setToast({
         type: "error",
-        message:
-          "Erro ao atualizar. Não pode decrementar além do disponível/total.",
+        message: getApiErrorMessage(err, "Erro ao atualizar. Verifique as regras do estoque."),
       });
     }
   };
@@ -182,7 +209,10 @@ const AdminEquipmentPage = observer(() => {
       setIsManageModalOpen(false);
     } catch (err) {
       console.error("Erro ao remover do instituto:", err);
-      setToast({ type: "error", message: "Erro ao remover do instituto." });
+      setToast({
+        type: "error",
+        message: getApiErrorMessage(err, "Erro ao remover do instituto."),
+      });
     }
   };
 
@@ -201,13 +231,22 @@ const AdminEquipmentPage = observer(() => {
       setIsManageModalOpen(false);
     } catch (err) {
       console.error("Erro ao excluir do sistema:", err);
-      setToast({ type: "error", message: "Erro ao excluir do sistema." });
+      setToast({
+        type: "error",
+        message: getApiErrorMessage(err, "Erro ao excluir do sistema."),
+      });
     }
   };
 
   return (
     <div className="flex min-h-screen bg-bg-main w-full font-inter">
-      {toast && <Toast type={toast.type} message={toast.message} onClose={() => setToast(null)} />}
+      {toast && (
+        <Toast
+          type={toast.type}
+          message={toast.message}
+          onClose={() => setToast(null)}
+        />
+      )}
 
       <AdminSidebar />
 
@@ -258,9 +297,12 @@ const AdminEquipmentPage = observer(() => {
                   </thead>
 
                   <tbody className="divide-y divide-slate-100 text-sm font-bold text-slate-700">
-                    {isLoading ? (
+                    {isLoadingStocks ? (
                       <tr>
-                        <td colSpan={4} className="px-6 py-10 text-center text-slate-400 italic">
+                        <td
+                          colSpan={4}
+                          className="px-6 py-10 text-center text-slate-400 italic"
+                        >
                           Carregando equipamentos...
                         </td>
                       </tr>
@@ -309,7 +351,10 @@ const AdminEquipmentPage = observer(() => {
                       ))
                     ) : (
                       <tr>
-                        <td colSpan={4} className="px-6 py-10 text-center text-slate-400 italic">
+                        <td
+                          colSpan={4}
+                          className="px-6 py-10 text-center text-slate-400 italic"
+                        >
                           Nenhum equipamento encontrado.
                         </td>
                       </tr>
@@ -327,11 +372,27 @@ const AdminEquipmentPage = observer(() => {
           onClose={() => setIsCreateModalOpen(false)}
         >
           <form onSubmit={submitCreate} className="space-y-6">
+            <div className="p-4 bg-slate-50 border border-slate-100 rounded-xl">
+              <label className="text-[9px] font-bold text-slate-400 uppercase block mb-1">
+                Unidade vinculada
+              </label>
+              <div className="flex items-center gap-3">
+                <FaBuilding className="text-brand-blue opacity-50" />
+                <span className="font-bold text-sm text-slate-600">
+                  {institute?.name || "Carregando..."}
+                </span>
+              </div>
+            </div>
+
             <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
               <div className="grid grid-cols-2 gap-3">
                 <button
                   type="button"
-                  onClick={() => setCreateMode("NEW")}
+                  onClick={() => {
+                    setCreateMode("NEW");
+                    setSelectedCatalogId(null);
+                    setCatalogSearch("");
+                  }}
                   className={`px-4 py-3 rounded-xl font-black text-xs uppercase tracking-widest border transition cursor-pointer ${
                     createMode === "NEW"
                       ? "bg-brand-blue text-white border-brand-blue"
@@ -343,7 +404,11 @@ const AdminEquipmentPage = observer(() => {
 
                 <button
                   type="button"
-                  onClick={() => setCreateMode("EXISTING")}
+                  onClick={() => {
+                    setCreateMode("EXISTING");
+                    setSelectedCatalogId(null);
+                    setCatalogSearch("");
+                  }}
                   className={`px-4 py-3 rounded-xl font-black text-xs uppercase tracking-widest border transition cursor-pointer ${
                     createMode === "EXISTING"
                       ? "bg-brand-blue text-white border-brand-blue"
@@ -375,7 +440,9 @@ const AdminEquipmentPage = observer(() => {
                       placeholder="Ex: Projetor Epson"
                     />
 
-                    {domain.errors?.name && <p className="text-xs text-red-500 mt-1">{domain.errors.name}</p>}
+                    {domain.errors?.name && (
+                      <p className="text-xs text-red-500 mt-1">{domain.errors.name}</p>
+                    )}
                   </div>
                 </div>
 
@@ -389,7 +456,9 @@ const AdminEquipmentPage = observer(() => {
                     className="w-full min-h-[90px] rounded-xl border border-slate-200 px-4 py-3 text-sm font-bold text-slate-700 outline-none focus:ring-4 focus:ring-brand-blue/10"
                     placeholder="Opcional..."
                   />
-                  {domain.errors?.description && <p className="text-xs text-red-500">{domain.errors.description}</p>}
+                  {domain.errors?.description && (
+                    <p className="text-xs text-red-500">{domain.errors.description}</p>
+                  )}
                 </div>
               </>
             ) : (
@@ -406,9 +475,15 @@ const AdminEquipmentPage = observer(() => {
                 </div>
 
                 <div className="max-h-56 overflow-y-auto border border-slate-200 rounded-xl divide-y divide-slate-100">
-                  {filteredCatalog.length === 0 ? (
+                  {isLoadingCatalog ? (
                     <div className="p-4 text-sm font-bold text-slate-400 italic">
-                      Nenhum equipamento no catálogo.
+                      Carregando catálogo...
+                    </div>
+                  ) : filteredCatalog.length === 0 ? (
+                    <div className="p-4 text-sm font-bold text-slate-400 italic">
+                      {catalogSearch
+                        ? "Nenhum equipamento encontrado (ou todos já estão vinculados)."
+                        : "Todos os equipamentos do catálogo já estão vinculados ao instituto."}
                     </div>
                   ) : (
                     filteredCatalog.map((eq) => {
@@ -446,18 +521,22 @@ const AdminEquipmentPage = observer(() => {
                 </div>
 
                 <p className="text-xs font-bold text-slate-500">
-                  Isso só cria o vínculo do instituto. Se o equipamento já existir no instituto, vinculo duplicado será rejeitado.
+                  Cria o vínculo de um equipamento existente no sistema com o instituto.
                 </p>
               </div>
             )}
 
             <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-2">
-              <label className="text-[9px] font-black uppercase text-slate-400 block">Quantidade inicial</label>
+              <label className="text-[9px] font-black uppercase text-slate-400 block">
+                Quantidade inicial
+              </label>
               <input
                 type="number"
                 min={1}
                 value={initialTotal}
-                onChange={(e) => setInitialTotal(e.target.value ? Number(e.target.value) : "")}
+                onChange={(e) =>
+                  setInitialTotal(e.target.value ? Number(e.target.value) : "")
+                }
                 className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm font-black text-slate-700 outline-none focus:ring-4 focus:ring-brand-blue/10"
                 placeholder="Ex: 10"
               />
@@ -492,7 +571,7 @@ const AdminEquipmentPage = observer(() => {
               <div className="bg-slate-50 p-5 rounded-2xl border border-slate-100 space-y-3">
                 <p className="text-[11px] font-black uppercase tracking-widest text-slate-500">
                   Estoque atual
-                  </p>
+                </p>
 
                 <p className="text-2xl font-black text-slate-800">
                   {selectedStock.available} <span className="text-slate-400">/</span>{" "}
@@ -501,14 +580,18 @@ const AdminEquipmentPage = observer(() => {
 
                 <div className="grid grid-cols-3 gap-3 mt-2">
                   <div className="bg-white rounded-xl p-3 border border-slate-200 text-center">
-                    <p className="text-[10px] uppercase font-black text-slate-400">Disponíveis</p>
+                    <p className="text-[10px] uppercase font-black text-slate-400">
+                      Disponíveis
+                    </p>
                     <p className="text-lg font-black text-green-600">
                       {selectedStock.available}
                     </p>
                   </div>
 
                   <div className="bg-white rounded-xl p-3 border border-slate-200 text-center">
-                    <p className="text-[10px] uppercase font-black text-slate-400">Manutenção</p>
+                    <p className="text-[10px] uppercase font-black text-slate-400">
+                      Manutenção
+                    </p>
                     <p className="text-lg font-black text-amber-600">
                       {Math.max(0, selectedStock.total - selectedStock.available)}
                     </p>
@@ -516,15 +599,15 @@ const AdminEquipmentPage = observer(() => {
 
                   <div className="bg-white rounded-xl p-3 border border-slate-200 text-center">
                     <p className="text-[10px] uppercase font-black text-slate-400">Total</p>
-                    <p className="text-lg font-black text-slate-800">
-                      {selectedStock.total}
-                    </p>
+                    <p className="text-lg font-black text-slate-800">{selectedStock.total}</p>
                   </div>
                 </div>
               </div>
 
               <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-                <p className="text-[11px] font-black uppercase tracking-widest text-slate-500">Operação</p>
+                <p className="text-[11px] font-black uppercase tracking-widest text-slate-500">
+                  Operação
+                </p>
 
                 <div className="grid grid-cols-2 gap-3">
                   {(
@@ -551,17 +634,22 @@ const AdminEquipmentPage = observer(() => {
                 </div>
 
                 <div className="pt-2">
-                  <label className="text-[9px] font-black uppercase text-slate-400 block mb-2">Quantidade</label>
+                  <label className="text-[9px] font-black uppercase text-slate-400 block mb-2">
+                    Quantidade
+                  </label>
                   <input
                     type="number"
                     min={1}
                     value={manageAmount}
-                    onChange={(e) => setManageAmount(e.target.value ? Number(e.target.value) : "")}
+                    onChange={(e) =>
+                      setManageAmount(e.target.value ? Number(e.target.value) : "")
+                    }
                     className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm font-black text-slate-700 outline-none focus:ring-4 focus:ring-brand-blue/10"
                     placeholder="Ex: 2"
                   />
                   <p className="text-xs font-bold text-slate-500 mt-2">
-                    “Manutenção (saída)” = indisponibilizar.  |  "Manutenção (retorno)" = disponibilizar.
+                    “Manutenção (saída)” = indisponibilizar. | “Manutenção (retorno)” =
+                    disponibilizar.
                   </p>
                 </div>
               </div>
