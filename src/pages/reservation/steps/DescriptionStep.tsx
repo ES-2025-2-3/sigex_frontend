@@ -1,16 +1,13 @@
-import React from 'react';
-import { observer } from 'mobx-react-lite';
-import { eventFormStore } from '../../../store/event/EventFormStore';
-import { FaEye, FaEyeSlash } from 'react-icons/fa';
+import React from "react";
+import { observer } from "mobx-react-lite";
+import { eventFormStore } from "../../../store/event/EventFormStore";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
+import { EventTags, EventTagsLabels } from "../../../domain/enums/EventTags";
 
-interface Props {
-  tags: string[];
-}
-
-const DescriptionStep: React.FC<Props> = observer(({ tags }) => {
+const DescriptionStep: React.FC = observer(() => {
   const eDomain = eventFormStore.domain;
 
-  const toggleTag = (tag: string) => {
+  const toggleTag = (tag: EventTags) => {
     if (eDomain.tags.includes(tag)) {
       eDomain.tags = eDomain.tags.filter((t) => t !== tag);
     } else {
@@ -29,9 +26,11 @@ const DescriptionStep: React.FC<Props> = observer(({ tags }) => {
 
       <div className="space-y-6">
         <div className="space-y-2">
-          <label className="text-[10px] font-black text-brand-blue uppercase ml-5">Título do evento</label>
+          <label className="text-[10px] font-black text-brand-blue uppercase ml-5">
+            Título do evento
+          </label>
           <input
-            className="w-full bg-slate-50 border-2 border-slate-100 rounded-[1.8rem] px-8 py-5 text-sm font-semibold text-brand-dark transition-all outline-none focus:bg-white focus:border-brand-blue focus:shadow-xl placeholder:text-slate-400"
+            className="w-full bg-slate-50 border-2 border-slate-100 rounded-[1.8rem] px-8 py-5 text-sm font-semibold text-brand-dark transition-all outline-none focus:bg-white focus:border-brand-blue focus:shadow-xl"
             placeholder="Ex: Workshop de design"
             value={eDomain.title}
             onChange={(e) => (eDomain.title = e.target.value)}
@@ -39,9 +38,11 @@ const DescriptionStep: React.FC<Props> = observer(({ tags }) => {
         </div>
 
         <div className="space-y-2">
-          <label className="text-[10px] font-black text-brand-blue uppercase ml-5">Descrição</label>
+          <label className="text-[10px] font-black text-brand-blue uppercase ml-5">
+            Descrição
+          </label>
           <textarea
-            className="w-full bg-slate-50 border-2 border-slate-100 rounded-[2.2rem] px-8 py-6 text-sm font-semibold text-brand-dark transition-all outline-none min-h-[150px] resize-none focus:bg-white focus:border-brand-blue focus:shadow-xl placeholder:text-slate-400"
+            className="w-full bg-slate-50 border-2 border-slate-100 rounded-[2.2rem] px-8 py-6 text-sm font-semibold text-brand-dark transition-all outline-none min-h-[150px] resize-none focus:bg-white focus:border-brand-blue"
             placeholder="Fale um pouco sobre o evento..."
             value={eDomain.description}
             onChange={(e) => (eDomain.description = e.target.value)}
@@ -73,17 +74,23 @@ const DescriptionStep: React.FC<Props> = observer(({ tags }) => {
         </div>
 
         {eDomain.isPublic && (
-          <div className="flex flex-wrap justify-center gap-2 pt-4 animate-in fade-in slide-in-from-bottom-2">
-            {tags.map((tag) => (
-              <button
-                key={tag}
-                onClick={() => toggleTag(tag)}
-                className={`px-5 py-2.5 rounded-2xl text-[10px] font-black transition-all border-2
-                  ${eDomain.tags.includes(tag) ? "bg-brand-blue border-brand-blue text-white shadow-lg" : "bg-white border-slate-100 text-slate-400 hover:border-slate-300"}`}
-              >
-                {tag}
-              </button>
-            ))}
+          <div className="space-y-4">
+            <label className="text-[10px] font-black text-brand-blue uppercase block text-center tracking-widest">
+              Categorias
+            </label>
+            <div className="flex flex-wrap justify-center gap-2">
+              {Object.values(EventTags).map((tag) => (
+                <button
+                  key={tag}
+                  type="button"
+                  onClick={() => toggleTag(tag)}
+                  className={`px-5 py-2.5 rounded-2xl text-[10px] font-black transition-all border-2
+                    ${eDomain.tags.includes(tag) ? "bg-brand-blue border-brand-blue text-white shadow-lg" : "bg-white border-slate-100 text-slate-400 hover:border-slate-300"}`}
+                >
+                  {EventTagsLabels[tag]}
+                </button>
+              ))}
+            </div>
           </div>
         )}
       </div>

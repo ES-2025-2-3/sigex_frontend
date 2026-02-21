@@ -3,19 +3,19 @@ import DomainBase from "../DomainBase";
 import { UserType } from "../enums/UserType";
 
 class UserDomain extends DomainBase {
-  @observable accessor id: string | null = null;
+  @observable accessor id: string = "";
   @observable accessor name = "";
   @observable accessor email = "";
-  @observable accessor type: UserType | null = null;
+  @observable accessor type: UserType = UserType.USUARIO;
 
   constructor(user?: any) {
     super();
     makeObservable(this);
     if (user) {
-      this.id = user.id || null;
+      this.id = String(user.id);
       this.name = user.name || "";
       this.email = user.email || "";
-      this.type = user.type ?? user.userType ?? null;;
+      this.type = user.userType || user.type || UserType.USUARIO;
     }
   }
 

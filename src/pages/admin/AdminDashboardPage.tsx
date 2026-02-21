@@ -25,11 +25,11 @@ const AdminDashboardPage = observer(() => {
   const todayString = `${year}-${month}-${day}`;
 
   const totalSolicitadas = allReservations.filter(
-    (b) => b.status === ReservationStatus.SOLICITADA,
+    (b) => b.status === ReservationStatus.PENDENTE,
   ).length;
 
   const totalEventosHoje = allReservations.filter(
-    (b) => b.date === todayString && b.status === ReservationStatus.APROVADA,
+    (b) => b.date === todayString && b.status === ReservationStatus.APROVADO,
   ).length;
 
   return (

@@ -1,20 +1,50 @@
-import api from "./api";
+import axios from 'axios';
+import UserDomain from '../domain/user/UserDomain';
+import api from './api';
 
-const API_URL = "/users";
+const API_URL = '/users';
 
 class UserService {
-  async update(id: string, data: { name: string; email: string }) {
-    const response = await api.put(`${API_URL}/${id}`, data);
+  
+  async getAll() {
+    const response = await api.get(API_URL);
     return response.data;
   }
 
-  async changePassword(data: { currentPassword: string; newPassword: string }) {
-    const response = await api.patch(`${API_URL}/me/change-password`, data);
+  async getById(id: number) {
+    const response = await api.get(`${API_URL}/${id}`);
     return response.data;
   }
 
-  async delete(id: string) {
+  async create(domain: UserDomain) {
+    const payload = domain.getBackendObject();
+    const response = await api.post(API_URL, payload);
+    return response.data;
+  }
+
+  async update(id: number, domain: UserDomain) {
+    const payload = domain.getBackendObject();
+    const response = await api.put(`${API_URL}/${id}`, payload);
+    return response.data;
+  }
+
+  async disable(id: number) {
+    const response = await api.patch(`${API_URL}/${id}/disable`);
+    return response.data;
+  }
+
+  async delete(id: number) {
     await api.delete(`${API_URL}/${id}`);
+  }
+
+  async promote(id: string) {
+    const response = await api.patch(`${API_URL}/admin/promote-user/${id}`);
+    return response.data;
+  }
+
+  async demote(id: string) {
+    const response = await api.patch(`${API_URL}/admin/demote-user/${id}`);
+    return response.data;
   }
 }
 

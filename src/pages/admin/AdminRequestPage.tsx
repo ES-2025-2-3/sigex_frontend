@@ -105,7 +105,7 @@ const AdminRequestPage = observer(() => {
   const handleApprove = (reservation: Reservation) => {
     setToast({
       type: "success",
-      message: `Reserva #${reservation.id} aprovada com sucesso`,
+      message: `Reserva #${reservation.id} APROVADO com sucesso`,
     });
     setIsDetailsModalOpen(false);
   };
@@ -130,22 +130,22 @@ const AdminRequestPage = observer(() => {
 
   const statusOptions: Array<ReservationStatus | "ALL"> = [
     "ALL",
-    ReservationStatus.SOLICITADA,
-    ReservationStatus.APROVADA,
-    ReservationStatus.INDEFERIDA,
+    ReservationStatus.PENDENTE,
+    ReservationStatus.APROVADO,
+    ReservationStatus.RECUSADO,
   ];
 
   const statusIconMap = {
-    [ReservationStatus.APROVADA]: <FaCheckCircle />,
-    [ReservationStatus.INDEFERIDA]: <FaTimesCircle />,
-    [ReservationStatus.SOLICITADA]: <FaHourglassHalf />,
+    [ReservationStatus.APROVADO]: <FaCheckCircle />,
+    [ReservationStatus.RECUSADO]: <FaTimesCircle />,
+    [ReservationStatus.PENDENTE]: <FaHourglassHalf />,
   };
 
   const statusStyleMap = {
-    [ReservationStatus.APROVADA]:
+    [ReservationStatus.APROVADO]:
       "bg-emerald-50 text-emerald-600 border-emerald-100",
-    [ReservationStatus.SOLICITADA]: "bg-amber-50 text-amber-600 border-amber-100",
-    [ReservationStatus.INDEFERIDA]: "bg-red-50 text-red-600 border-red-100",
+    [ReservationStatus.PENDENTE]: "bg-amber-50 text-amber-600 border-amber-100",
+    [ReservationStatus.RECUSADO]: "bg-red-50 text-red-600 border-red-100",
   };
 
   const filteredReservations = useMemo(() => {
@@ -279,7 +279,7 @@ const AdminRequestPage = observer(() => {
                           <td className="px-6 py-5">
                             <div className="flex justify-center gap-2">
                               <button
-                                disabled={b.status !== ReservationStatus.SOLICITADA}
+                                disabled={b.status !== ReservationStatus.PENDENTE}
                                 onClick={() => openApproveConfirm(b)}
                                 className="cursor-pointer p-2 rounded-lg text-emerald-600 hover:bg-emerald-50 disabled:opacity-40"
                               >
@@ -287,7 +287,7 @@ const AdminRequestPage = observer(() => {
                               </button>
 
                               <button
-                                disabled={b.status !== ReservationStatus.SOLICITADA}
+                                disabled={b.status !== ReservationStatus.PENDENTE}
                                 onClick={() => openRejectConfirm(b)}
                                 className="cursor-pointer p-2 rounded-lg text-red-600 hover:bg-red-50 disabled:opacity-40"
                               >
@@ -387,7 +387,7 @@ const AdminRequestPage = observer(() => {
                 </span>
               </div>
 
-              {selectedReservation.status === ReservationStatus.SOLICITADA && (
+              {selectedReservation.status === ReservationStatus.PENDENTE && (
                 <div className="flex gap-3">
                   <button
                     onClick={() => handleApprove(selectedReservation)}

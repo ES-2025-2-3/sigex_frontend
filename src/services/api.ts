@@ -23,7 +23,7 @@ api.interceptors.response.use(
   (error) => {
     if (error.response && error.response.status === 401) {
       localStorage.removeItem('sigex_token');
-      localStorage.removeItem('sigex_user_data'); // Alinhado com a sua Store
+      localStorage.removeItem('sigex_user_data'); 
       
       if (!window.location.pathname.includes('/login')) {
         window.location.href = '/login';
