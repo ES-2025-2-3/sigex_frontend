@@ -1,48 +1,45 @@
-import axios from 'axios';
+import api from './api';
 import InstituteDomain from '../domain/institute/InstituteDomain';
 
-const API_URL = '/api/institutes';
+const API_URL = '/institutes';
 
 class InstituteService {
   /**
-   * Busca todos os institutos cadastrados no sistema.
+   * Busca todos os espaços.
    */
-  async getAllInstitutes() {
-    const response = await axios.get(API_URL);
-    return response.data; 
-  }
-
-  /**
-   * Busca um instituto específico pelo ID.
-   */
-  async getById(id: string) {
-    const response = await axios.get(`${API_URL}/${id}`);
+  async getAll() {
+    const response = await api.get(API_URL);
     return response.data;
   }
 
   /**
-   * Cria um novo instituto no banco.
+   * Busca por ID.
+   */
+  async getById(id: string) {
+    const response = await api.get(`${API_URL}/${id}`);
+    return response.data;
+  }
+
+  /**
+   * Cria o instituto.
    */
   async create(domain: InstituteDomain) {
     const payload = domain.getBackendObject();
-    const response = await axios.post(API_URL, payload);
+    const response = await api.post(API_URL, payload);
     return response.data;
   }
 
   /**
-   * Atualiza um instituto existente.
+   * Atualiza o instituto.
    */
   async update(id: string, domain: InstituteDomain) {
     const payload = domain.getBackendObject();
-    const response = await axios.put(`${API_URL}/${id}`, payload);
+    const response = await api.put(`${API_URL}/${id}`, payload);
     return response.data;
   }
 
-  /**
-   * Deleta um instituto.
-   */
   async delete(id: string) {
-    await axios.delete(`${API_URL}/${id}`);
+    await api.delete(`${API_URL}/${id}`);
   }
 }
 

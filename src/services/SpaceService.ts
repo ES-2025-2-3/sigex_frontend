@@ -1,60 +1,55 @@
-import axios from 'axios';
-import RoomDomain from '../domain/space/SpaceDomain';
+import api from "./api";
+import RoomDomain from "../domain/space/SpaceDomain";
 
-const API_URL = '/api/rooms';
+const API_URL = "/rooms";
 
 class SpaceService {
   /**
-   * Busca todos os locais (rooms) cadastrados no sistema.
-   * No backend, o RoomController já possui o endpoint GET.
+   * Busca todos os espaços.
    */
-  async getAllRooms() {
-    const response = await axios.get(API_URL);
+  async getAll() {
+    const response = await api.get(API_URL);
     return response.data;
   }
 
   /**
-   * Busca um local específico pelo ID.
+   * Busca por ID.
    */
-  async getById(id: string) {
-    const response = await axios.get(`${API_URL}/${id}`);
+  async getById(id: number | string) {
+    const response = await api.get(`${API_URL}/${id}`);
     return response.data;
   }
 
   /**
-   * Cria um novo local vinculado a um instituto.
-   * O backend valida se o usuário logado é o gerente do instituto.
+   * Cria a sala vinculada ao ID do instituto único.
    */
   async create(domain: RoomDomain) {
     const payload = {
       name: domain.name,
       capacity: domain.capacity,
       description: domain.description,
-      instituteId: domain.instituteId
+      instituteId: domain.instituteId,
     };
-    const response = await axios.post(API_URL, payload);
+    const response = await api.post(API_URL, payload);
     return response.data;
   }
 
   /**
-   * Atualiza os dados de um local existente.
+   * Atualiza a sala.
    */
-  async update(id: string, domain: RoomDomain) {
+  async update(id: string | number, domain: RoomDomain) {
     const payload = {
       name: domain.name,
       capacity: domain.capacity,
       description: domain.description,
-      instituteId: domain.instituteId
+      instituteId: domain.instituteId,
     };
-    const response = await axios.put(`${API_URL}/${id}`, payload);
+    const response = await api.put(`${API_URL}/${id}`, payload);
     return response.data;
   }
 
-  /**
-   * Remove um local do sistema.
-   */
-  async delete(id: string) {
-    await axios.delete(`${API_URL}/${id}`);
+  async delete(id: string | number) {
+    await api.delete(`${API_URL}/${id}`);
   }
 }
 
