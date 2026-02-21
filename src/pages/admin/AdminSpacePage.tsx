@@ -7,10 +7,10 @@ import {
   FaUsers,
   FaEdit,
   FaTrash,
+  FaBuilding,
 } from "react-icons/fa";
 
 import spaceDomain from "../../domain/space/SpaceDomain";
-
 import Header from "../../commons/header/Header";
 import AdminSidebar from "../../commons/admin/AdminSidebar";
 import Modal from "../../commons/modal/Modal";
@@ -18,17 +18,14 @@ import Toast, { ToastType } from "../../commons/toast/Toast";
 import { spaceStore } from "../../store/space/SpaceStore";
 
 const AdminspacePage = observer(() => {
-  const { spaces, isLoading } = spaceStore;
+  const { spaces, institutes, isLoading } = spaceStore;
   const [domain] = useState(() => new spaceDomain());
 
   const [search, setSearch] = useState("");
   const [isFormModalOpen, setIsFormModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [selectedspaceId, setSelectedspaceId] = useState<number | null>(null);
-  const [toast, setToast] = useState<{
-    type: ToastType;
-    message: string;
-  } | null>(null);
+  const [selectedspaceId, setSelectedspaceId] = useState<number | string | null>(null);
+  const [toast, setToast] = useState<{ type: ToastType; message: string; } | null>(null);
 
   useEffect(() => {
     spaceStore.fetchSpaces();
@@ -36,13 +33,16 @@ const AdminspacePage = observer(() => {
 
   const filteredspaces = useMemo(() => {
     const spacesList = Array.isArray(spaces) ? spaces : [];
-    return spacesList.filter(r => 
-      r.name.toLowerCase().includes(search.toLowerCase())
+    return spacesList.filter((r) =>
+      r.name.toLowerCase().includes(search.toLowerCase()),
     );
   }, [spaces, search]);
 
   const handleOpenCreate = () => {
-    domain.clear(); 
+    domain.clear();
+    if (institutes.length > 0) {
+      domain.setData({ instituteId: institutes[0].id });
+    }
     setIsFormModalOpen(true);
   };
 
@@ -64,7 +64,7 @@ const AdminspacePage = observer(() => {
     } else {
       setToast({
         type: "error",
-        message: "Erro ao salvar. Verifique se os dados estão corretos.",
+        message: "Erro ao salvar. Verifique a conexão com o servidor.",
       });
     }
   };
@@ -75,6 +75,7 @@ const AdminspacePage = observer(() => {
       if (success) {
         setToast({ type: "success", message: "Sala excluída!" });
         setIsDeleteModalOpen(false);
+        setSelectedspaceId(null);
       }
     }
   };
@@ -98,17 +99,17 @@ const AdminspacePage = observer(() => {
             <header className="flex justify-between items-end">
               <div>
                 <p className="text-[13px] font-black text-brand-blue uppercase tracking-[0.4em] mb-1">
-                  Gerenciamento
+                  Gerenciamento Interno
                 </p>
                 <h1 className="text-5xl font-black text-[#1e293b] tracking-tighter uppercase">
-                  Salas
+                  Espaços
                 </h1>
               </div>
               <button
                 onClick={handleOpenCreate}
                 className="bg-brand-blue text-white px-6 py-3 rounded-xl font-black text-xs uppercase tracking-widest hover:brightness-110 shadow-lg shadow-brand-blue/20 transition-all"
               >
-                <FaPlus size={10} className="inline mr-2" /> Nova Sala
+                <FaPlus size={10} className="inline mr-2" /> Novo Espaço
               </button>
             </header>
 
@@ -117,7 +118,7 @@ const AdminspacePage = observer(() => {
                 <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
                 <input
                   type="text"
-                  placeholder="Buscar sala..."
+                  placeholder="Buscar por nome..."
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   className="w-full pl-11 pr-4 py-3 rounded-xl border border-slate-200 text-sm font-bold outline-none focus:ring-4 focus:ring-brand-blue/10 bg-white shadow-sm"
@@ -134,9 +135,21 @@ const AdminspacePage = observer(() => {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 text-sm font-bold text-slate-700">
-                    {filteredspaces.length > 0 ? (
+                    {isLoading && spaces.length === 0 ? (
+                      <tr>
+                        <td
+                          colSpan={3}
+                          className="px-6 py-10 text-center animate-pulse text-slate-400"
+                        >
+                          Carregando espaços...
+                        </td>
+                      </tr>
+                    ) : filteredspaces.length > 0 ? (
                       filteredspaces.map((space) => (
-                        <tr key={space.id} className="hover:bg-slate-50 transition">
+                        <tr
+                          key={space.id}
+                          className="hover:bg-slate-50 transition"
+                        >
                           <td className="px-6 py-5 flex items-center gap-3">
                             <FaDoorOpen className="text-brand-blue opacity-70" />{" "}
                             {space.name}
@@ -168,8 +181,11 @@ const AdminspacePage = observer(() => {
                       ))
                     ) : (
                       <tr>
-                        <td colSpan={3} className="px-6 py-10 text-center text-slate-400 italic">
-                          Nenhuma sala encontrada.
+                        <td
+                          colSpan={3}
+                          className="px-6 py-10 text-center text-slate-400 italic"
+                        >
+                          Nenhuma sala cadastrada.
                         </td>
                       </tr>
                     )}
@@ -182,10 +198,22 @@ const AdminspacePage = observer(() => {
 
         <Modal
           isOpen={isFormModalOpen}
-          title={domain.id ? "Editar Sala" : "Nova Sala"}
+          title={domain.id ? "Editar Espaço" : "Novo Espaço"}
           onClose={() => setIsFormModalOpen(false)}
         >
           <form onSubmit={handleSave} className="space-y-6">
+            <div className="p-4 bg-slate-50 border border-slate-100 rounded-xl">
+              <label className="text-[9px] font-bold text-slate-400 uppercase block mb-1">
+                Instituto Responsável
+              </label>
+              <div className="flex items-center gap-3">
+                <FaBuilding className="text-brand-blue opacity-50" />
+                <span className="font-bold text-sm text-slate-600">
+                  {institutes[0]?.name || "Carregando..."}
+                </span>
+              </div>
+            </div>
+
             <div className="bg-slate-50 p-5 rounded-2xl border border-slate-100 flex items-center gap-4">
               <div className="w-10 h-10 bg-brand-blue text-white rounded-xl flex items-center justify-center shadow-lg shadow-brand-blue/20">
                 <FaDoorOpen size={18} />
@@ -196,10 +224,11 @@ const AdminspacePage = observer(() => {
                 </label>
                 <input
                   type="text"
+                  required
                   value={domain.name}
                   onChange={(e) => domain.setData({ name: e.target.value })}
                   className="w-full bg-transparent outline-none font-bold text-slate-700 text-sm"
-                  placeholder="Ex: Auditório Tibiri"
+                  placeholder="Ex: Sala de Reuniões 01"
                 />
               </div>
             </div>
@@ -210,6 +239,7 @@ const AdminspacePage = observer(() => {
               </label>
               <input
                 type="number"
+                required
                 value={domain.capacity}
                 onChange={(e) =>
                   domain.setData({ capacity: Number(e.target.value) })
@@ -220,15 +250,15 @@ const AdminspacePage = observer(() => {
 
             <div className="p-4 bg-white border border-slate-100 rounded-xl">
               <label className="text-[9px] font-bold text-slate-400 uppercase block mb-2">
-                Descrição e Recursos
+                Recursos e Descrição
               </label>
               <textarea
-                value={domain.description}
+                value={domain.description || ""}
                 onChange={(e) =>
                   domain.setData({ description: e.target.value })
                 }
                 className="w-full outline-none font-medium text-sm text-slate-600 h-24 resize-none"
-                placeholder="Ex: Possui projetor, 3 ar-condicionados..."
+                placeholder="Ex: Ar condicionado, Projetor..."
               />
             </div>
 
@@ -242,9 +272,10 @@ const AdminspacePage = observer(() => {
               </button>
               <button
                 type="submit"
-                className="flex-1 py-3.5 bg-brand-blue text-white rounded-xl font-bold text-sm shadow-xl shadow-brand-blue/20 hover:brightness-110 transition"
+                disabled={isLoading}
+                className="flex-1 py-3.5 bg-brand-blue text-white rounded-xl font-bold text-sm shadow-xl shadow-brand-blue/20 hover:brightness-110 transition disabled:opacity-70"
               >
-                Salvar Sala
+                {isLoading ? "Salvando..." : "Confirmar"}
               </button>
             </div>
           </form>
@@ -257,21 +288,21 @@ const AdminspacePage = observer(() => {
         >
           <div className="space-y-6">
             <p className="text-sm text-slate-600 font-medium text-center">
-              Esta ação removerá permanentemente a sala do sistema. Deseja
-              continuar?
+              Deseja remover este espaço permanentemente?
             </p>
             <div className="flex gap-3">
               <button
                 onClick={() => setIsDeleteModalOpen(false)}
                 className="flex-1 py-3 bg-slate-100 text-slate-700 rounded-xl font-bold"
               >
-                Não, manter
+                Não, cancelar
               </button>
               <button
                 onClick={handleDelete}
+                disabled={isLoading}
                 className="flex-1 py-3 bg-red-600 text-white rounded-xl font-bold shadow-lg shadow-red-100"
               >
-                Sim, excluir
+                {isLoading ? "Removendo..." : "Sim, remover"}
               </button>
             </div>
           </div>
