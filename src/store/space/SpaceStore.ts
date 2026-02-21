@@ -1,12 +1,9 @@
 import { makeAutoObservable, runInAction } from "mobx";
-import { Space } from "../../types/space/SpaceType";
-import SpaceDomain from "../../domain/space/SpaceDomain";
-import SpaceService from "../../services/SpaceService";
-import InstituteService from "../../services/InstituteService";
+import spaceService from "../../services/SpaceService";
+import { instituteStore } from "../institute/InstituteStore";
 
 class SpaceStore {
-  spaces: Space[] = [];
-  institutes: any[] = []; 
+  spaces: any[] = [];
   isLoading = false;
 
   constructor() {
@@ -14,79 +11,57 @@ class SpaceStore {
   }
 
   async fetchSpaces() {
-    this.isLoading = true;
-    try {
-      const [spacesData, institutesData] = await Promise.all([
-        SpaceService.getAll(),
-        InstituteService.getAll(),
-      ]);
-
-      runInAction(() => {
-        this.spaces = Array.isArray(spacesData)
-          ? spacesData
-          : spacesData.content || [];
-        if (Array.isArray(institutesData)) {
-          this.institutes = institutesData;
-        } else if (institutesData) {
-          this.institutes = [institutesData];
-        } else {
-          this.institutes = [];
-        }
-        
-        console.log("Espaços e Instituto carregados com sucesso.");
-      });
-    } catch (error) {
-      console.error("Erro ao carregar dados da SpaceStore:", error);
-    } finally {
-      runInAction(() => (this.isLoading = false));
-    }
+  this.isLoading = true;
+  try {
+    const data = await spaceService.getAll();     
+    runInAction(() => {
+      this.spaces = data;
+      this.isLoading = false;
+    });
+  } catch (e) {
+    runInAction(() => { this.isLoading = false; });
+    console.error("Erro ao carregar espaços:", e);
   }
+}
 
-  async save(domain: SpaceDomain) {
+  async save(domain: any) {
     this.isLoading = true;
     try {
-      if (this.institutes.length > 0) {
-        const uniqueInstituteId = this.institutes[0].id;
-        domain.setData({ instituteId: uniqueInstituteId });
-      } else {
-        console.error("Erro: Nenhum instituto encontrado no sistema para vincular a sala.");
+      if (!instituteStore.globalId) {
+        console.error("SpaceStore: instituteStore.globalId is missing!");
         return false;
       }
 
+      const payload = {
+        ...domain.getBackendObject(),
+        instituteId: instituteStore.globalId 
+      };
+
       if (domain.id) {
-        const updated = await SpaceService.update(domain.id, domain);
-        runInAction(() => {
-          const index = this.spaces.findIndex((s) => s.id === domain.id);
-          if (index !== -1) this.spaces[index] = updated;
-        });
+        await spaceService.update(domain.id, payload);
       } else {
-        const created = await SpaceService.create(domain);
-        runInAction(() => {
-          this.spaces.push(created);
-        });
+        await spaceService.create(payload);
       }
+      
+      await this.fetchSpaces(); 
+      runInAction(() => { this.isLoading = false; });
       return true;
-    } catch (error) {
-      console.error("Erro ao salvar sala no backend:", error);
+    } catch (e) {
+      console.error("SpaceStore: Erro ao salvar sala:", e);
+      runInAction(() => { this.isLoading = false; });
       return false;
-    } finally {
-      runInAction(() => (this.isLoading = false));
     }
   }
 
-  async delete(id: number | string) {
+  async delete(id: string | number) {
     this.isLoading = true;
     try {
-      await SpaceService.delete(id);
-      runInAction(() => {
-        this.spaces = this.spaces.filter((s) => s.id !== id);
-      });
+      await spaceService.delete(id);
+      await this.fetchSpaces();
       return true;
-    } catch (error) {
-      console.error("Erro ao excluir sala:", error);
+    } catch (e) {
+      runInAction(() => { this.isLoading = false; });
       return false;
-    } finally {
-      runInAction(() => (this.isLoading = false));
     }
   }
 }

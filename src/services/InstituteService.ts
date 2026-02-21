@@ -4,11 +4,12 @@ import InstituteDomain from '../domain/institute/InstituteDomain';
 const API_URL = '/institutes';
 
 class InstituteService {
+
   /**
-   * Busca todos os espaços.
+   * Busca o UUID do instituto único do sistema
    */
-  async getAll() {
-    const response = await api.get(API_URL);
+  async getGlobalId(): Promise<string> {
+    const response = await api.get(`${API_URL}/global-id`);
     return response.data;
   }
 
