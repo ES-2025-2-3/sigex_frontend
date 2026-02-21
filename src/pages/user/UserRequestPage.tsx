@@ -136,10 +136,14 @@ const UserRequestPage = observer(() => {
   const filteredReservations = useMemo(() => {
     return reservations
       .filter((b: any) => {
-        const isFromUser =
-          b.bookerEmail?.toLowerCase() === loggedUserEmail?.toLowerCase();
-        const isPending =
-          b.status === "PENDENTE" || b.status === 0 || b.status === "0";
+        const loggedUserId = userSessionStore.currentUser?.id;
+        const requesterIdFromApi =
+          b.requesterId || b.requester_id || b.requesterId;
+
+        const isFromUser = String(requesterIdFromApi) === String(loggedUserId);
+        const statusUpper = String(b.status || "").toUpperCase();
+        const isPending = statusUpper === "PENDENTE" || b.status === 0;
+
         const title = getEventTitle(b).toLowerCase();
         return isFromUser && isPending && title.includes(search.toLowerCase());
       })
@@ -147,7 +151,7 @@ const UserRequestPage = observer(() => {
         (a: any, b: any) =>
           new Date(b.date).getTime() - new Date(a.date).getTime(),
       );
-  }, [search, reservations, events, loggedUserEmail]);
+  }, [search, reservations, events, userSessionStore.currentUser?.id]);
 
   const totalPages = Math.ceil(filteredReservations.length / ITEMS_PER_PAGE);
   const paginated = filteredReservations.slice(
