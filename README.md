@@ -1,6 +1,3 @@
-
-🚀 **Frontend - SIGEX**
-
 Este é o repositório do frontend da aplicação, desenvolvido com o objetivo de oferecer uma interface moderna, rápida e segura para a gestão e reserva de eventos de extensão da UFCG.
 
 ---
