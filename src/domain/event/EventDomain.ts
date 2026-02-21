@@ -68,7 +68,7 @@ class EventDomain extends DomainBase {
     return {
       name: this.title.trim(),
       description: this.description,
-      visibility: this.isPublic ? "PUBLIC" : "PRIVATE",
+      visibility: this.isPublic ? "PUBLICO" : "PRIVADO",
       tags: this.tags || [],
       imageUrls: this.imageUrl ? [this.imageUrl] : [],
       relatedLinks: this.registrationLink ? [this.registrationLink] : [],

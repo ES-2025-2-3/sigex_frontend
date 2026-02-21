@@ -13,7 +13,7 @@ class ReservationService {
   }
 
   /**
-   * Atualiza uma reserva existente (apenas se estiver PENDING).
+   * Atualiza uma reserva existente (apenas se estiver PENDENTE).
    */
   async update(id: string | number, payload: any) {
     const response = await api.put(`${API_URL}/${id}`, payload);

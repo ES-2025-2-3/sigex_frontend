@@ -139,7 +139,7 @@ const UserRequestPage = observer(() => {
         const isFromUser =
           b.bookerEmail?.toLowerCase() === loggedUserEmail?.toLowerCase();
         const isPending =
-          b.status === "PENDING" || b.status === 0 || b.status === "0";
+          b.status === "PENDENTE" || b.status === 0 || b.status === "0";
         const title = getEventTitle(b).toLowerCase();
         return isFromUser && isPending && title.includes(search.toLowerCase());
       })

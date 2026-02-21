@@ -9,7 +9,7 @@ class ReservationDomain extends DomainBase {
   @observable accessor eventId: number | null = null;
   @observable accessor date = "";
   @observable accessor shift: ReservationShift | null = null;
-  @observable accessor status: ReservationStatus = ReservationStatus.SOLICITADA;
+  @observable accessor status: ReservationStatus = ReservationStatus.PENDENTE;
 
   constructor(b?: Record<string, unknown>) {
     super();
@@ -18,7 +18,7 @@ class ReservationDomain extends DomainBase {
       this.id = (b.id as string) || null;
       this.date = (b.date as string) || "";
       this.shift = (b.period as ReservationShift) || null;
-      this.status = (b.status as ReservationStatus) || ReservationStatus.SOLICITADA;
+      this.status = (b.status as ReservationStatus) || ReservationStatus.PENDENTE;
       this.roomIds = (b.roomIds as number[]) || [];
       this.eventId = (b.eventId as number) || null;
     }
@@ -46,7 +46,7 @@ class ReservationDomain extends DomainBase {
     roomIds: [...this.roomIds], 
     date: this.date, 
     period: this.shift, 
-    status: "PENDING" 
+    status: "PENDENTE" 
   };
 }
 }

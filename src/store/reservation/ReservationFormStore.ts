@@ -45,7 +45,7 @@ class ReservationFormStore extends FormStoreBase<ReservationDomain> {
         roomIds: [...roomIds], 
         date: date, 
         period: shift, 
-        status: "PENDING", 
+        status: "PENDENTE", 
       };
 
       console.log("Enviando Payload para o Java:", reservationRequestDTO);

@@ -105,10 +105,10 @@ const UserReservationPage = observer(() => {
           b.bookerEmail?.toLowerCase() === loggedUserEmail?.toLowerCase();
 
         const isHistoryStatus =
-          b.status === ReservationStatus.APROVADA ||
-          b.status === ReservationStatus.INDEFERIDA ||
-          b.status === "APROVADA" ||
-          b.status === "INDEFERIDA";
+          b.status === ReservationStatus.APROVADO ||
+          b.status === ReservationStatus.RECUSADO ||
+          b.status === "APROVADO" ||
+          b.status === "RECUSADO";
 
         const matchesStatus =
           statusFilter === "ALL" || b.status === statusFilter;
@@ -177,10 +177,10 @@ const UserReservationPage = observer(() => {
                   onSelect={setStatusFilter}
                   options={[
                     { label: "TODOS", value: "ALL" },
-                    { label: "APROVADAS", value: ReservationStatus.APROVADA },
+                    { label: "APROVADOS", value: ReservationStatus.APROVADO },
                     {
-                      label: "INDEFERIDAS",
-                      value: ReservationStatus.INDEFERIDA,
+                      label: "RECUSADOS",
+                      value: ReservationStatus.RECUSADO,
                     },
                   ]}
                 />
@@ -234,14 +234,14 @@ const UserReservationPage = observer(() => {
                         <td className="px-6 py-6">
                           <div
                             className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full border text-[10px] font-bold uppercase ${
-                              b.status === ReservationStatus.APROVADA ||
-                              b.status === "APROVADA"
+                              b.status === ReservationStatus.APROVADO ||
+                              b.status === "APROVADO"
                                 ? "bg-emerald-50 text-emerald-600 border-emerald-100"
                                 : "bg-red-50 text-red-600 border-red-100"
                             }`}
                           >
-                            {b.status === ReservationStatus.APROVADA ||
-                            b.status === "APROVADA" ? (
+                            {b.status === ReservationStatus.APROVADO ||
+                            b.status === "APROVADO" ? (
                               <FaCheckCircle />
                             ) : (
                               <FaTimesCircle />
