@@ -11,26 +11,29 @@ import { eventIndexStore } from "../../store/event/EventIndexStore";
 import { ReservationStatus } from "../../domain/enums/ReservationStatus";
 import LoadingSpinner from "../../commons/components/LoadingSpinner";
 
-const AdminDashboardPage = observer(() => {
-  const { allReservations, fetch, loading } = eventIndexStore;
+import { reservationIndexStore } from "../../store/reservation/ReservationIndexStore";
 
+const AdminDashboardPage = observer(() => {
   useEffect(() => {
-    fetch();
-  }, [fetch]);
+    reservationIndexStore.fetch();
+  }, []);
 
   const today = new Date();
-  const year = today.getFullYear();
-  const month = String(today.getMonth() + 1).padStart(2, "0");
   const day = String(today.getDate()).padStart(2, "0");
-  const todayString = `${year}-${month}-${day}`;
+  const month = String(today.getMonth() + 1).padStart(2, "0");
+  const year = today.getFullYear();
+  const todayString = `${day}/${month}/${year}`;
 
-  const totalSolicitadas = allReservations.filter(
-    (b) => b.status === ReservationStatus.SOLICITADA,
+  const totalSolicitadas = reservationIndexStore.allBookings.filter(
+    (r) => r.status === ReservationStatus.PENDENTE
   ).length;
 
-  const totalEventosHoje = allReservations.filter(
-    (b) => b.date === todayString && b.status === ReservationStatus.APROVADA,
+
+  const totalEventosHoje = reservationIndexStore.allBookings.filter(
+    (r) => r.status === ReservationStatus.APROVADO && r.date === todayString
   ).length;
+
+  const loading = reservationIndexStore.loading;
 
   return (
     <div className="flex min-h-screen bg-bg-main w-full font-inter">

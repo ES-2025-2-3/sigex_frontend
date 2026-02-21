@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios from '../services/api';
 import EventDomain from '../domain/event/EventDomain';
 
 const API_URL = '/event-types';

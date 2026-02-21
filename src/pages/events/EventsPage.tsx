@@ -101,7 +101,7 @@ const EventosPage = observer(() => {
       if (!reserva) return false;
 
       const matchesSearch =
-        evento.title.toLowerCase().includes(filterTerm.toLowerCase()) ||
+        evento.name.toLowerCase().includes(filterTerm.toLowerCase()) ||
         evento.tags.some((tag) =>
           tag.toLowerCase().includes(filterTerm.toLowerCase()),
         );
@@ -341,7 +341,7 @@ const EventosPage = observer(() => {
                       <EventCard
                         key={evento.id}
                         id={evento.id!}
-                        titulo={evento.title}
+                        titulo={evento.name}
                         data={reserva?.date || "Data não definida"}
                         descricao={evento.description}
                         imagemUrl={evento.imageUrl}
@@ -384,7 +384,7 @@ const EventosPage = observer(() => {
 
       <Modal
         isOpen={modalOpen}
-        title={eventoSelecionado?.title ?? "Detalhes"}
+        title={eventoSelecionado?.name ?? "Detalhes"}
         onClose={() => setModalOpen(false)}
       >
         {eventoSelecionado && (
@@ -392,7 +392,7 @@ const EventosPage = observer(() => {
             <img
               src={eventoSelecionado.imageUrl}
               className="w-full h-auto max-h-[250px] object-cover rounded-2xl shadow-sm"
-              alt={eventoSelecionado.title}
+              alt={eventoSelecionado.name}
             />
             <div className="space-y-2 text-base">
               {(() => {

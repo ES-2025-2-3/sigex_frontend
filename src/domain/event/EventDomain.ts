@@ -3,7 +3,7 @@ import DomainBase from '../DomainBase';
 
 class EventDomain extends DomainBase {
   @observable accessor id: number | null = null;
-  @observable accessor title = '';
+  @observable accessor name = '';
   @observable accessor description = '';
   @observable accessor imageUrl = '';
   @observable accessor tags: string[] = [];
@@ -37,7 +37,7 @@ class EventDomain extends DomainBase {
     }
 
     super.validate(undefined, () => {
-      if (!this.title) this.errors['title'] = 'Title is required';
+      if (!this.name) this.errors['name'] = 'Title is required';
       if (!this.description) this.errors['description'] = 'Description is required';
 
       if (this.registrationLink) {

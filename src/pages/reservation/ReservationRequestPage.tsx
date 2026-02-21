@@ -70,7 +70,7 @@ const ReservationRequestPage = observer(() => {
 
   const validateStep = (): boolean => {
     if (step === 1) {
-      if (!eDomain.title.trim()) {
+      if (!eDomain.name.trim()) {
         showToast("O título do evento é obrigatório.");
         return false;
       }
@@ -83,7 +83,7 @@ const ReservationRequestPage = observer(() => {
     const isScheduleStep =
       (isPublic && step === 3) || (!isPublic && step === 2);
     if (isScheduleStep) {
-      if (!bDomain.date || !bDomain.shift) {
+      if (!bDomain.date || !bDomain.period) {
         showToast("Selecione a data e o turno desejado.");
         return false;
       }

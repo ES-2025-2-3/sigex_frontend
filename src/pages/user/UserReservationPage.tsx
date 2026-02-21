@@ -80,7 +80,7 @@ const UserReservationPage = observer(() => {
   const getEventTitle = (eventId: number | string | null) => {
     if (!eventId || !Array.isArray(events)) return "Evento não identificado";
     const event = events.find((e) => String(e.id) === String(eventId));
-    return event ? event.title : `Evento #${eventId}`;
+    return event ? event.name : `Evento #${eventId}`;
   };
 
   const filteredReservations = useMemo(() => {
@@ -88,7 +88,7 @@ const UserReservationPage = observer(() => {
 
     return reservations
       .filter((b) => {
-        const isFromLoggedUser = b.bookerId === loggedUserId;
+        const isFromLoggedUser = b.requesterId === loggedUserId;
 
         const matchesStatus =
           statusFilter === "ALL" || b.status === statusFilter;
@@ -153,10 +153,10 @@ const UserReservationPage = observer(() => {
                   onSelect={setStatusFilter}
                   options={[
                     { label: "TODOS OS STATUS", value: "ALL" },
-                    { label: "APROVADAS", value: ReservationStatus.APROVADA },
+                    { label: "APROVADAS", value: ReservationStatus.APROVADO },
                     {
                       label: "INDEFERIDAS",
-                      value: ReservationStatus.INDEFERIDA,
+                      value: ReservationStatus.RECUSADO,
                     },
                   ]}
                 />
@@ -206,17 +206,17 @@ const UserReservationPage = observer(() => {
                           </td>
                           <td className="px-6 py-6 text-gray-600">{b.date}</td>
                           <td className="px-6 py-6 uppercase text-gray-500">
-                            {b.shift}
+                            {b.period}
                           </td>
                           <td className="px-6 py-6">
                             <div
                               className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full border text-[10px] font-bold uppercase ${
-                                b.status === ReservationStatus.APROVADA
+                                b.status === ReservationStatus.APROVADO
                                   ? "bg-emerald-50 text-emerald-600 border-emerald-100"
                                   : "bg-red-50 text-red-600 border-red-100"
                               }`}
                             >
-                              {b.status === ReservationStatus.APROVADA ? (
+                              {b.status === ReservationStatus.APROVADO ? (
                                 <FaCheckCircle />
                               ) : (
                                 <FaTimesCircle />
@@ -299,19 +299,19 @@ const UserReservationPage = observer(() => {
                   Período
                 </span>
                 <p className="text-slate-700 font-bold text-sm uppercase">
-                  {selectedReservation.shift}
+                  {selectedReservation.period}
                 </p>
               </div>
             </div>
 
             <div
               className={`p-4 rounded-xl border flex items-center gap-3 ${
-                selectedReservation.status === ReservationStatus.APROVADA
+                selectedReservation.status === ReservationStatus.APROVADO
                   ? "bg-emerald-50/50 border-emerald-100 text-emerald-700"
                   : "bg-red-50/50 border-red-100 text-red-700"
               }`}
             >
-              {selectedReservation.status === ReservationStatus.APROVADA ? (
+              {selectedReservation.status === ReservationStatus.APROVADO ? (
                 <FaCheckCircle />
               ) : (
                 <FaTimesCircle />

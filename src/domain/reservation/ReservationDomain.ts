@@ -4,14 +4,15 @@ import { ReservationStatus } from "../enums/ReservationStatus";
 import { ReservationShift } from "../enums/ReservationShift";
 
 class ReservationDomain extends DomainBase {
-  @observable accessor id: string | null = null;
-  @observable accessor bookerId: string | null = null;
+  @observable accessor id: number | null = null;
+  @observable accessor requesterId: string | null = null;
   @observable accessor instituteId: string | null = null;
   @observable accessor roomIds: number[] = [];
   @observable accessor eventId: number | null = null;
   @observable accessor date = "";
-  @observable accessor shift: ReservationShift | null = null;
-  @observable accessor status: ReservationStatus = ReservationStatus.SOLICITADA;
+  @observable accessor period: ReservationShift | null = null;
+  @observable accessor status: ReservationStatus = ReservationStatus.PENDENTE;
+
 
   constructor(b?: Record<string, unknown>) {
     super();
@@ -27,12 +28,12 @@ class ReservationDomain extends DomainBase {
     }
 
     super.validate(undefined, () => {
-      if (!this.bookerId) this.errors["bookerId"] = "Usuário obrigatório";
+      if (!this.requesterId) this.errors["bookerId"] = "Usuário obrigatório";
       if (!this.roomIds.length)
         this.errors["roomIds"] = "Selecione pelo menos uma sala";
       if (!this.date) this.errors["date"] = "Data obrigatória";
-      if (!this.shift) {
-        this.errors["shift"] = "Turno obrigatório";
+      if (!this.period) {
+        this.errors["period"] = "Turno obrigatório";
       }
       if (!this.eventId) this.errors["eventId"] = "Evento obrigatório";
     });
@@ -42,10 +43,10 @@ class ReservationDomain extends DomainBase {
     return {
       id: this.id,
       date: this.date,
-      shift: this.shift,
+      period: this.period,
       status: this.status,
 
-      booker: this.bookerId ? { id: this.bookerId } : null,
+      booker: this.requesterId ? { id: this.requesterId } : null,
       rooms: this.roomIds.map((id) => ({ id })),
       event: this.eventId ? { id: this.eventId } : null,
     };

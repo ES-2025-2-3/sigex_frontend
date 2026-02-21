@@ -32,8 +32,10 @@ export default class EventIndexStore extends IndexStoreBase<EventDomain> {
         ReservationService.getAll(),
       ]);
 
+      console.log("Resposta do GET eventos:", eventsResponse);
+
       runInAction(() => {
-        this.allRecords = eventsResponse.map((e) => new EventDomain(e));
+        this.allRecords = eventsResponse.map((e: any) => new EventDomain(e));
 
         this.reservations = reservationsResponse.map(
           (b: Record<string, unknown>) =>
@@ -52,7 +54,7 @@ export default class EventIndexStore extends IndexStoreBase<EventDomain> {
         this.reservations
           .filter(
             (b) =>
-              b.status === ReservationStatus.APROVADA &&
+              b.status === ReservationStatus.APROVADO &&
               typeof b.eventId === "number",
           )
           .map((b) => b.eventId as number),
@@ -75,7 +77,7 @@ export default class EventIndexStore extends IndexStoreBase<EventDomain> {
 
   getBookingByEventId(eventId: number): BookingDomain | undefined {
     return this.reservations.find(
-      (b) => b.eventId === eventId && b.status === ReservationStatus.APROVADA,
+      (b) => b.eventId === eventId && b.status === ReservationStatus.APROVADO,
     );
   }
 }

@@ -10,20 +10,24 @@ import {
 } from "react-icons/fa";
 
 import { eventIndexStore } from "../../store/event/EventIndexStore";
+import { reservationIndexStore } from "../../store/reservation/ReservationIndexStore";
 import { ReservationShift } from "../../domain/enums/ReservationShift";
 import { ReservationStatus } from "../../domain/enums/ReservationStatus";
 
 const AdminCalendarView: React.FC = observer(() => {
   const navigate = useNavigate();
-  const { allReservations, allEvents, fetch, loading } = eventIndexStore;
+  const { allBookings, fetch: fetchReservations } = reservationIndexStore;
+  const { allEvents, fetch: fetchEvents } = eventIndexStore;
+
 
   const [viewDate, setViewDate] = useState(new Date());
   const [selectedDayReservations, setSelectedDayReservations] = useState<
     any[] | null
   >(null);
 
-  useEffect(() => {
-    fetch();
+useEffect(() => {
+    reservationIndexStore.fetch();
+    eventIndexStore.fetch();
   }, []);
 
   const monthNames = [
@@ -53,15 +57,17 @@ const AdminCalendarView: React.FC = observer(() => {
   };
 
   const statusStyles: Record<string, string> = {
-    [ReservationStatus.APROVADA]: "bg-green-500 text-white",
-    [ReservationStatus.SOLICITADA]: "bg-amber-500 text-white",
-    [ReservationStatus.INDEFERIDA]: "bg-red-500 text-white",
+    [ReservationStatus.APROVADO]: "bg-green-500 text-white",
+    [ReservationStatus.PENDENTE]: "bg-amber-500 text-white",
+    [ReservationStatus.RECUSADO]: "bg-red-500 text-white",
   };
 
   const getReservationsForDay = (day: number) => {
-    const dateString = `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
-    return allReservations.filter((res) => res.date === dateString);
-  };
+  const dateString = `${String(day).padStart(2, "0")}/${String(month + 1).padStart(2, "0")}/${year}`;
+  return allBookings.filter(
+    (res) => res.date === dateString && res.status === ReservationStatus.APROVADO
+  );
+};
 
   return (
     <div className="relative w-full">
@@ -123,10 +129,9 @@ const AdminCalendarView: React.FC = observer(() => {
                     setSelectedDayReservations(dayReservations)
                   }
                   className={`aspect-square min-h-[120px] rounded-[1.5rem] p-4 transition-all group relative border bg-slate-300/40
-                    ${
-                      hasReservations
-                        ? "cursor-pointer border-brand-blue/30 hover:bg-slate-300/60 hover:border-brand-blue shadow-inner"
-                        : "border-slate-400/10 cursor-default"
+                    ${hasReservations
+                      ? "cursor-pointer border-brand-blue/30 hover:bg-slate-300/60 hover:border-brand-blue shadow-inner"
+                      : "border-slate-400/10 cursor-default"
                     }`}
                 >
                   <span
@@ -143,7 +148,7 @@ const AdminCalendarView: React.FC = observer(() => {
                           key={idx}
                           className="text-[9px] font-black uppercase bg-brand-blue/20 text-brand-blue border border-brand-blue/30 px-2 py-1 rounded-md truncate"
                         >
-                          {event?.title || "Evento"}
+                          {event?.name || "Evento"}
                         </div>
                       );
                     })}
@@ -174,7 +179,7 @@ const AdminCalendarView: React.FC = observer(() => {
                 </h4>
                 <p className="text-lg font-black text-slate-700 italic uppercase tracking-tighter">
                   Agenda de Reservas
-                </p>
+                </p>  
               </div>
               <button
                 onClick={() => setSelectedDayReservations(null)}
@@ -206,7 +211,7 @@ const AdminCalendarView: React.FC = observer(() => {
                       </button>
                     </div>
                     <h5 className="text-base font-black text-slate-800 uppercase italic leading-tight mb-1">
-                      {event?.title || "Título não encontrado"}
+                      {event?.name || "Título não encontrado"}
                     </h5>
                     <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wide flex items-center gap-2">
                       Status:{" "}

@@ -110,7 +110,7 @@ const UserRequestPage = observer(() => {
   const getEventTitle = (eventId: number | string | null) => {
     if (!eventId || !Array.isArray(events)) return "Evento não identificado";
     const event = events.find((e) => String(e.id) === String(eventId));
-    return event ? event.title : `Evento #${eventId}`;
+    return event ? event.name : `Evento #${eventId}`;
   };
 
   const filteredReservations = useMemo(() => {
@@ -118,8 +118,8 @@ const UserRequestPage = observer(() => {
 
     return reservations
       .filter((b) => {
-        const isFromLoggedUser = b.bookerId === loggedUserId;
-        const isPending = b.status === ReservationStatus.SOLICITADA;
+        const isFromLoggedUser = b.requesterId === loggedUserId;
+        const isPending = b.status === ReservationStatus.PENDENTE;
 
         const eventTitle = getEventTitle(b.eventId).toLowerCase();
         const reservationId = b.id ? b.id.toString() : "";
@@ -218,7 +218,7 @@ const UserRequestPage = observer(() => {
                           </td>
                           <td className="px-6 py-6 text-gray-600">{b.date}</td>
                           <td className="px-6 py-6 uppercase text-gray-500">
-                            {b.shift}
+                            {b.period}
                           </td>
                           <td className="px-6 py-6">
                             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 text-amber-600 border-amber-100 border text-[10px] font-bold uppercase">
@@ -327,7 +327,7 @@ const UserRequestPage = observer(() => {
                   Período
                 </span>
                 <p className="text-slate-700 font-bold text-sm uppercase">
-                  {selectedReservation.shift}
+                  {selectedReservation.period}
                 </p>
               </div>
             </div>
@@ -402,7 +402,7 @@ const UserRequestPage = observer(() => {
                     Turno
                   </span>
                   <p className="text-slate-700 font-bold text-sm uppercase">
-                    {reservationToCancel.shift}
+                    {reservationToCancel.period}
                   </p>
                 </div>
               </div>
