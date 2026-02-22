@@ -17,6 +17,7 @@ import AdminProfilePage from "../pages/admin/AdminProfilePage";
 import AdminUserPage from "../pages/admin/AdminUserPage";
 import AdminRequestPage from "../pages/admin/AdminRequestPage";
 import AdminRoomPage from "../pages/admin/AdminSpacePage";
+import AdminEquipmentPage from "../pages/admin/AdminEquipmentPage";
 import AdminStaffManagementPage from "../pages/admin/AdminStaffManagementPage";
 
 import UserBookingPage from "../pages/user/UserReservationPage";
@@ -64,6 +65,7 @@ const AppRoutes = observer(() => {
         <Route path="/admin" element={<AdminDashboardPage />} />
         <Route path="/admin/solicitacoes" element={<AdminRequestPage />} />
         <Route path="/admin/espacos" element={<AdminRoomPage />} />
+        <Route path="/admin/equipamentos" element={<AdminEquipmentPage />} />
         <Route path="/admin/configuracoes" element={<AdminSettingsPage />} />
         <Route path="/admin/perfil" element={<AdminProfilePage />} />
         <Route path="/admin/usuarios" element={<AdminUserPage />} />
