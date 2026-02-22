@@ -148,7 +148,7 @@ useEffect(() => {
                           key={idx}
                           className="text-[9px] font-black uppercase bg-brand-blue/20 text-brand-blue border border-brand-blue/30 px-2 py-1 rounded-md truncate"
                         >
-                          {event?.name || "Evento"}
+                          {event?.title || "Evento"}
                         </div>
                       );
                     })}
@@ -211,7 +211,7 @@ useEffect(() => {
                       </button>
                     </div>
                     <h5 className="text-base font-black text-slate-800 uppercase italic leading-tight mb-1">
-                      {event?.name || "Título não encontrado"}
+                      {event?.title || "Título não encontrado"}
                     </h5>
                     <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wide flex items-center gap-2">
                       Status:{" "}

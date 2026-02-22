@@ -1,18 +1,17 @@
 import { runInAction, makeObservable, action } from "mobx";
-import BookingDomain from "../../domain/reservation/ReservationDomain";
 import FormStoreBase from "../base/FormStoreBase";
 import { reservationIndexStore } from "./ReservationIndexStore";
-import BookingService from "../../services/ReservationService";
+import ReservationDomain from "../../domain/reservation/ReservationDomain";
+import ReservationService from "../../services/ReservationService";
 
-class ReservationFormStore extends FormStoreBase<BookingDomain> {
-  
+class ReservationFormStore extends FormStoreBase<ReservationDomain> {
   constructor() {
     super();
     makeObservable(this);
   }
 
   initializeDomain() {
-    return new BookingDomain();
+    return new ReservationDomain();
   }
 
   @action
@@ -28,24 +27,33 @@ class ReservationFormStore extends FormStoreBase<BookingDomain> {
    */
   @action
   async persist(eventId?: number): Promise<boolean> {
-    const { shift, roomIds } = this.domain;
+    const { period, roomIds, date } = this.domain;
 
-    if (!shift || roomIds.length === 0) {
-      this.setError("Selecione o turno e as salas da reserva.");
+    if (!period || roomIds.length === 0 || !date) {
+      this.setError("Selecione a data, o turno e as salas da reserva.");
       return false;
     }
 
     if (!eventId) {
-      this.setError("O ID do evento é obrigatório para realizar a reserva.");
+      this.setError("O ID do evento é obrigatório.");
       return false;
     }
 
     try {
-      const savedBooking = await BookingService.create(this.domain, eventId);
+      const reservationRequestDTO = {
+        eventId: eventId,
+        roomIds: [...roomIds], 
+        date: date, 
+        period: period, 
+        status: "PENDENTE", 
+      };
+
+      console.log("Enviando Payload para o Java:", reservationRequestDTO);
+      const savedReservation = await ReservationService.create(reservationRequestDTO);
 
       runInAction(() => {
-        this.domain.id = savedBooking.id;
-        this.domain.status = savedBooking.status;
+        this.domain.id = savedReservation.id;
+        this.domain.status = savedReservation.status;
         reservationIndexStore.addRecord(this.domain);
         this.setError(null);
       });
@@ -53,10 +61,11 @@ class ReservationFormStore extends FormStoreBase<BookingDomain> {
       return true;
     } catch (error: any) {
       runInAction(() => {
+        const message = error.response?.data?.message;
         if (error.response?.status === 409) {
-          this.setError("Conflito: Esta sala já está ocupada neste horário.");
+          this.setError("Conflito: Local já ocupado neste horário.");
         } else {
-          this.setError("Erro técnico ao salvar a reserva.");
+          this.setError(message || "Erro técnico ao salvar a reserva.");
         }
       });
       return false;

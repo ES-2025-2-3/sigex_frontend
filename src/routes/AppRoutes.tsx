@@ -17,6 +17,7 @@ import AdminProfilePage from "../pages/admin/AdminProfilePage";
 import AdminUserPage from "../pages/admin/AdminUserPage";
 import AdminRequestPage from "../pages/admin/AdminRequestPage";
 import AdminRoomPage from "../pages/admin/AdminSpacePage";
+import AdminEquipmentPage from "../pages/admin/AdminEquipmentPage";
 import AdminStaffManagementPage from "../pages/admin/AdminStaffManagementPage";
 
 import UserBookingPage from "../pages/user/UserReservationPage";
@@ -28,6 +29,8 @@ import ForgotPasswordEmailPage from "../pages/login/forgotPassword/ForgotPasswor
 import ForgotPasswordCodePage from "../pages/login/forgotPassword/ForgotPasswordCodePage";
 import ForgotPasswordNewPasswordPage from "../pages/login/forgotPassword/ForgotPasswordNewPasswordPage";
 import RegisterSuccessPage from "../pages/register/RegisterSucessPage";
+import RegisterErrorPage from "../pages/register/RegisterErrorPage";
+import LoginErrorPage from "../pages/login/LoginErrorPage";
 
 const AppRoutes = observer(() => {
   return (
@@ -40,8 +43,10 @@ const AppRoutes = observer(() => {
 
       {/* --- AUTH (Somente quem não está logado) --- */}
       <Route path="/login" element={<LoginPage />} />
+      <Route path="/login-erro" element={<LoginErrorPage />} />
       <Route path="/cadastro" element={<RegisterPage />} />
       <Route path="/cadastro-sucesso" element={<RegisterSuccessPage />} />
+      <Route path="/cadastro-erro" element={<RegisterErrorPage />} />
       <Route path="/recuperar-senha" element={<ForgotPasswordEmailPage />} />
       <Route path="/recuperar-senha/codigo" element={<ForgotPasswordCodePage />} />
       <Route path="/recuperar-senha/nova-senha" element={<ForgotPasswordNewPasswordPage />} />
@@ -60,6 +65,7 @@ const AppRoutes = observer(() => {
         <Route path="/admin" element={<AdminDashboardPage />} />
         <Route path="/admin/solicitacoes" element={<AdminRequestPage />} />
         <Route path="/admin/espacos" element={<AdminRoomPage />} />
+        <Route path="/admin/equipamentos" element={<AdminEquipmentPage />} />
         <Route path="/admin/configuracoes" element={<AdminSettingsPage />} />
         <Route path="/admin/perfil" element={<AdminProfilePage />} />
         <Route path="/admin/usuarios" element={<AdminUserPage />} />

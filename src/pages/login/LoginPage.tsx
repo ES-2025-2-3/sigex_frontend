@@ -13,7 +13,7 @@ const LoginPage: React.FC = observer(() => {
   const location = useLocation();
 
   const [formData, setFormData] = useState({
-    email: "",
+    email: localStorage.getItem("temp_login_email") || "",
     password: "",
   });
 
@@ -63,7 +63,6 @@ const LoginPage: React.FC = observer(() => {
     e.preventDefault();
 
     const newErrors: Record<string, string> = {};
-
     if (!formData.email) newErrors.email = "Campo obrigatório";
     if (!formData.password) newErrors.password = "Campo obrigatório";
 
@@ -73,6 +72,8 @@ const LoginPage: React.FC = observer(() => {
     }
 
     try {
+      localStorage.removeItem("temp_login_email");
+
       await userSessionStore.login(formData);
 
       setToast({
@@ -80,10 +81,10 @@ const LoginPage: React.FC = observer(() => {
         message: "Login realizado com sucesso!",
       });
     } catch (error: any) {
-      setToast({
-        type: "error",
-        message: error.response?.data?.message || "E-mail ou senha incorretos.",
-      });
+      console.error("ERRO NO LOGIN:", error);
+
+      localStorage.setItem("temp_login_email", formData.email);
+      window.location.replace("/login-erro");
     }
   };
 

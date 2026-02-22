@@ -26,7 +26,6 @@ import { eventIndexStore } from "../../store/event/EventIndexStore";
 import { ReservationStatus } from "../../domain/enums/ReservationStatus";
 import Toast, { ToastType } from "../../commons/toast/Toast";
 
-import { mockStaff, mockAdmin, mockCommonUser } from "../../../mock/user";
 import ReservationDomain from "../../domain/reservation/ReservationDomain";
 
 type ConfirmAction = "APPROVE" | "REJECT";
@@ -34,11 +33,9 @@ type ConfirmAction = "APPROVE" | "REJECT";
 const ITEMS_PER_PAGE = 6;
 
 const AdminRequestPage = observer(() => {
-  const allUsers = [mockStaff, mockAdmin, mockCommonUser];
-
   const getEventTitle = (eventId: number | null) => {
     const event = eventIndexStore.allEvents.find((e) => e.id === eventId);
-    return event ? event.name : "Evento desconhecido";
+    return event ? event.title : "Evento desconhecido";
   };
 
   const getEventDescription = (eventId: number | null): string => {
@@ -47,11 +44,12 @@ const AdminRequestPage = observer(() => {
   };
 
   const getUserName = (requesterId: string | null): string =>
-    (requesterId && userIndexStore.getUserById(requesterId)?.name) || "Usuário desconhecido";
+    (requesterId && userIndexStore.getUserById(requesterId)?.name) ||
+    "Usuário desconhecido";
 
   const getUserEmail = (requesterId: string | null): string =>
-    (requesterId && userIndexStore.getUserById(requesterId)?.email) || "Email não informado";
-
+    (requesterId && userIndexStore.getUserById(requesterId)?.email) ||
+    "Email não informado";
 
   const [statusFilter, setStatusFilter] = useState<ReservationStatus | "ALL">(
     "ALL",
@@ -59,12 +57,14 @@ const AdminRequestPage = observer(() => {
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
-  const [selectedReservation, setSelectedReservation] = useState<ReservationDomain | null>(null);
+  const [selectedReservation, setSelectedReservation] =
+    useState<ReservationDomain | null>(null);
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [confirmAction, setConfirmAction] = useState<ConfirmAction | null>(
     null,
   );
-  const [confirmReservation, setConfirmReservation] = useState<ReservationDomain | null>(null);
+  const [confirmReservation, setConfirmReservation] =
+    useState<ReservationDomain | null>(null);
   const [toast, setToast] = useState<{
     type: ToastType;
     message: string;
@@ -170,8 +170,7 @@ const AdminRequestPage = observer(() => {
 
   const filteredReservations = useMemo(() => {
     return reservationIndexStore.allBookings.filter((b) => {
-      const matchesStatus =
-        statusFilter === "ALL" || b.status === statusFilter;
+      const matchesStatus = statusFilter === "ALL" || b.status === statusFilter;
 
       const term = search.toLowerCase();
 
@@ -231,10 +230,11 @@ const AdminRequestPage = observer(() => {
                     <button
                       key={status}
                       onClick={() => handleStatusChange(status)}
-                      className={`cursor-pointer px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition ${statusFilter === status
-                        ? "bg-brand-blue text-white"
-                        : "bg-white border border-slate-200 text-slate-500 hover:bg-slate-50"
-                        }`}
+                      className={`cursor-pointer px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition ${
+                        statusFilter === status
+                          ? "bg-brand-blue text-white"
+                          : "bg-white border border-slate-200 text-slate-500 hover:bg-slate-50"
+                      }`}
                     >
                       {status === "ALL" ? "Todas" : status}
                     </button>
@@ -307,16 +307,24 @@ const AdminRequestPage = observer(() => {
                           <td className="px-6 py-5">
                             <div className="flex justify-center gap-2">
                               <button
-                                disabled={b.status !== ReservationStatus.PENDENTE}
-                                onClick={() => b.eventId !== null && openApproveConfirm(b)}
+                                disabled={
+                                  b.status !== ReservationStatus.PENDENTE
+                                }
+                                onClick={() =>
+                                  b.eventId !== null && openApproveConfirm(b)
+                                }
                                 className="cursor-pointer p-2 rounded-lg text-emerald-600 hover:bg-emerald-50 disabled:opacity-40"
                               >
                                 <FaCheck />
                               </button>
 
                               <button
-                                disabled={b.status !== ReservationStatus.PENDENTE}
-                                onClick={() => b.eventId !== null && openRejectConfirm(b)}
+                                disabled={
+                                  b.status !== ReservationStatus.PENDENTE
+                                }
+                                onClick={() =>
+                                  b.eventId !== null && openRejectConfirm(b)
+                                }
                                 className="cursor-pointer p-2 rounded-lg text-red-600 hover:bg-red-50 disabled:opacity-40"
                               >
                                 <FaTimes />
@@ -483,9 +491,10 @@ const AdminRequestPage = observer(() => {
               <button
                 onClick={() => handleConfirmAction()}
                 className={`cursor-pointer flex-1 py-3 rounded-xl text-white font-bold transition
-                  ${confirmAction === "APPROVE"
-                    ? "bg-emerald-600 hover:bg-emerald-700"
-                    : "bg-red-600 hover:bg-red-700"
+                  ${
+                    confirmAction === "APPROVE"
+                      ? "bg-emerald-600 hover:bg-emerald-700"
+                      : "bg-red-600 hover:bg-red-700"
                   }`}
               >
                 Confirmar

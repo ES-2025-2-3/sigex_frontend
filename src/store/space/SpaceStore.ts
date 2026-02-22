@@ -1,10 +1,9 @@
 import { makeAutoObservable, runInAction } from "mobx";
-import { Space } from "../../types/space/SpaceType";
-import { spaces_mock } from "../../../mock/space";
-import SpaceDomain from "../../domain/space/SpaceDomain";
+import spaceService from "../../services/SpaceService";
+import { instituteStore } from "../institute/InstituteStore";
 
 class SpaceStore {
-  spaces: Space[] = [...spaces_mock];
+  spaces: any[] = [];
   isLoading = false;
 
   constructor() {
@@ -12,38 +11,58 @@ class SpaceStore {
   }
 
   async fetchSpaces() {
-    this.isLoading = false;
+  this.isLoading = true;
+  try {
+    const data = await spaceService.getAll();     
+    runInAction(() => {
+      this.spaces = data;
+      this.isLoading = false;
+    });
+  } catch (e) {
+    runInAction(() => { this.isLoading = false; });
+    console.error("Erro ao carregar espaços:", e);
   }
+}
 
-  async save(domain: SpaceDomain) {
+  async save(domain: any) {
+    this.isLoading = true;
     try {
-      runInAction(() => {
-        const payload = domain.getBackendObject() as Space;
+      if (!instituteStore.globalId) {
+        console.error("SpaceStore: instituteStore.globalId is missing!");
+        return false;
+      }
 
-        if (domain.id) {
-          const index = this.spaces.findIndex((r) => r.id === domain.id);
-          if (index !== -1) {
-            this.spaces[index] = { ...payload, id: domain.id };
-          }
-        } else {
-          const newRoom: Space = {
-            ...payload,
-            id: Math.floor(Math.random() * 10000),
-          };
-          this.spaces.push(newRoom);
-        }
-      });
+      const payload = {
+        ...domain.getBackendObject(),
+        instituteId: instituteStore.globalId 
+      };
+
+      if (domain.id) {
+        await spaceService.update(domain.id, payload);
+      } else {
+        await spaceService.create(payload);
+      }
+      
+      await this.fetchSpaces(); 
+      runInAction(() => { this.isLoading = false; });
       return true;
-    } catch (error) {
+    } catch (e) {
+      console.error("SpaceStore: Erro ao salvar sala:", e);
+      runInAction(() => { this.isLoading = false; });
       return false;
     }
   }
 
-  async delete(id: number) {
-    runInAction(() => {
-      this.spaces = this.spaces.filter((r) => r.id !== id);
-    });
-    return true;
+  async delete(id: string | number) {
+    this.isLoading = true;
+    try {
+      await spaceService.delete(id);
+      await this.fetchSpaces();
+      return true;
+    } catch (e) {
+      runInAction(() => { this.isLoading = false; });
+      return false;
+    }
   }
 }
 

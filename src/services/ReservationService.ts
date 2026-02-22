@@ -1,34 +1,37 @@
-import api from '../services/api';
-import ReservationDomain from '../domain/reservation/ReservationDomain';
+import api from "./api";
+import ReservationDomain from "../domain/reservation/ReservationDomain";
 
-const API_URL = '/reservations';
+const API_URL = "/reservations";
 
 class ReservationService {
-
-  async create(domain: ReservationDomain, eventId: string) {
-    const payload = {
-      roomIds: domain.roomIds,
-      eventId: eventId,
-      date: domain.date,
-      shift: domain.period,
-    };
-
+  /**
+   * Cria uma nova reserva no sistema.
+   */
+  async create(payload: any) {
     const response = await api.post(API_URL, payload);
     return response.data;
   }
 
-  async update(id: string, domain: ReservationDomain) {
-    const payload = {
-      roomIds: domain.roomIds,
-      date: domain.date,
-      shift: domain.period
-    };
-
+  /**
+   * Atualiza uma reserva existente (apenas se estiver PENDENTE).
+   */
+  async update(id: string | number, payload: any) {
     const response = await api.put(`${API_URL}/${id}`, payload);
     return response.data;
   }
 
-  async delete(id: string) {
+  /**
+   * Atualiza o status de uma reserva (Ação de Admin).
+   */
+  async updateStatus(id: string | number, status: string) {
+    const response = await api.patch(`${API_URL}/${id}/status`, { status });
+    return response.data;
+  }
+
+  /**
+   * Remove uma reserva do sistema.
+   */
+  async delete(id: string | number) {
     await api.delete(`${API_URL}/${id}`);
   }
 
@@ -37,17 +40,18 @@ class ReservationService {
     return response.data;
   }
 
-  async getMyBookings() {
-    const response = await api.get(`${API_URL}/my`);
-    return response.data;
-  }
-
+  /**
+   * Busca uma reserva específica pelo ID.
+   */
   async getById(id: string) {
     const response = await api.get(`${API_URL}/${id}`);
     return response.data;
   }
 
-  async approve(id: number | null) {
+  /**
+   * Aprova uma reserva.
+   */
+  async approve(id: string | null) {
     if (id === null) throw new Error("ID inválido");
 
     const response = await api.patch(`${API_URL}/${id}/status`, {
@@ -57,7 +61,10 @@ class ReservationService {
     return response.data;
   }
 
-  async reject(id: number | null) {
+  /**
+   * Rejeita uma reserva.
+   */
+  async reject(id: string | null) {
     if (id === null) throw new Error("ID inválido");
 
     const response = await api.patch(`${API_URL}/${id}/status`, {
@@ -69,4 +76,5 @@ class ReservationService {
 
 }
 
-export default new ReservationService();
+const reservationService = new ReservationService();
+export default reservationService;

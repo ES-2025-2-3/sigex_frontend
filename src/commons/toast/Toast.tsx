@@ -45,7 +45,7 @@ const Toast: React.FC<ToastProps> = ({ type, message, onClose, duration = 4000 }
   return (
     <div 
       className={`
-        fixed top-24 right-5 z-[9999] 
+        fixed top-24 pointer-events-auto right-5 z-[9999] 
         flex items-center gap-4 min-w-[320px] max-w-[420px]
         p-4 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.1)] 
         border border-white/50 backdrop-blur-sm

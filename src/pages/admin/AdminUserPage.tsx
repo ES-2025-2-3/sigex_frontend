@@ -1,12 +1,6 @@
 import { observer } from "mobx-react-lite";
 import { useEffect, useState } from "react";
-import {
-  FaSearch,
-  FaTimes,
-  FaEye,
-  FaUser,
-  FaArrowUp,
-} from "react-icons/fa";
+import { FaSearch, FaTimes, FaEye, FaUser, FaArrowUp } from "react-icons/fa";
 
 import Header from "../../commons/header/Header";
 import AdminSidebar from "../../commons/admin/AdminSidebar";
@@ -15,24 +9,31 @@ import Pagination from "../../commons/pagination/Pagination";
 import { User } from "../../types/user/UserType";
 import Modal from "../../commons/modal/Modal";
 
-import { user_mock } from "../../../mock/user_mock";
-
 import Toast, { ToastType } from "../../commons/toast/Toast";
 import { UserType } from "../../domain/enums/UserType";
+import { userIndexStore } from "../../store/user/UserIndexStore";
+import InstituteService from "../../services/InstituteService";
 
 type ConfirmAction = "PROMOTE" | "REMOVE" | "VIEW";
 
 const ITEMS_PER_PAGE = 6;
 
 const AdminUserPage = observer(() => {
-
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
-  const [confirmAction, setConfirmAction] = useState<ConfirmAction | null>(null);
+  const [confirmAction, setConfirmAction] = useState<ConfirmAction | null>(
+    null,
+  );
   const [confirmUser, setConfirmUser] = useState<User | null>(null);
-  const [toast, setToast] = useState<{ type: ToastType; message: string } | null>(null);
-  const [typeFilter, setTypeFilter] = useState<UserType | "ALL">("ALL");
+  const [toast, setToast] = useState<{
+    type: ToastType;
+    message: string;
+  } | null>(null);
+
+  useEffect(() => {
+    userIndexStore.fetch();
+  }, []);
 
   useEffect(() => {
     window.scrollTo({
@@ -40,7 +41,6 @@ const AdminUserPage = observer(() => {
       behavior: "smooth",
     });
   }, [currentPage]);
-
 
   const openPromoteConfirm = (user: User) => {
     setConfirmUser(user);
@@ -60,29 +60,31 @@ const AdminUserPage = observer(() => {
     setIsConfirmModalOpen(true);
   };
 
+  const closeModal = () => {
+    setIsConfirmModalOpen(false);
+    setConfirmUser(null);
+    setConfirmAction(null);
+  };
+
   const formatUserType = (type: UserType) => {
     switch (type) {
       case UserType.ADMIN:
         return "Administrador";
+      case UserType.SERVIDOR_TECNICO_ADMINISTRATIVO:
+        return "Servidor Técnico Administrativo";
       case UserType.USUARIO:
         return "Usuário";
-      case UserType.SERVIDOR_TECNICO_ADMINISTRATIVO:
-        return "Funcionário";
       default:
         return type;
     }
   };
 
-  const filteredUsers = user_mock.filter((user) => {
-    const matchesType =
-      typeFilter === "ALL" || user.type === typeFilter;
-
+  const filteredUsers = userIndexStore.users.filter((user) => {
+    const matchesType = user.type === UserType.USUARIO;
     const term = search.toLowerCase();
-
     const matchesSearch =
       user.name.toLowerCase().includes(term) ||
       user.email.toLowerCase().includes(term);
-
     return matchesSearch && matchesType;
   });
 
@@ -90,15 +92,8 @@ const AdminUserPage = observer(() => {
 
   const paginatedUsers = filteredUsers.slice(
     (currentPage - 1) * ITEMS_PER_PAGE,
-    currentPage * ITEMS_PER_PAGE
+    currentPage * ITEMS_PER_PAGE,
   );
-
-  const typeStyles = {
-    [UserType.ADMIN]: "bg-purple-50 text-purple-600 border-purple-100",
-    [UserType.USUARIO]: "bg-blue-50 text-blue-600 border-blue-100",
-    [UserType.SERVIDOR_TECNICO_ADMINISTRATIVO]: "bg-rose-50 text-rose-600 border-rose-100",
-  };
-
 
   const handleConfirmAction = () => {
     if (!confirmUser || !confirmAction) return;
@@ -109,7 +104,7 @@ const AdminUserPage = observer(() => {
       handleRemove(confirmUser);
     }
 
-    setIsConfirmModalOpen(false);
+    closeModal();
     setConfirmUser(null);
     setConfirmAction(null);
   };
@@ -119,25 +114,37 @@ const AdminUserPage = observer(() => {
     setCurrentPage(1);
   };
 
-  const handleTypeChange = (type: UserType | "ALL") => {
-    setTypeFilter(type);
-    setCurrentPage(1);
+  const handlePromote = async (user: User) => {
+    const success = await userIndexStore.promote(user.id);
+
+    if (success) {
+      setToast({
+        type: "success",
+        message: `Usuário ${user.name} promovido com sucesso!`,
+      });
+    } else {
+      setToast({
+        type: "error",
+        message: "Falha na promoção. Verifique a conexão com o servidor.",
+      });
+    }
   };
 
-  const handlePromote = (user: User) => {
-    setToast({
-      type: 'success',
-      message: `Usuário #${user.id} promovido(a) com sucesso`,
-    });
-  };
+  const handleRemove = async (user: User) => {
+    const success = await userIndexStore.deleteUser(user.id);
 
-  const handleRemove = (user: User) => {
-    setToast({
-      type: 'success',
-      message: `Usuário #${user.id} excluido(a) com sucesso`,
-    });
+    if (success) {
+      setToast({
+        type: "success",
+        message: `Usuário ${user.name} excluído(a) com sucesso`,
+      });
+    } else {
+      setToast({
+        type: "error",
+        message: "Erro ao excluir usuário. Verifique se ele possui dependências.",
+      });
+    }
   };
-
 
   return (
     <div className="flex min-h-screen bg-bg-main w-full font-inter">
@@ -170,18 +177,7 @@ const AdminUserPage = observer(() => {
               </h2>
 
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-                <div className="flex gap-3">
-                  <select
-                    value={typeFilter}
-                    onChange={(e) => handleTypeChange(e.target.value as UserType | "ALL")}
-                    className="cursor-pointer px-4 py-2 rounded-lg border-2 border-slate-200 bg-white text-sm font-semibold text-slate-600"
-                  >
-                    <option value="ALL">Todos os tipos</option>
-                    <option value={UserType.ADMIN}>Admin</option>
-                    <option value={UserType.USUARIO}>Usuário</option>
-                    <option value={UserType.SERVIDOR_TECNICO_ADMINISTRATIVO}>Servidor Técnico</option>
-                  </select>
-                </div>
+                <div className="flex gap-3"></div>
 
                 <div className="relative w-full md:w-80">
                   <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
@@ -189,8 +185,8 @@ const AdminUserPage = observer(() => {
                     type="text"
                     value={search}
                     onChange={(e) => handleSearchChange(e.target.value)}
-                    placeholder="Buscar por usuário..."
-                    className="w-full pl-11 pr-4 py-3 rounded-xl border border-slate-200 text-sm font-bold outline-none focus:ring-4 bg-white focus:ring-brand-blue/10"
+                    placeholder="Buscar usuário..."
+                    className="w-full pl-11 pr-4 py-3 rounded-xl border border-slate-200 text-sm bg-white font-bold outline-none focus:ring-4 focus:ring-brand-blue/10"
                   />
                 </div>
               </div>
@@ -201,7 +197,6 @@ const AdminUserPage = observer(() => {
                     <tr className="bg-slate-50 border-b border-slate-200 text-[11px] font-black uppercase tracking-widest text-slate-600">
                       <th className="px-6 py-5">Usuário</th>
                       <th className="px-6 py-5">Tipo</th>
-                      <th className="px-6 py-5">Matrícula</th>
                       <th className="px-6 py-5 text-center">Ações</th>
                     </tr>
                   </thead>
@@ -209,7 +204,10 @@ const AdminUserPage = observer(() => {
                   <tbody className="divide-y divide-slate-100 text-sm font-bold">
                     {paginatedUsers.length > 0 ? (
                       paginatedUsers.map((user) => (
-                        <tr key={user.id} className="hover:bg-slate-50 transition">
+                        <tr
+                          key={user.id}
+                          className="hover:bg-slate-50 transition"
+                        >
                           <td className="px-6 py-5">
                             <div className="flex items-center gap-2">
                               <FaUser className="text-slate-400" />
@@ -233,7 +231,7 @@ const AdminUserPage = observer(() => {
                             <div className="flex justify-center gap-2">
                               <button
                                 onClick={() => openPromoteConfirm(user)}
-                                disabled={user.type !== UserType.SERVIDOR_TECNICO_ADMINISTRATIVO}
+                                disabled={user.type !== UserType.USUARIO}
                                 className="cursor-pointer p-2 rounded-lg text-purple-600 hover:bg-purple-50 disabled:opacity-40"
                               >
                                 <FaArrowUp />
@@ -259,8 +257,11 @@ const AdminUserPage = observer(() => {
                       ))
                     ) : (
                       <tr>
-                        <td colSpan={4} className="py-20 text-center">
-                          <FaUser className="mx-auto text-slate-200 mb-4" size={36} />
+                        <td colSpan={3} className="py-20 text-center">
+                          <FaUser
+                            className="mx-auto text-slate-200 mb-4"
+                            size={36}
+                          />
                           <p className="text-slate-400 text-sm font-black uppercase tracking-wider">
                             Nenhum usuário encontrado
                           </p>
@@ -268,7 +269,6 @@ const AdminUserPage = observer(() => {
                       </tr>
                     )}
                   </tbody>
-
                 </table>
               </div>
 
@@ -291,14 +291,13 @@ const AdminUserPage = observer(() => {
               : confirmAction === "REMOVE"
                 ? "Confirmação de exclusão de Usuário"
                 : "Informações do Usuário"
-
           }
-          onClose={() => setIsConfirmModalOpen(false)}
+          onClose={closeModal}
         >
           <div className="space-y-6">
             <p className="text-sm text-slate-600 font-medium">
               {confirmAction === "PROMOTE"
-                ? "Você realmente deseja promover este usuário?"
+                ? "Esta ação concederá privilégios administrativos ao usuário."
                 : confirmAction === "REMOVE"
                   ? "Você realmente deseja excluir este usuário?"
                   : "Visualização dos dados do usuário."}
@@ -321,26 +320,43 @@ const AdminUserPage = observer(() => {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4 text-sm">
+                {confirmAction === "PROMOTE" && (
+                  <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 space-y-3">
+                    <p className="text-[11px] font-black uppercase tracking-wider text-amber-700">
+                      Atenção
+                    </p>
 
-                  <div className="bg-slate-50 p-3 rounded-xl border border-slate-100">
-                    <span className="text-[10px] uppercase font-bold text-slate-400 block mb-1">
-                      Tipo de Usuário
-                    </span>
+                    <div className="flex items-center justify-between text-sm font-bold text-slate-700">
+                      <span>{formatUserType(confirmUser.type)}</span>
+                      <div className="relative w-32 h-[2px] bg-amber-400 rounded-full">
+                        <div
+                          className="absolute right-0 
+                        top-1/2 
+                        -translate-y-1/2 
+                        w-2 h-2 
+                        border-t-2 
+                        border-r-2 
+                        border-amber-400 
+                        rotate-45"
+                        />
+                      </div>
+                      <span>Servidor Técnico Administrativo</span>
+                    </div>
 
-                    <span
-                      className={`inline-flex w-fit uppercase items-center px-3 py-1 rounded-full text-[10px] font-bold border
-                        ${typeStyles[confirmUser.type] ?? "bg-gray-50 text-gray-600 border-gray-100"}
-                      `}
-                    >
-                      {formatUserType(confirmUser.type)}
-                    </span>
+                    <p className="text-xs text-amber-700 font-medium">
+                      Esta ação é sensível e concede permissões elevadas no
+                      sistema.
+                    </p>
                   </div>
-                  <div className="col-span-2 text-[11px] text-slate-400 font-bold mt-2">
-                    ID DO USUÁRIO: #{confirmUser.id}
-                  </div>
+                )}
 
-                </div>
+                {confirmAction === "REMOVE" && (
+                  <div className="bg-red-50 border border-red-200 rounded-xl p-4">
+                    <p className="text-xs font-bold text-red-700">
+                      Esta ação é irreversível.
+                    </p>
+                  </div>
+                )}
               </div>
             )}
 
@@ -348,7 +364,7 @@ const AdminUserPage = observer(() => {
               {confirmAction !== "VIEW" && (
                 <>
                   <button
-                    onClick={() => setIsConfirmModalOpen(false)}
+                    onClick={closeModal}
                     className="cursor-pointer flex-1 py-3 rounded-xl bg-slate-100 text-slate-700 font-bold hover:bg-slate-200 transition"
                   >
                     Cancelar
@@ -357,9 +373,10 @@ const AdminUserPage = observer(() => {
                   <button
                     onClick={handleConfirmAction}
                     className={`cursor-pointer flex-1 py-3 rounded-xl text-white font-bold transition
-          ${confirmAction === "PROMOTE"
-                        ? "bg-emerald-600 hover:bg-emerald-700"
-                        : "bg-red-600 hover:bg-red-700"
+                      ${
+                        confirmAction === "PROMOTE"
+                          ? "bg-emerald-600 hover:bg-emerald-700"
+                          : "bg-red-600 hover:bg-red-700"
                       }`}
                   >
                     {confirmAction === "PROMOTE" ? "Promover" : "Excluir"}
@@ -369,7 +386,7 @@ const AdminUserPage = observer(() => {
 
               {confirmAction === "VIEW" && (
                 <button
-                  onClick={() => setIsConfirmModalOpen(false)}
+                  onClick={closeModal}
                   className="w-full cursor-pointer py-3 rounded-xl bg-slate-900 text-white font-bold hover:bg-slate-800 transition"
                 >
                   Fechar
@@ -378,6 +395,7 @@ const AdminUserPage = observer(() => {
             </div>
           </div>
         </Modal>
+
         <Footer />
       </div>
     </div>
