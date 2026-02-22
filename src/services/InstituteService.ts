@@ -4,6 +4,7 @@ import InstituteDomain from "../domain/institute/InstituteDomain";
 const API_URL = "/institutes";
 
 class InstituteService {
+
   /**
    * Busca o UUID do instituto único do sistema
    */

@@ -35,9 +35,6 @@ class ReservationService {
     await api.delete(`${API_URL}/${id}`);
   }
 
-  /**
-   * Busca todas as reservas.
-   */
   async getAll() {
     const response = await api.get(API_URL);
     return response.data;
@@ -46,10 +43,37 @@ class ReservationService {
   /**
    * Busca uma reserva específica pelo ID.
    */
-  async getById(id: string | number) {
+  async getById(id: string) {
     const response = await api.get(`${API_URL}/${id}`);
     return response.data;
   }
+
+  /**
+   * Aprova uma reserva.
+   */
+  async approve(id: string | null) {
+    if (id === null) throw new Error("ID inválido");
+
+    const response = await api.patch(`${API_URL}/${id}/status`, {
+      status: "APROVADO",
+    });
+
+    return response.data;
+  }
+
+  /**
+   * Rejeita uma reserva.
+   */
+  async reject(id: string | null) {
+    if (id === null) throw new Error("ID inválido");
+
+    const response = await api.patch(`${API_URL}/${id}/status`, {
+      status: "RECUSADO",
+    });
+
+    return response.data;
+  }
+
 }
 
 const reservationService = new ReservationService();

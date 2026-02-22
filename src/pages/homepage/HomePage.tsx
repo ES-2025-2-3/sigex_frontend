@@ -2,6 +2,8 @@ import { useEffect, useState, useMemo } from "react";
 import { observer } from "mobx-react-lite";
 import { useNavigate } from "react-router-dom";
 import { eventIndexStore } from "../../store/event/EventIndexStore";
+import { reservationIndexStore } from "../../store/reservation/ReservationIndexStore";
+import { spaceStore } from "../../store/space/SpaceStore";
 import { FaSearch } from "react-icons/fa";
 
 import Header from "../../commons/header/Header";
@@ -15,7 +17,6 @@ import heroBackground from "../../assets/images/jose_farias.jpg";
 
 const HomePage = observer(() => {
   const navigate = useNavigate();
-  const { upcomingEvents, loading } = eventIndexStore;
   const [searchTerm, setSearchTerm] = useState("");
 
   const [modalOpen, setModalOpen] = useState(false);
@@ -23,17 +24,55 @@ const HomePage = observer(() => {
 
   useEffect(() => {
     eventIndexStore.fetch();
+    reservationIndexStore.fetch();
+    spaceStore.fetchSpaces();
   }, []);
 
   const featuredEvents = useMemo(() => {
-    return upcomingEvents
-      .map((evento) => {
-        const reserva = eventIndexStore.getBookingByEventId(evento.id!);
-        return reserva ? { ...evento, reserva } : null;
+    // 1. Pega as reservas aprovadas
+    const approvedBookings = reservationIndexStore.allBookings.filter(
+      (b) => String(b.status).toUpperCase() === "APROVADO",
+    );
+
+    // 2. Mapeia cruzando com eventos e espaços (Lógica que você enviou)
+    const publicEventsWithData = approvedBookings
+      .map((reserva): any => {
+        const eventoOriginal = eventIndexStore.allEvents.find(
+          (e) => String(e.id) === String(reserva.eventId),
+        );
+
+        // Verifica se é público
+        const isPublic =
+          eventoOriginal?.isPublic ||
+          (eventoOriginal as any)?.visibility === "PUBLIC" ||
+          (eventoOriginal as any)?.visibility === "PUBLICO";
+
+        if (eventoOriginal && isPublic) {
+          const space = spaceStore.spaces.find(
+            (s) => String(s.id) === String(reserva.roomIds?.[0]),
+          );
+
+          return {
+            ...eventoOriginal,
+            id: eventoOriginal.id,
+            title: eventoOriginal.title,
+            description: eventoOriginal.description,
+            imageUrl: eventoOriginal.imageUrl,
+            date: reserva.date, // Informação da reserva
+            roomName: space?.name || "Local a definir", // Informação do espaço
+          };
+        }
+        return null;
       })
-      .filter((item) => item !== null)
-      .slice(0, 3);
-  }, [upcomingEvents]);
+      .filter(Boolean);
+
+    // 3. Retorna apenas os 3 primeiros da lista total (sem filtrar por data de hoje)
+    return publicEventsWithData.slice(0, 3);
+  }, [
+    reservationIndexStore.allBookings.length,
+    eventIndexStore.allEvents.length,
+    spaceStore.spaces.length,
+  ]);
 
   const handleOpenModal = (id: number) => {
     const evento = featuredEvents.find((e: any) => e.id === id);
@@ -95,7 +134,7 @@ const HomePage = observer(() => {
             Próximos Eventos
           </h2>
 
-          {loading ? (
+          {eventIndexStore.loading || reservationIndexStore.loading ? (
             <div className="flex justify-center items-center py-20">
               <LoadingSpinner size="medium" />
             </div>
@@ -108,10 +147,10 @@ const HomePage = observer(() => {
                       key={item.id}
                       id={item.id!}
                       titulo={item.title}
-                      data={item.reserva.date}
+                      data={item.date} // Usa a data da reserva mapeada
                       descricao={item.description}
                       imagemUrl={item.imageUrl}
-                      local={item.reserva.roomName}
+                      local={item.roomName} // Usa o nome do espaço mapeado
                       tags={item.tags}
                       onClickDetails={() => handleOpenModal(item.id)}
                     />
@@ -120,7 +159,7 @@ const HomePage = observer(() => {
               ) : (
                 <div className="text-center py-24 bg-white rounded-[40px] border border-gray-100 shadow-sm flex flex-col items-center">
                   <p className="text-gray-400 text-lg font-medium italic">
-                    Nenhum evento com reserva aprovada para exibição no momento.
+                    Nenhum evento disponível para exibição no momento.
                   </p>
                 </div>
               )}
@@ -188,10 +227,10 @@ const HomePage = observer(() => {
 
               <div className="space-y-2 text-base text-gray-600">
                 <p>
-                  <strong>Data:</strong> {eventoSelecionado.reserva.date}
+                  <strong>Data:</strong> {eventoSelecionado.date}
                 </p>
                 <p>
-                  <strong>Local:</strong> {eventoSelecionado.reserva.roomName}
+                  <strong>Local:</strong> {eventoSelecionado.roomName}
                 </p>
                 <p className="line-clamp-3">
                   <strong>Descrição:</strong> {eventoSelecionado.description}

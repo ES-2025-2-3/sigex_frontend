@@ -45,7 +45,7 @@ const UserReservationPage = observer(() => {
   const [selectedReservation, setSelectedReservation] =
     useState<ReservationDomain | null>(null);
 
-  const loggedUserEmail = userSessionStore.currentUser?.email;
+  const loggedUserId = userSessionStore.currentUser?.id;
 
   const loadData = async () => {
     try {
@@ -101,17 +101,21 @@ const UserReservationPage = observer(() => {
 
     return reservations
       .filter((b: any) => {
-        const isFromUser =
-          b.bookerEmail?.toLowerCase() === loggedUserEmail?.toLowerCase();
+        const requesterIdFromApi =
+          b.requesterId || b.requester_id || (b as any).userId;
+        const isFromUser = String(requesterIdFromApi) === String(loggedUserId);
+
+        const statusUpper = String(b.status || "").toUpperCase();
 
         const isHistoryStatus =
+          statusUpper === "APROVADO" ||
+          statusUpper === "RECUSADO" ||
           b.status === ReservationStatus.APROVADO ||
-          b.status === ReservationStatus.RECUSADO ||
-          b.status === "APROVADO" ||
-          b.status === "RECUSADO";
+          b.status === ReservationStatus.RECUSADO;
 
         const matchesStatus =
-          statusFilter === "ALL" || b.status === statusFilter;
+          statusFilter === "ALL" ||
+          statusUpper === String(statusFilter).toUpperCase();
 
         const title = getEventTitle(b).toLowerCase();
         const matchesSearch =
@@ -124,7 +128,7 @@ const UserReservationPage = observer(() => {
         const dateB = b.date ? new Date(b.date).getTime() : 0;
         return dateB - dateA;
       });
-  }, [search, statusFilter, reservations, events, loggedUserEmail]);
+  }, [search, statusFilter, reservations, events, loggedUserId]);
 
   const totalPages = Math.ceil(filteredReservations.length / ITEMS_PER_PAGE);
   const paginatedReservations = filteredReservations.slice(
@@ -177,11 +181,8 @@ const UserReservationPage = observer(() => {
                   onSelect={setStatusFilter}
                   options={[
                     { label: "TODOS", value: "ALL" },
-                    { label: "APROVADOS", value: ReservationStatus.APROVADO },
-                    {
-                      label: "RECUSADOS",
-                      value: ReservationStatus.RECUSADO,
-                    },
+                    { label: "APROVADOS", value: "APROVADO" },
+                    { label: "RECUSADOS", value: "RECUSADO" },
                   ]}
                 />
 
@@ -214,54 +215,57 @@ const UserReservationPage = observer(() => {
                 </thead>
                 <tbody className="divide-y divide-slate-100 text-sm font-bold">
                   {paginatedReservations.length > 0 ? (
-                    paginatedReservations.map((b: any) => (
-                      <tr
-                        key={b.id!}
-                        className="group hover:bg-slate-50 transition-colors"
-                      >
-                        <td className="px-8 py-6 text-gray-700">
-                          <div className="font-bold text-sm">
-                            {getEventTitle(b)}
-                          </div>
-                          <span className="text-[10px] text-gray-400 block mt-1 uppercase">
-                            ID: #{b.id}
-                          </span>
-                        </td>
-                        <td className="px-6 py-6 text-gray-600">{b.date}</td>
-                        <td className="px-6 py-6 uppercase text-gray-500">
-                          {b.shift || b.period}
-                        </td>
-                        <td className="px-6 py-6">
-                          <div
-                            className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full border text-[10px] font-bold uppercase ${
-                              b.status === ReservationStatus.APROVADO ||
-                              b.status === "APROVADO"
-                                ? "bg-emerald-50 text-emerald-600 border-emerald-100"
-                                : "bg-red-50 text-red-600 border-red-100"
-                            }`}
-                          >
-                            {b.status === ReservationStatus.APROVADO ||
-                            b.status === "APROVADO" ? (
-                              <FaCheckCircle />
-                            ) : (
-                              <FaTimesCircle />
-                            )}
-                            {b.status}
-                          </div>
-                        </td>
-                        <td className="px-8 py-6 text-center">
-                          <button
-                            onClick={() => {
-                              setSelectedReservation(b);
-                              setIsDetailsModalOpen(true);
-                            }}
-                            className="p-2.5 text-gray-400 hover:text-brand-blue bg-gray-50 rounded-xl hover:shadow-md transition-all"
-                          >
-                            <FaEye size={16} />
-                          </button>
-                        </td>
-                      </tr>
-                    ))
+                    paginatedReservations.map((b: any) => {
+                      const statusUpper = String(b.status || "").toUpperCase();
+                      const isAprovado = statusUpper === "APROVADO";
+
+                      return (
+                        <tr
+                          key={b.id!}
+                          className="group hover:bg-slate-50 transition-colors"
+                        >
+                          <td className="px-8 py-6 text-gray-700">
+                            <div className="font-bold text-sm">
+                              {getEventTitle(b)}
+                            </div>
+                            <span className="text-[10px] text-gray-400 block mt-1 uppercase">
+                              ID: #{b.id}
+                            </span>
+                          </td>
+                          <td className="px-6 py-6 text-gray-600">{b.date}</td>
+                          <td className="px-6 py-6 uppercase text-gray-500">
+                            {b.shift || b.period || b.periodo}
+                          </td>
+                          <td className="px-6 py-6">
+                            <div
+                              className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full border text-[10px] font-bold uppercase ${
+                                isAprovado
+                                  ? "bg-emerald-50 text-emerald-600 border-emerald-100"
+                                  : "bg-red-50 text-red-600 border-red-100"
+                              }`}
+                            >
+                              {isAprovado ? (
+                                <FaCheckCircle />
+                              ) : (
+                                <FaTimesCircle />
+                              )}
+                              {statusUpper}
+                            </div>
+                          </td>
+                          <td className="px-8 py-6 text-center">
+                            <button
+                              onClick={() => {
+                                setSelectedReservation(b);
+                                setIsDetailsModalOpen(true);
+                              }}
+                              className="p-2.5 text-gray-400 hover:text-brand-blue bg-gray-50 rounded-xl hover:shadow-md transition-all"
+                            >
+                              <FaEye size={16} />
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })
                   ) : (
                     <tr>
                       <td colSpan={5} className="py-24 text-center">
@@ -321,8 +325,8 @@ const UserReservationPage = observer(() => {
                   Turno
                 </span>
                 <p className="text-slate-700 font-bold text-sm uppercase">
-                  {selectedReservation.shift ||
-                    (selectedReservation as any).period}
+                  {selectedReservation.period ||
+                    (selectedReservation as any).shift}
                 </p>
               </div>
             </div>

@@ -1,6 +1,5 @@
-// services/UserService.ts
-import api from "./api";
 import UserDomain from "../domain/user/UserDomain";
+import api from "./api";
 
 const API_URL = "/users";
 
@@ -31,7 +30,6 @@ class UserService {
     return response.data;
   }
 
-  // ✅ CORREÇÃO: mandar exatamente o que o UpdateUserRequestDTO espera
   async update(id: string, payload: UpdateUserPayload) {
     const response = await api.put(`${API_URL}/${id}`, payload);
     return response.data;
@@ -47,16 +45,25 @@ class UserService {
   }
 
   async promote(userId: string, instituteId: string) {
-    const response = await api.patch(`${API_URL}/admin/promote-user/${userId}`, {
-      instituteId,
-    });
+    const payload = {
+      instituteId: instituteId,
+    };
+
+    const response = await api.patch(
+      `${API_URL}/admin/promote-user/${userId}`,
+      payload,
+    );
     return response.data;
   }
 
-  async demote(userId: string, instituteId: string) {
-    const response = await api.patch(`${API_URL}/admin/demote-user/${userId}`, {
-      instituteId,
-    });
+  async demote(id: string, instituteId: string) {
+    const payload = {
+      instituteId: instituteId,
+    };
+    const response = await api.patch(
+      `${API_URL}/admin/demote-user/${id}`,
+      payload,
+    );
     return response.data;
   }
 

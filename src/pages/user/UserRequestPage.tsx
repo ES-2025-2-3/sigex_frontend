@@ -219,68 +219,84 @@ const UserRequestPage = observer(() => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 text-sm font-bold">
-                  {paginated.map((b: any) => (
-                    <tr
-                      key={b.id}
-                      className="group hover:bg-slate-50 transition-colors"
-                    >
-                      <td className="px-8 py-6 text-gray-700">
-                        <div className="font-bold text-sm">
-                          {getEventTitle(b)}
-                        </div>
-                        <span className="text-[10px] text-gray-400 block mt-1">
-                          ID: #{b.id}
-                        </span>
-                      </td>
-                      <td className="px-6 py-6 text-gray-600">{b.date}</td>
-                      <td className="px-6 py-6 uppercase text-gray-500">
-                        {b.shift || b.period}
-                      </td>
-                      <td className="px-6 py-6">
-                        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 text-amber-600 border border-amber-100 text-[10px] font-bold uppercase">
-                          <FaHourglassHalf size={10} /> Pendente
-                        </div>
-                      </td>
-                      <td className="px-8 py-6 text-center">
-                        <div className="flex items-center justify-center gap-2">
-                          <button
-                            onClick={() => {
-                              setSelectedReservation(b);
-                              setIsDetailsModalOpen(true);
-                            }}
-                            className="p-2.5 text-gray-400 hover:text-brand-blue bg-gray-50 rounded-xl"
-                          >
-                            <FaEye size={15} />
-                          </button>
-                          <button
-                            onClick={() =>
-                              navigate(`/usuario/solicitacoes/editar/${b.id}`)
-                            }
-                            className="p-2.5 text-gray-400 hover:text-amber-600 bg-gray-50 rounded-xl"
-                          >
-                            <FaEdit size={15} />
-                          </button>
-                          <button
-                            onClick={() => {
-                              setReservationToCancel(b);
-                              setIsCancelModalOpen(true);
-                            }}
-                            className="p-2.5 text-gray-400 hover:text-red-600 bg-gray-50 rounded-xl"
-                          >
-                            <FaTrash size={15} />
-                          </button>
-                        </div>
+                  {paginated.length > 0 ? (
+                    paginated.map((b: any) => (
+                      <tr
+                        key={b.id}
+                        className="group hover:bg-slate-50 transition-colors"
+                      >
+                        <td className="px-8 py-6 text-gray-700">
+                          <div className="font-bold text-sm">
+                            {getEventTitle(b)}
+                          </div>
+                          <span className="text-[10px] text-gray-400 block mt-1">
+                            ID: #{b.id}
+                          </span>
+                        </td>
+                        <td className="px-6 py-6 text-gray-600">{b.date}</td>
+                        <td className="px-6 py-6 uppercase text-gray-500">
+                          {b.shift || b.period}
+                        </td>
+                        <td className="px-6 py-6">
+                          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 text-amber-600 border border-amber-100 text-[10px] font-bold uppercase">
+                            <FaHourglassHalf size={10} /> Pendente
+                          </div>
+                        </td>
+                        <td className="px-8 py-6 text-center">
+                          <div className="flex items-center justify-center gap-2">
+                            <button
+                              onClick={() => {
+                                setSelectedReservation(b);
+                                setIsDetailsModalOpen(true);
+                              }}
+                              className="p-2.5 text-gray-400 hover:text-brand-blue bg-gray-50 rounded-xl"
+                            >
+                              <FaEye size={15} />
+                            </button>
+                            <button
+                              onClick={() =>
+                                navigate(`/usuario/solicitacoes/editar/${b.id}`)
+                              }
+                              className="p-2.5 text-gray-400 hover:text-amber-600 bg-gray-50 rounded-xl"
+                            >
+                              <FaEdit size={15} />
+                            </button>
+                            <button
+                              onClick={() => {
+                                setReservationToCancel(b);
+                                setIsCancelModalOpen(true);
+                              }}
+                              className="p-2.5 text-gray-400 hover:text-red-600 bg-gray-50 rounded-xl"
+                            >
+                              <FaTrash size={15} />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan={5} className="py-24 text-center">
+                        <FaClock
+                          size={40}
+                          className="mx-auto text-slate-200 mb-4"
+                        />
+                        <p className="text-gray-400 font-bold text-xs uppercase tracking-widest">
+                          Nenhuma solicitação pendente encontrada.
+                        </p>
                       </td>
                     </tr>
-                  ))}
+                  )}
                 </tbody>
               </table>
             </div>
-            <Pagination
-              currentPage={currentPage}
-              totalPages={totalPages}
-              onPageChange={setCurrentPage}
-            />
+            {filteredReservations.length > ITEMS_PER_PAGE && (
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={setCurrentPage}
+              />
+            )}
           </>
         )}
       </main>
@@ -319,7 +335,7 @@ const UserRequestPage = observer(() => {
                   Turno
                 </span>
                 <p className="text-slate-700 font-bold text-sm uppercase">
-                  {selectedReservation.shift ||
+                  {selectedReservation.period ||
                     (selectedReservation as any).period}
                 </p>
               </div>

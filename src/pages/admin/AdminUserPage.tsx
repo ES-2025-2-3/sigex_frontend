@@ -12,6 +12,7 @@ import Modal from "../../commons/modal/Modal";
 import Toast, { ToastType } from "../../commons/toast/Toast";
 import { UserType } from "../../domain/enums/UserType";
 import { userIndexStore } from "../../store/user/UserIndexStore";
+import InstituteService from "../../services/InstituteService";
 
 type ConfirmAction = "PROMOTE" | "REMOVE" | "VIEW";
 
@@ -119,21 +120,30 @@ const AdminUserPage = observer(() => {
     if (success) {
       setToast({
         type: "success",
-        message: `Usuário ${user.name} promovido(a) para Servidor Técnico Administrativo`,
+        message: `Usuário ${user.name} promovido com sucesso!`,
       });
     } else {
       setToast({
         type: "error",
-        message: "Erro ao promover usuário",
+        message: "Falha na promoção. Verifique a conexão com o servidor.",
       });
     }
   };
 
-  const handleRemove = (user: User) => {
-    setToast({
-      type: "success",
-      message: `Usuário #${user.id} excluido(a) com sucesso`,
-    });
+  const handleRemove = async (user: User) => {
+    const success = await userIndexStore.deleteUser(user.id);
+
+    if (success) {
+      setToast({
+        type: "success",
+        message: `Usuário ${user.name} excluído(a) com sucesso`,
+      });
+    } else {
+      setToast({
+        type: "error",
+        message: "Erro ao excluir usuário. Verifique se ele possui dependências.",
+      });
+    }
   };
 
   return (

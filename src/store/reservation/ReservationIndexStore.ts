@@ -1,44 +1,109 @@
-import { action, makeObservable } from "mobx";
-import BookingDomain from "../../domain/reservation/ReservationDomain";
+import { action, computed, makeObservable, runInAction } from "mobx";
 import IndexStoreBase from "../base/IndexStoreBase";
 import { ReservationShift } from "../../domain/enums/ReservationShift";
-import BookingService from "../../services/ReservationService";
 import { userSessionStore } from "../auth/UserSessionStore";
+import reservationService from "../../services/ReservationService";
+import ReservationDomain from "../../domain/reservation/ReservationDomain";
 
-class ReservationIndexStore extends IndexStoreBase<BookingDomain> {
+class ReservationIndexStore extends IndexStoreBase<ReservationDomain> {
   constructor() {
     super();
     makeObservable(this);
   }
 
-  async fetch() {
+  @action
+  fetch = async () => {
     const user = userSessionStore.currentUser;
-    if (!user) return;
+    if (!user) {
+      console.warn("Usuário não identificado.");
+    }
 
     await this.runFetch(async () => {
-      if (user.type === 'ADMIN' || user.type === 'SERVIDOR_TECNICO_ADMINISTRATIVO') {
-        return await BookingService.getAll();
-      } else {
-        return await BookingService.getMyBookings();
-      }
+      return await reservationService.getAll();
     });
-  }
+  };
 
   @action
-  addRecord(record: BookingDomain) {
+  addRecord(record: ReservationDomain) {
     this.setData([...this.allRecords, record]);
   }
 
   getByDate(date: string) {
-    return this.allRecords.filter(b => b.date === date);
+    return this.allRecords.filter((b) => b.date === date);
   }
 
-  hasConflict(date: string, shift: ReservationShift, roomIds: number[]): boolean {
-    return this.allRecords.some(b =>
-      b.date === date &&
-      b.shift === shift &&
-      b.roomIds.some(id => roomIds.includes(id))
+  @computed
+  get allBookings(): ReservationDomain[] {
+    return Array.isArray(this.allRecords) ? this.allRecords : [];
+  }
+
+  hasConflict(
+    date: string,
+    period: ReservationShift,
+    roomIds: number[],
+  ): boolean {
+    return this.allRecords.some(
+      (b) =>
+        b.date === date &&
+        b.period === period &&
+        b.roomIds.some((id) => roomIds.includes(id)),
     );
+  }
+
+  @action
+  async approve(id: string | null): Promise<boolean> {
+    this.setLoading(true);
+
+    try {
+      const updated = await reservationService.approve(id);
+
+      runInAction(() => {
+        const booking = this.getById(id);
+        if (booking) {
+          booking.status = updated.status;
+        }
+        this.setError(null);
+      });
+
+      return true;
+    } catch (error: any) {
+      runInAction(() => {
+        this.setError(error?.message ?? "Erro ao aprovar reserva");
+      });
+      return false;
+    } finally {
+      runInAction(() => {
+        this.setLoading(false);
+      });
+    }
+  }
+
+  @action
+  async reject(id: string | null): Promise<boolean> {
+    this.setLoading(true);
+
+    try {
+      const updated = await reservationService.reject(id);
+
+      runInAction(() => {
+        const booking = this.getById(id);
+        if (booking) {
+          booking.status = updated.status;
+        }
+        this.setError(null);
+      });
+
+      return true;
+    } catch (error: any) {
+      runInAction(() => {
+        this.setError(error?.message ?? "Erro ao rejeitar reserva");
+      });
+      return false;
+    } finally {
+      runInAction(() => {
+        this.setLoading(false);
+      });
+    }
   }
 }
 

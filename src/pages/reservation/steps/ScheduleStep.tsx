@@ -42,16 +42,16 @@ const ScheduleStep: React.FC<Props> = observer(({ occupationData }) => {
               <button
                 key={s}
                 type="button"
-                onClick={() => (bDomain.shift = s)}
-                className={`p-5 rounded-3xl border-2 flex items-center justify-between cursor-pointer transition-all ${bDomain.shift === s ? "border-brand-blue bg-blue-50" : "border-slate-100 bg-white"}`}
+                onClick={() => (bDomain.period = s)}
+                className={`p-5 rounded-3xl border-2 flex items-center justify-between cursor-pointer transition-all ${bDomain.period === s ? "border-brand-blue bg-blue-50" : "border-slate-100 bg-white"}`}
               >
                 <span
-                  className={`font-black uppercase text-xs tracking-widest ${bDomain.shift === s ? "text-brand-blue" : "text-slate-400"}`}
+                  className={`font-black uppercase text-xs tracking-widest ${bDomain.period === s ? "text-brand-blue" : "text-slate-400"}`}
                 >
                   {s}
                 </span>
                 <div
-                  className={`w-5 h-5 rounded-full border-2 ${bDomain.shift === s ? "bg-brand-blue border-brand-blue" : "bg-white border-slate-300"}`}
+                  className={`w-5 h-5 rounded-full border-2 ${bDomain.period === s ? "bg-brand-blue border-brand-blue" : "bg-white border-slate-300"}`}
                 />
               </button>
             ))}

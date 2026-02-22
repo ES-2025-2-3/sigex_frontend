@@ -22,14 +22,11 @@ class ReservationFormStore extends FormStoreBase<ReservationDomain> {
     });
   }
 
-  /**
-   * Persiste a reserva vinculando-a ao evento criado.
-   */
   @action
   async persist(eventId?: number): Promise<boolean> {
-    const { shift, roomIds, date } = this.domain;
+    const { period, roomIds, date } = this.domain;
 
-    if (!shift || roomIds.length === 0 || !date) {
+    if (!period || roomIds.length === 0 || !date) {
       this.setError("Selecione a data, o turno e as salas da reserva.");
       return false;
     }
@@ -44,7 +41,7 @@ class ReservationFormStore extends FormStoreBase<ReservationDomain> {
         eventId: eventId,
         roomIds: [...roomIds], 
         date: date, 
-        period: shift, 
+        period: period, 
         status: "PENDENTE", 
       };
 

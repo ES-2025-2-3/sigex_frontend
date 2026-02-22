@@ -20,12 +20,8 @@ export default class EventIndexStore extends IndexStoreBase<EventDomain> {
     return this.allRecords || [];
   }
 
-  get allReservations(): ReservationDomain[] {
-    return this.reservations || [];
-  }
-
   @action
-  async fetch() {
+  fetch = async () => {
     await this.runFetch(async () => {
       const [eventsResponse, reservationsResponse] = await Promise.all([
         EventService.getAll(),
@@ -33,13 +29,13 @@ export default class EventIndexStore extends IndexStoreBase<EventDomain> {
       ]);
 
       runInAction(() => {
-        this.allRecords = eventsResponse.map((e) => new EventDomain(e));
+        this.allRecords = eventsResponse.map((e: any) => new EventDomain(e));
 
         this.reservations = reservationsResponse.map(
-          (b: Record<string, unknown>) =>
+          (b: any) =>
             new BookingDomain({
               ...b,
-              eventId: (b as any)?.event?.id ?? (b as any)?.eventId ?? null,
+              eventId: b.event?.id ?? b.eventId ?? null,
             }),
         );
       });
@@ -48,34 +44,32 @@ export default class EventIndexStore extends IndexStoreBase<EventDomain> {
     });
 
     runInAction(() => {
-      const approvedEventIds = new Set<number>(
-        this.reservations
-          .filter(
-            (b) =>
-              b.status === ReservationStatus.APROVADO &&
-              typeof b.eventId === "number",
-          )
-          .map((b) => b.eventId as number),
+      const approvedReservations = this.reservations.filter(
+        (b) => b.status === ReservationStatus.APROVADO,
+      );
+
+      const approvedEventIds = new Set(
+        approvedReservations
+          .map((b) => Number(b.eventId))
+          .filter((id) => !isNaN(id)),
       );
 
       this.upcomingEvents = this.allRecords.filter(
-        (event) => event.isPublic && approvedEventIds.has(event.id!),
+        (event) => event.isPublic && approvedEventIds.has(Number(event.id)),
       );
     });
-  }
+  };
 
   get allCategories(): string[] {
     const tags = this.allRecords.flatMap((event) => event.tags || []);
     return Array.from(new Set(tags)).sort();
   }
 
-  getEventById(id: number) {
-    return this.getById(id, (e) => e.id);
-  }
-
   getBookingByEventId(eventId: number): BookingDomain | undefined {
     return this.reservations.find(
-      (b) => b.eventId === eventId && b.status === ReservationStatus.APROVADO,
+      (b) =>
+        Number(b.eventId) === Number(eventId) &&
+        b.status === ReservationStatus.APROVADO,
     );
   }
 }
