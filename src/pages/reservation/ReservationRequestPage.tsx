@@ -37,26 +37,26 @@ const ReservationRequestPage = observer(() => {
 
   const isPublic = eDomain.isPublic;
 
-  // O último passo agora é Equipamentos (4 para privado, 5 para público)
   const lastStep = isPublic ? 5 : 4;
 
   useEffect(() => {
-    reservationFormStore.reset();
-    eventFormStore.reset();
-    spaceStore.fetchSpaces();
+    if (bDomain.roomIds.length > 0) {
+      const selectedRoomId = bDomain.roomIds[0];
+      const selectedSpace = spaceStore.spaces.find(
+        (s) => s.id === selectedRoomId,
+      );
 
-    // Busca os equipamentos do instituto assim que carregar a página
-    if (instituteStore.globalId) {
-      equipmentStore.fetchStocks(instituteStore.globalId);
+      if (selectedSpace && selectedSpace.instituteId) {
+        equipmentStore.fetchStocks(selectedSpace.instituteId);
+      }
     }
-  }, [instituteStore.globalId]);
+  }, [bDomain.roomIds]);
 
   const showToast = (message: string, type: ToastType = "error") => {
     setToastConfig({ message, type });
   };
 
   const validateStep = (): boolean => {
-    // Validação de Descrição e Mídia
     if (step === 1 || (isPublic && step === 2)) {
       eDomain.validate(step.toString());
       if (Object.keys(eDomain.errors).length > 0) {
@@ -66,7 +66,6 @@ const ReservationRequestPage = observer(() => {
       }
     }
 
-    // Validação de Agenda
     const isScheduleStep =
       (isPublic && step === 3) || (!isPublic && step === 2);
     if (isScheduleStep && (!bDomain.date || !bDomain.period)) {
@@ -74,7 +73,6 @@ const ReservationRequestPage = observer(() => {
       return false;
     }
 
-    // Validação de Local
     const isLocationStep =
       (isPublic && step === 4) || (!isPublic && step === 3);
     if (isLocationStep && bDomain.roomIds.length === 0) {
@@ -126,7 +124,6 @@ const ReservationRequestPage = observer(() => {
     );
   }
 
-  // Define os itens da sidebar dinamicamente
   const stepsMenu = [
     { label: "Detalhes", num: 1 },
     ...(isPublic ? [{ label: "Mídia", num: 2 }] : []),
@@ -148,7 +145,6 @@ const ReservationRequestPage = observer(() => {
 
       <main className="flex-1 flex items-center justify-center py-12 px-5">
         <div className="bg-white w-full max-w-[1100px] rounded-[3rem] shadow-xl overflow-hidden border flex flex-col md:flex-row min-h-[700px]">
-          {/* SIDEBAR */}
           <div className="bg-[#1e293b] w-full md:w-[320px] p-10 flex flex-col relative overflow-hidden">
             <h2 className="text-white font-black text-2xl tracking-tighter mb-10 italic flex items-center gap-3">
               <FaRocket className="text-brand-blue" /> SIGEX
@@ -182,12 +178,10 @@ const ReservationRequestPage = observer(() => {
             </div>
           </div>
 
-          {/* CONTEÚDO PRINCIPAL */}
           <div className="flex-1 p-8 md:p-16 bg-white flex flex-col">
             <div className="flex-1">
               {step === 1 && <DescriptionStep />}
 
-              {/* Fluxo se for Público */}
               {isPublic && (
                 <>
                   {step === 2 && <MediaStep />}
@@ -202,7 +196,6 @@ const ReservationRequestPage = observer(() => {
                 </>
               )}
 
-              {/* Fluxo se for Privado */}
               {!isPublic && (
                 <>
                   {step === 2 && <ScheduleStep occupationData={{}} />}
@@ -216,7 +209,6 @@ const ReservationRequestPage = observer(() => {
                 </>
               )}
 
-              {/* Tela de Sucesso */}
               {step === lastStep + 1 && (
                 <div className="text-center py-20 animate-step">
                   <FaCheckCircle className="text-green-500 text-7xl mx-auto mb-6 drop-shadow-lg" />
@@ -237,7 +229,6 @@ const ReservationRequestPage = observer(() => {
               )}
             </div>
 
-            {/* BOTÕES DE NAVEGAÇÃO */}
             {step <= lastStep && (
               <div className="mt-auto pt-10 flex justify-between border-t border-slate-50">
                 <button

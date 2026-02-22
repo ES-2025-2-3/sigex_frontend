@@ -22,9 +22,6 @@ class ReservationFormStore extends FormStoreBase<ReservationDomain> {
     });
   }
 
-  /**
-   * Persiste a reserva vinculando-a ao evento criado.
-   */
   @action
   async persist(eventId?: number): Promise<boolean> {
     const { period, roomIds, date } = this.domain;
