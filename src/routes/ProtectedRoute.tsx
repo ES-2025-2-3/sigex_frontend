@@ -3,10 +3,10 @@ import { userSessionStore } from '../store/auth/UserSessionStore';
 import { observer } from 'mobx-react-lite';
 
 interface ProtectedRouteProps {
-  adminOnly?: boolean;
+  allowedRoles?: string[];
 }
 
-const ProtectedRoute = observer(({ adminOnly = false }: ProtectedRouteProps) => {
+const ProtectedRoute = observer(({ allowedRoles  }: ProtectedRouteProps) => {
   const location = useLocation();
   const user = userSessionStore.currentUser;
   const hasToken = !!localStorage.getItem('sigex_token');
@@ -19,10 +19,8 @@ const ProtectedRoute = observer(({ adminOnly = false }: ProtectedRouteProps) => 
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  const isManagement = user.type === 'ADMIN' || user.type === 'SERVIDOR_TECNICO_ADMINISTRATIVO';
-
-  if (adminOnly && !isManagement) {
-    return <Navigate to="/" replace />;
+  if (allowedRoles && !allowedRoles.includes(user.type)) {
+    return <Navigate to="/404" replace />;
   }
 
   return <Outlet />;
