@@ -19,41 +19,37 @@ import Footer from "../../commons/footer/Footer";
 import Pagination from "../../commons/pagination/Pagination";
 import Modal from "../../commons/modal/Modal";
 
-import { event_mock } from "../../../mock/event";
+import { reservationIndexStore } from "../../store/reservation/ReservationIndexStore";
+import { userIndexStore } from "../../store/user/UserIndexStore";
+import { eventIndexStore } from "../../store/event/EventIndexStore";
 
 import { ReservationStatus } from "../../domain/enums/ReservationStatus";
 import Toast, { ToastType } from "../../commons/toast/Toast";
 
-import { mockStaff, mockAdmin, mockCommonUser } from "../../../mock/user";
-import { reservation_mock } from "../../../mock/reservation";
-import { Reservation } from "../../types/reservation/ReservationType";
+import ReservationDomain from "../../domain/reservation/ReservationDomain";
 
 type ConfirmAction = "APPROVE" | "REJECT";
 
 const ITEMS_PER_PAGE = 6;
 
 const AdminRequestPage = observer(() => {
-  const allUsers = [mockStaff, mockAdmin, mockCommonUser];
-
-  const getEventTitle = (eventId: number): string => {
-    const event = event_mock.find((e) => e.id === eventId);
+  const getEventTitle = (eventId: number | null) => {
+    const event = eventIndexStore.allEvents.find((e) => e.id === eventId);
     return event ? event.title : "Evento desconhecido";
   };
 
-  const getEventDescription = (eventId: number): string => {
-    const event = event_mock.find((e) => e.id === eventId);
-    return event?.description || "Descrição não disponível.";
+  const getEventDescription = (eventId: number | null): string => {
+    const event = eventIndexStore.allEvents.find((e) => e.id === eventId);
+    return event ? event.description : "Descrição Indisponível";
   };
 
-  const getUserName = (userId: string | number): string => {
-    const user = allUsers.find((u) => String(u.id) === String(userId));
-    return user ? user.name : "Usuário desconhecido";
-  };
+  const getUserName = (requesterId: string | null): string =>
+    (requesterId && userIndexStore.getUserById(requesterId)?.name) ||
+    "Usuário desconhecido";
 
-  const getUserEmail = (userId: string | number): string => {
-    const user = allUsers.find((u) => String(u.id) === String(userId));
-    return user ? user.email : "-";
-  };
+  const getUserEmail = (requesterId: string | null): string =>
+    (requesterId && userIndexStore.getUserById(requesterId)?.email) ||
+    "Email não informado";
 
   const [statusFilter, setStatusFilter] = useState<ReservationStatus | "ALL">(
     "ALL",
@@ -61,12 +57,14 @@ const AdminRequestPage = observer(() => {
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
-  const [selectedReservation, setSelectedReservation] = useState<Reservation | null>(null);
+  const [selectedReservation, setSelectedReservation] =
+    useState<ReservationDomain | null>(null);
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [confirmAction, setConfirmAction] = useState<ConfirmAction | null>(
     null,
   );
-  const [confirmReservation, setConfirmReservation] = useState<Reservation | null>(null);
+  const [confirmReservation, setConfirmReservation] =
+    useState<ReservationDomain | null>(null);
   const [toast, setToast] = useState<{
     type: ToastType;
     message: string;
@@ -76,25 +74,31 @@ const AdminRequestPage = observer(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, [currentPage]);
 
-  const openApproveConfirm = (reservation: Reservation) => {
+  useEffect(() => {
+    reservationIndexStore.fetch();
+    userIndexStore.fetch();
+    eventIndexStore.fetch();
+  }, []);
+
+  const openApproveConfirm = (reservation: ReservationDomain) => {
     setConfirmReservation(reservation);
     setConfirmAction("APPROVE");
     setIsConfirmModalOpen(true);
   };
 
-  const openRejectConfirm = (reservation: Reservation) => {
+  const openRejectConfirm = (reservation: ReservationDomain) => {
     setConfirmReservation(reservation);
     setConfirmAction("REJECT");
     setIsConfirmModalOpen(true);
   };
 
-  const handleConfirmAction = () => {
+  const handleConfirmAction = async () => {
     if (!confirmReservation || !confirmAction) return;
 
     if (confirmAction === "APPROVE") {
-      handleApprove(confirmReservation);
+      await handleApprove(confirmReservation);
     } else {
-      handleReject(confirmReservation);
+      await handleReject(confirmReservation);
     }
 
     setIsConfirmModalOpen(false);
@@ -102,19 +106,35 @@ const AdminRequestPage = observer(() => {
     setConfirmAction(null);
   };
 
-  const handleApprove = (reservation: Reservation) => {
-    setToast({
-      type: "success",
-      message: `Reserva #${reservation.id} APROVADO com sucesso`,
-    });
+  const handleApprove = async (reservation: ReservationDomain) => {
+    const success = await reservationIndexStore.approve(reservation.id);
+    if (success) {
+      setToast({
+        type: "success",
+        message: `Reserva #${reservation.id} aprovada com sucesso`,
+      });
+    } else {
+      setToast({
+        type: "error",
+        message: reservationIndexStore.error || "Erro ao aprovar reserva",
+      });
+    }
     setIsDetailsModalOpen(false);
   };
 
-  const handleReject = (Reservation: Reservation) => {
-    setToast({
-      type: "success",
-      message: `Reserva #${Reservation.id} recusada com sucesso`,
-    });
+  const handleReject = async (reservation: ReservationDomain) => {
+    const success = await reservationIndexStore.reject(reservation.id);
+    if (success) {
+      setToast({
+        type: "success",
+        message: `Reserva #${reservation.id} recusada com sucesso`,
+      });
+    } else {
+      setToast({
+        type: "error",
+        message: reservationIndexStore.error || "Erro ao recusar reserva",
+      });
+    }
     setIsDetailsModalOpen(false);
   };
 
@@ -149,15 +169,23 @@ const AdminRequestPage = observer(() => {
   };
 
   const filteredReservations = useMemo(() => {
-    return reservation_mock.filter((b) => {
+    return reservationIndexStore.allBookings.filter((b) => {
       const matchesStatus = statusFilter === "ALL" || b.status === statusFilter;
+
       const term = search.toLowerCase();
+
+      const eventTitle =
+        b.eventId !== null ? getEventTitle(b.eventId).toLowerCase() : "";
+
+      const userName =
+        b.requesterId !== null ? getUserName(b.requesterId).toLowerCase() : "";
+
       const matchesSearch =
-        getEventTitle(b.eventId).toLowerCase().includes(term) ||
-        getUserName(b.bookerId).toLowerCase().includes(term);
+        eventTitle.includes(term) || userName.includes(term);
+
       return matchesStatus && matchesSearch;
     });
-  }, [statusFilter, search]);
+  }, [statusFilter, search, reservationIndexStore.allBookings]);
 
   const totalPages = Math.ceil(filteredReservations.length / ITEMS_PER_PAGE);
   const paginatedReservations = filteredReservations.slice(
@@ -246,9 +274,9 @@ const AdminRequestPage = observer(() => {
                             <div className="flex items-center gap-2">
                               <FaUser className="text-slate-400" />
                               <div>
-                                <div>{getUserName(b.bookerId)}</div>
+                                <div>{getUserName(b.requesterId)}</div>
                                 <span className="text-[10px] text-slate-400 uppercase">
-                                  {getUserEmail(b.bookerId)}
+                                  {getUserEmail(b.requesterId)}
                                 </span>
                               </div>
                             </div>
@@ -264,7 +292,7 @@ const AdminRequestPage = observer(() => {
                           <td className="px-6 py-5">{b.date}</td>
 
                           <td className="px-6 py-5 uppercase text-slate-500">
-                            {b.shift}
+                            {b.period}
                           </td>
 
                           <td className="px-6 py-5">
@@ -279,16 +307,24 @@ const AdminRequestPage = observer(() => {
                           <td className="px-6 py-5">
                             <div className="flex justify-center gap-2">
                               <button
-                                disabled={b.status !== ReservationStatus.PENDENTE}
-                                onClick={() => openApproveConfirm(b)}
+                                disabled={
+                                  b.status !== ReservationStatus.PENDENTE
+                                }
+                                onClick={() =>
+                                  b.eventId !== null && openApproveConfirm(b)
+                                }
                                 className="cursor-pointer p-2 rounded-lg text-emerald-600 hover:bg-emerald-50 disabled:opacity-40"
                               >
                                 <FaCheck />
                               </button>
 
                               <button
-                                disabled={b.status !== ReservationStatus.PENDENTE}
-                                onClick={() => openRejectConfirm(b)}
+                                disabled={
+                                  b.status !== ReservationStatus.PENDENTE
+                                }
+                                onClick={() =>
+                                  b.eventId !== null && openRejectConfirm(b)
+                                }
                                 className="cursor-pointer p-2 rounded-lg text-red-600 hover:bg-red-50 disabled:opacity-40"
                               >
                                 <FaTimes />
@@ -373,7 +409,7 @@ const AdminRequestPage = observer(() => {
                     Período
                   </span>
                   <p className="text-slate-700 font-bold text-sm uppercase">
-                    {selectedReservation.shift}
+                    {selectedReservation.period}
                   </p>
                 </div>
               </div>

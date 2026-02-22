@@ -34,6 +34,11 @@ class UserIndexStore extends IndexStoreBase<UserDomain> {
   }
 
   @action
+  getUserById(userId: string): UserDomain | undefined {
+    return this.allRecords.find(user => user.id === userId);
+  }
+
+  @action
   async fetch() {
     await this.runFetch(async () => {
       const response = await UserService.getAll();

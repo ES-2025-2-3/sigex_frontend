@@ -58,7 +58,7 @@ const ReservationRequestPage = observer(() => {
 
     const isScheduleStep =
       (isPublic && step === 3) || (!isPublic && step === 2);
-    if (isScheduleStep && (!bDomain.date || !bDomain.shift)) {
+    if (isScheduleStep && (!bDomain.date || !bDomain.period)) {
       showToast("Selecione a data e o turno da reserva.");
       return false;
     }

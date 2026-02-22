@@ -19,7 +19,7 @@ class EventDomain extends DomainBase {
       this.id = (event.id as number) || null;
       this.title = (event.name as string) || "";
       this.description = (event.description as string) || "";
-      this.isPublic = event.visibility === "PUBLIC";
+      this.isPublic = event.visibility === "PUBLICO";
       this.tags = (event.tags as string[]) || [];
       this.imageUrl = (event.imageUrls as string[])?.[0] || "";
       this.registrationLink = (event.relatedLinks as string[])?.[0] || "";

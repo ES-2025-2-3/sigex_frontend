@@ -10,20 +10,24 @@ import {
 } from "react-icons/fa";
 
 import { eventIndexStore } from "../../store/event/EventIndexStore";
+import { reservationIndexStore } from "../../store/reservation/ReservationIndexStore";
 import { ReservationShift } from "../../domain/enums/ReservationShift";
 import { ReservationStatus } from "../../domain/enums/ReservationStatus";
 
 const AdminCalendarView: React.FC = observer(() => {
   const navigate = useNavigate();
-  const { allReservations, allEvents, fetch, loading } = eventIndexStore;
+  const { allBookings, fetch: fetchReservations } = reservationIndexStore;
+  const { allEvents, fetch: fetchEvents } = eventIndexStore;
+
 
   const [viewDate, setViewDate] = useState(new Date());
   const [selectedDayReservations, setSelectedDayReservations] = useState<
     any[] | null
   >(null);
 
-  useEffect(() => {
-    fetch();
+useEffect(() => {
+    reservationIndexStore.fetch();
+    eventIndexStore.fetch();
   }, []);
 
   const monthNames = [
@@ -59,9 +63,11 @@ const AdminCalendarView: React.FC = observer(() => {
   };
 
   const getReservationsForDay = (day: number) => {
-    const dateString = `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
-    return allReservations.filter((res) => res.date === dateString);
-  };
+  const dateString = `${String(day).padStart(2, "0")}/${String(month + 1).padStart(2, "0")}/${year}`;
+  return allBookings.filter(
+    (res) => res.date === dateString && res.status === ReservationStatus.APROVADO
+  );
+};
 
   return (
     <div className="relative w-full">
@@ -123,10 +129,9 @@ const AdminCalendarView: React.FC = observer(() => {
                     setSelectedDayReservations(dayReservations)
                   }
                   className={`aspect-square min-h-[120px] rounded-[1.5rem] p-4 transition-all group relative border bg-slate-300/40
-                    ${
-                      hasReservations
-                        ? "cursor-pointer border-brand-blue/30 hover:bg-slate-300/60 hover:border-brand-blue shadow-inner"
-                        : "border-slate-400/10 cursor-default"
+                    ${hasReservations
+                      ? "cursor-pointer border-brand-blue/30 hover:bg-slate-300/60 hover:border-brand-blue shadow-inner"
+                      : "border-slate-400/10 cursor-default"
                     }`}
                 >
                   <span
@@ -174,7 +179,7 @@ const AdminCalendarView: React.FC = observer(() => {
                 </h4>
                 <p className="text-lg font-black text-slate-700 italic uppercase tracking-tighter">
                   Agenda de Reservas
-                </p>
+                </p>  
               </div>
               <button
                 onClick={() => setSelectedDayReservations(null)}
