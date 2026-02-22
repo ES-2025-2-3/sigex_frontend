@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo } from "react";
 import { observer } from "mobx-react-lite";
-import { useSearchParams, useNavigate, data } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import { eventIndexStore } from "../../store/event/EventIndexStore";
 import { reservationIndexStore } from "../../store/reservation/ReservationIndexStore";
 import { spaceStore } from "../../store/space/SpaceStore";
@@ -22,9 +22,9 @@ import {
   FaCalendarCheck,
   FaHistory,
   FaRegCalendarTimes,
+  FaTrashAlt,
 } from "react-icons/fa";
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
+import { EventTagsLabels } from "../../domain/enums/EventTags";
 
 const EventsPage = observer(() => {
   const navigate = useNavigate();
@@ -34,9 +34,7 @@ const EventsPage = observer(() => {
   const [selectedCategory, setSelectedCategory] = useState(
     searchParams.get("categoria") || "",
   );
-  const [selectedDate, setSelectedDate] = useState(
-    searchParams.get("data") || "",
-  );
+
   const [activeTab, setActiveTab] = useState<"futuros" | "encerrados">(
     "futuros",
   );
@@ -57,20 +55,23 @@ const EventsPage = observer(() => {
   useEffect(() => {
     setFilterTerm(searchParams.get("busca") || "");
     setSelectedCategory(searchParams.get("categoria") || "");
-    setSelectedDate(searchParams.get("data") || "");
     setCurrentPage(1);
   }, [searchParams]);
 
-  const activeFiltersCount = [selectedCategory, selectedDate].filter(
-    Boolean,
-  ).length;
+  const activeFiltersCount = [selectedCategory].filter(Boolean).length;
+
+  const handleClearFilters = () => {
+    setFilterTerm("");
+    setSelectedCategory("");
+    setSearchParams({});
+    setIsFilterOpen(false);
+  };
 
   const handleFilterChange = (term: string) => {
     setFilterTerm(term);
     setSearchParams({
       busca: term,
       categoria: selectedCategory,
-      data: selectedDate,
     });
   };
 
@@ -107,15 +108,16 @@ const EventsPage = observer(() => {
           );
 
           return {
-            ...eventoOriginal, 
+            ...eventoOriginal,
             id: eventoOriginal.id,
-            title: eventoOriginal.title, 
+            title: eventoOriginal.title,
             description: eventoOriginal.description,
             imageUrl: eventoOriginal.imageUrl,
             date: reserva.date,
             roomName: space?.name || "Local a definir",
             registrationLink: (eventoOriginal as any).registrationLink,
             additionalInfo: (eventoOriginal as any).additionalInfo,
+            tags: eventoOriginal.tags || [],
           };
         }
         return null;
@@ -123,8 +125,6 @@ const EventsPage = observer(() => {
       .filter(Boolean);
 
     return publicEventsWithData.filter((item: any) => {
-      if (!item.date) return false;
-
       const matchesSearch =
         item.title?.toLowerCase().includes(filterTerm.toLowerCase()) ||
         item.tags?.some((tag: string) =>
@@ -132,22 +132,21 @@ const EventsPage = observer(() => {
         );
 
       const matchesCategory =
-        selectedCategory === "" || item.tags?.includes(selectedCategory);
+        selectedCategory === "" ||
+        (item.tags && item.tags.includes(selectedCategory));
 
-      const matchesDateFilter =
-        selectedDate === "" || item.date === selectedDate;
-
-      const dateParts = item.date.split('-');
-      const dataReserva = dateParts.length === 3 
-        ? new Date(Number(dateParts[0]), Number(dateParts[1]) - 1, Number(dateParts[2]))
-        : new Date(item.date + "T00:00:00");
+      if (!item.date) return false;
+      const dateParts = item.date.split("T")[0].split("-");
+      const dataReserva = new Date(
+        Number(dateParts[0]),
+        Number(dateParts[1]) - 1,
+        Number(dateParts[2]),
+      );
 
       const isEncerrado = dataReserva < hoje;
       const matchesTab = activeTab === "futuros" ? !isEncerrado : isEncerrado;
 
-      return (
-        matchesSearch && matchesCategory && matchesDateFilter && matchesTab
-      );
+      return matchesSearch && matchesCategory && matchesTab;
     });
   }, [
     reservationIndexStore.allBookings.length,
@@ -155,7 +154,6 @@ const EventsPage = observer(() => {
     spaceStore.spaces.length,
     filterTerm,
     selectedCategory,
-    selectedDate,
     activeTab,
   ]);
 
@@ -265,51 +263,27 @@ const EventsPage = observer(() => {
                       setSearchParams({
                         busca: filterTerm,
                         categoria: e.target.value,
-                        data: selectedDate,
                       });
                     }}
                     className="w-full bg-gray-50 border-none rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-brand-blue/20 outline-none cursor-pointer"
                   >
                     <option value="">Todas as categorias</option>
-                    {eventIndexStore.allCategories?.map((cat) => (
-                      <option key={cat} value={cat}>
-                        {cat}
+                    {Object.entries(EventTagsLabels).map(([key, label]) => (
+                      <option key={key} value={key}>
+                        {label as string}
                       </option>
                     ))}
                   </select>
                 </div>
-                <div className="space-y-2">
-                  <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">
-                    Data Específica
-                  </label>
-                  <DatePicker
-                    selected={
-                      selectedDate ? new Date(selectedDate + "T00:00:00") : null
-                    }
-                    onChange={(date: Date | null) => {
-                      if (date) {
-                        const year = date.getFullYear();
-                        const month = String(date.getMonth() + 1).padStart(
-                          2,
-                          "0",
-                        );
-                        const day = String(date.getDate()).padStart(2, "0");
-                        const value = `${year}-${month}-${day}`;
-                        setSelectedDate(value);
-                        setSearchParams({
-                          busca: filterTerm,
-                          categoria: selectedCategory,
-                          data: value,
-                        });
-                      } else {
-                        setSelectedDate("");
-                      }
-                    }}
-                    placeholderText="Selecione a data"
-                    dateFormat="dd/MM/yyyy"
-                    className="w-full bg-gray-50 border-none rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-brand-blue/20 outline-none text-gray-700"
-                  />
-                </div>
+
+                {(activeFiltersCount > 0 || filterTerm) && (
+                  <button
+                    onClick={handleClearFilters}
+                    className="w-full mt-4 flex items-center justify-center gap-2 py-3 bg-red-50 text-red-500 rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-red-100 transition-colors border-none cursor-pointer"
+                  >
+                    <FaTrashAlt size={10} /> Limpar Filtros
+                  </button>
+                )}
               </div>
             )}
           </div>

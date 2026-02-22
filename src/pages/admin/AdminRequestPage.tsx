@@ -248,7 +248,7 @@ const AdminRequestPage = observer(() => {
                     value={search}
                     onChange={(e) => handleSearchChange(e.target.value)}
                     placeholder="Buscar por evento ou usuário..."
-                    className="w-full pl-11 pr-4 py-3 rounded-xl border border-slate-200 text-sm font-bold outline-none focus:ring-4 focus:ring-brand-blue/10"
+                    className="w-full pl-11 pr-4 py-3 rounded-xl border border-slate-200 text-sm bg-white font-bold outline-none focus:ring-4 focus:ring-brand-blue/10"
                   />
                 </div>
               </div>
