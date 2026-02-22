@@ -61,14 +61,19 @@ const AppRoutes = observer(() => {
       </Route>
 
       {/* --- PROTEGIDAS: ÁREA ADMINISTRATIVA (Exige Login + Admin/Staff) --- */}
-      <Route element={<ProtectedRoute adminOnly />}>
+      <Route element={<ProtectedRoute allowedRoles={['ADMIN']} />}>
+        <Route path="/admin/usuarios" element={<AdminUserPage />} />
+      </Route>
+      
+      <Route element={
+        <ProtectedRoute allowedRoles={['ADMIN', 'SERVIDOR_TECNICO_ADMINISTRATIVO']} />
+      }>
         <Route path="/admin" element={<AdminDashboardPage />} />
         <Route path="/admin/solicitacoes" element={<AdminRequestPage />} />
         <Route path="/admin/espacos" element={<AdminRoomPage />} />
         <Route path="/admin/equipamentos" element={<AdminEquipmentPage />} />
         <Route path="/admin/configuracoes" element={<AdminSettingsPage />} />
         <Route path="/admin/perfil" element={<AdminProfilePage />} />
-        <Route path="/admin/usuarios" element={<AdminUserPage />} />
         <Route path="/admin/funcionarios" element={<AdminStaffManagementPage />} />
       </Route>
 
