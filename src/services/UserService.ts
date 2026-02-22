@@ -3,6 +3,16 @@ import api from "./api";
 
 const API_URL = "/users";
 
+export type UpdateUserPayload = {
+  name: string;
+  email: string;
+};
+
+export type ChangePasswordPayload = {
+  currentPassword: string;
+  newPassword: string;
+};
+
 class UserService {
   async getAll() {
     const response = await api.get(API_URL);
@@ -20,8 +30,7 @@ class UserService {
     return response.data;
   }
 
-  async update(id: string, domain: UserDomain) {
-    const payload = domain.getBackendObject();
+  async update(id: string, payload: UpdateUserPayload) {
     const response = await api.put(`${API_URL}/${id}`, payload);
     return response.data;
   }
@@ -56,6 +65,10 @@ class UserService {
       payload,
     );
     return response.data;
+  }
+
+  async changePassword(payload: ChangePasswordPayload) {
+    await api.patch(`${API_URL}/me/change-password`, payload);
   }
 }
 

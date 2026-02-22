@@ -27,17 +27,17 @@ const AdminDropdown: React.FC = () => {
     <div className="relative">
       <button 
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-full border border-white/20 hover:bg-white/20 transition-all"
+        className="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-full border border-white/20 hover:bg-white/20 transition-all cursor-pointer"
       >
         <FaUserShield className="text-brand-blue" />
         <span className="text-white text-sm font-bold">Admin</span>
-        <FaChevronDown className={`text-white text-[10px] cursor-pointer transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+        <FaChevronDown className={`text-white text-[10px] transition-transform ${isOpen ? 'rotate-180' : ''}`} />
       </button>
 
       {isOpen && (
         <>
           <div 
-            className="fixed inset-0 z-[1000] cursor-pointer" 
+            className="fixed inset-0 z-[1000]" 
             onClick={() => setIsOpen(false)}
           ></div>
 

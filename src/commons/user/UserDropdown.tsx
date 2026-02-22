@@ -87,7 +87,7 @@ const UserDropdown: React.FC = observer(() => {
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen((v) => !v)}
-        className="flex items-center gap-2 px-1 py-1 rounded-full hover:bg-white/10 transition-all duration-300 active:scale-95 outline-none border-none"
+        className="flex items-center gap-2 px-1 py-1 rounded-full hover:bg-white/10 transition-all duration-300 active:scale-95 outline-none border-none cursor-pointer"
       >
         <div className="w-9 h-9 rounded-full bg-brand-blue/20 flex items-center justify-center text-white border border-white/20 shadow-sm">
           <span className="text-xs font-bold tracking-tighter">{initials}</span>
@@ -136,7 +136,7 @@ const UserDropdown: React.FC = observer(() => {
                   navigate(option.route);
                   close();
                 }}
-                className="w-full px-4 py-3 flex items-center gap-3 text-brand-dark hover:bg-gray-50 transition-colors group"
+                className="w-full px-4 py-3 flex items-center gap-3 text-brand-dark hover:bg-gray-50 transition-colors group cursor-pointer"
               >
                 <span className="text-gray-400 group-hover:text-brand-blue transition-colors">
                   {option.icon}
@@ -155,7 +155,7 @@ const UserDropdown: React.FC = observer(() => {
                 close();
                 navigate("/login");
               }}
-              className="w-full px-4 py-3 flex items-center gap-3 text-red-600 hover:bg-red-50/70 transition-colors"
+              className="w-full px-4 py-3 flex items-center gap-3 text-red-600 hover:bg-red-50/70 transition-colors cursor-pointer"
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
