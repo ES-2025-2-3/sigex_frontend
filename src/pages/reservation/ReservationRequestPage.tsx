@@ -7,6 +7,8 @@ import { reservationFormStore } from "../../store/reservation/ReservationFormSto
 import { eventFormStore } from "../../store/event/EventFormStore";
 import { userSessionStore } from "../../store/auth/UserSessionStore";
 import { spaceStore } from "../../store/space/SpaceStore";
+import { equipmentStore } from "../../store/equipment/EquipmentStore";
+import { instituteStore } from "../../store/institute/InstituteStore";
 
 import Header from "../../commons/header/Header";
 import Footer from "../../commons/footer/Footer";
@@ -17,6 +19,7 @@ import ScheduleStep from "./steps/ScheduleStep";
 import LocationStep from "./steps/LocationStep";
 import DescriptionStep from "./steps/DescriptionStep";
 import MediaStep from "./steps/MediaStep";
+import EquipmentStep from "./steps/EquipamentStep";
 
 const ReservationRequestPage = observer(() => {
   const isLoggedIn = userSessionStore.currentUser;
@@ -33,22 +36,29 @@ const ReservationRequestPage = observer(() => {
   const eDomain = eventFormStore.domain;
 
   const isPublic = eDomain.isPublic;
-  const lastStep = isPublic ? 4 : 3;
+
+  // O último passo agora é Equipamentos (4 para privado, 5 para público)
+  const lastStep = isPublic ? 5 : 4;
 
   useEffect(() => {
     reservationFormStore.reset();
     eventFormStore.reset();
     spaceStore.fetchSpaces();
-  }, []);
+
+    // Busca os equipamentos do instituto assim que carregar a página
+    if (instituteStore.globalId) {
+      equipmentStore.fetchStocks(instituteStore.globalId);
+    }
+  }, [instituteStore.globalId]);
 
   const showToast = (message: string, type: ToastType = "error") => {
     setToastConfig({ message, type });
   };
 
   const validateStep = (): boolean => {
+    // Validação de Descrição e Mídia
     if (step === 1 || (isPublic && step === 2)) {
       eDomain.validate(step.toString());
-
       if (Object.keys(eDomain.errors).length > 0) {
         const firstError = Object.values(eDomain.errors)[0] as string;
         showToast(firstError);
@@ -56,6 +66,7 @@ const ReservationRequestPage = observer(() => {
       }
     }
 
+    // Validação de Agenda
     const isScheduleStep =
       (isPublic && step === 3) || (!isPublic && step === 2);
     if (isScheduleStep && (!bDomain.date || !bDomain.period)) {
@@ -63,7 +74,10 @@ const ReservationRequestPage = observer(() => {
       return false;
     }
 
-    if (step === lastStep && bDomain.roomIds.length === 0) {
+    // Validação de Local
+    const isLocationStep =
+      (isPublic && step === 4) || (!isPublic && step === 3);
+    if (isLocationStep && bDomain.roomIds.length === 0) {
       showToast("Selecione pelo menos um local para a reserva.");
       return false;
     }
@@ -75,15 +89,12 @@ const ReservationRequestPage = observer(() => {
     setIsSubmitting(true);
     try {
       const savedEvent = await eventFormStore.persist();
-
       if (savedEvent?.id) {
         bDomain.eventId = savedEvent.id;
-
         const success = await reservationFormStore.persist(savedEvent.id);
-
         if (success) {
           showToast("Solicitação enviada com sucesso!", "success");
-          setStep(5);
+          setStep(lastStep + 1); // Vai para a tela de sucesso
         } else {
           showToast(
             reservationFormStore.error || "Erro ao processar a reserva.",
@@ -115,6 +126,15 @@ const ReservationRequestPage = observer(() => {
     );
   }
 
+  // Define os itens da sidebar dinamicamente
+  const stepsMenu = [
+    { label: "Detalhes", num: 1 },
+    ...(isPublic ? [{ label: "Mídia", num: 2 }] : []),
+    { label: "Agenda", num: isPublic ? 3 : 2 },
+    { label: "Local", num: isPublic ? 4 : 3 },
+    { label: "Equipamentos", num: isPublic ? 5 : 4 },
+  ];
+
   return (
     <div className="flex flex-col min-h-screen bg-bg-main font-system">
       <Header />
@@ -128,17 +148,13 @@ const ReservationRequestPage = observer(() => {
 
       <main className="flex-1 flex items-center justify-center py-12 px-5">
         <div className="bg-white w-full max-w-[1100px] rounded-[3rem] shadow-xl overflow-hidden border flex flex-col md:flex-row min-h-[700px]">
+          {/* SIDEBAR */}
           <div className="bg-[#1e293b] w-full md:w-[320px] p-10 flex flex-col relative overflow-hidden">
             <h2 className="text-white font-black text-2xl tracking-tighter mb-10 italic flex items-center gap-3">
               <FaRocket className="text-brand-blue" /> SIGEX
             </h2>
             <div className="space-y-8">
-              {[
-                { label: "Detalhes", num: 1 },
-                ...(isPublic ? [{ label: "Mídia", num: 2 }] : []),
-                { label: "Agenda", num: isPublic ? 3 : 2 },
-                { label: "Local", num: isPublic ? 4 : 3 },
-              ].map((m) => (
+              {stepsMenu.map((m) => (
                 <div
                   key={m.num}
                   className="flex items-center gap-4 transition-all"
@@ -166,32 +182,42 @@ const ReservationRequestPage = observer(() => {
             </div>
           </div>
 
+          {/* CONTEÚDO PRINCIPAL */}
           <div className="flex-1 p-8 md:p-16 bg-white flex flex-col">
             <div className="flex-1">
               {step === 1 && <DescriptionStep />}
-              {step === 2 &&
-                (isPublic ? (
-                  <MediaStep />
-                ) : (
-                  <ScheduleStep occupationData={{}} />
-                ))}
-              {step === 3 &&
-                (isPublic ? (
-                  <ScheduleStep occupationData={{}} />
-                ) : (
-                  <LocationStep
-                    rooms={spaceStore.spaces}
-                    isLoading={spaceStore.isLoading}
-                  />
-                ))}
-              {step === 4 && isPublic && (
-                <LocationStep
-                  rooms={spaceStore.spaces}
-                  isLoading={spaceStore.isLoading}
-                />
+
+              {/* Fluxo se for Público */}
+              {isPublic && (
+                <>
+                  {step === 2 && <MediaStep />}
+                  {step === 3 && <ScheduleStep occupationData={{}} />}
+                  {step === 4 && (
+                    <LocationStep
+                      rooms={spaceStore.spaces}
+                      isLoading={spaceStore.isLoading}
+                    />
+                  )}
+                  {step === 5 && <EquipmentStep />}
+                </>
               )}
 
-              {step === 5 && (
+              {/* Fluxo se for Privado */}
+              {!isPublic && (
+                <>
+                  {step === 2 && <ScheduleStep occupationData={{}} />}
+                  {step === 3 && (
+                    <LocationStep
+                      rooms={spaceStore.spaces}
+                      isLoading={spaceStore.isLoading}
+                    />
+                  )}
+                  {step === 4 && <EquipmentStep />}
+                </>
+              )}
+
+              {/* Tela de Sucesso */}
+              {step === lastStep + 1 && (
                 <div className="text-center py-20 animate-step">
                   <FaCheckCircle className="text-green-500 text-7xl mx-auto mb-6 drop-shadow-lg" />
                   <h2 className="text-4xl font-black italic uppercase tracking-tighter text-brand-dark">
@@ -211,7 +237,8 @@ const ReservationRequestPage = observer(() => {
               )}
             </div>
 
-            {step < 5 && (
+            {/* BOTÕES DE NAVEGAÇÃO */}
+            {step <= lastStep && (
               <div className="mt-auto pt-10 flex justify-between border-t border-slate-50">
                 <button
                   onClick={() =>
