@@ -1,6 +1,7 @@
 import React from "react";
 import { observer } from "mobx-react-lite";
 import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 import { FaRegCalendarAlt } from "react-icons/fa";
 import { reservationFormStore } from "../../../store/reservation/ReservationFormStore";
 import { ReservationShift } from "../../../domain/enums/ReservationShift";
