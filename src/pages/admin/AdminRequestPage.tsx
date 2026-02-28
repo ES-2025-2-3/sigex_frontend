@@ -84,6 +84,13 @@ const AdminRequestPage = observer(() => {
     eventIndexStore.fetch();
   }, []);
 
+  useEffect(() => {
+    if (!isReportModalOpen) {
+      setReportStartDate("");
+      setReportEndDate("");
+    }
+  }, [isReportModalOpen]);
+
   const openApproveConfirm = (reservation: ReservationDomain) => {
     setConfirmReservation(reservation);
     setConfirmAction("APPROVE");
@@ -153,6 +160,25 @@ const AdminRequestPage = observer(() => {
   };
 
   const handleDownloadReport = async () => {
+    const startInput = document.querySelector(
+      'input[type="date"]:nth-of-type(1)',
+    ) as HTMLInputElement;
+    const endInput = document.querySelector(
+      'input[type="date"]:nth-of-type(2)',
+    ) as HTMLInputElement;
+
+    const isStartInvalid = !reportStartDate && startInput?.value !== "";
+    const isEndInvalid = !reportEndDate && endInput?.value !== "";
+
+    if (isStartInvalid || isEndInvalid) {
+      setToast({
+        type: "error",
+        message:
+          "Data inválida! Verifique se o dia selecionado existe neste mês.",
+      });
+      return;
+    }
+
     if (!reportStartDate || !reportEndDate) {
       setToast({
         type: "error",
@@ -161,9 +187,28 @@ const AdminRequestPage = observer(() => {
       return;
     }
 
+    const start = new Date(reportStartDate);
+    const end = new Date(reportEndDate);
+
+    if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+      setToast({
+        type: "error",
+        message: "Selecione uma data válida para prosseguir.",
+      });
+      return;
+    }
+
+    if (start > end) {
+      setToast({
+        type: "error",
+        message: "A data inicial não pode ser maior que a data final.",
+      });
+      return;
+    }
+
     const success = await reservationIndexStore.downloadReport(
       reportStartDate,
-      reportEndDate
+      reportEndDate,
     );
 
     if (success) {
@@ -173,13 +218,10 @@ const AdminRequestPage = observer(() => {
       });
 
       setIsReportModalOpen(false);
-
     } else {
       setToast({
         type: "error",
-        message:
-          reservationIndexStore.error ||
-          "Erro ao gerar relatório",
+        message: reservationIndexStore.error || "Erro ao gerar relatório",
       });
     }
   };
@@ -266,10 +308,11 @@ const AdminRequestPage = observer(() => {
                     <button
                       key={status}
                       onClick={() => handleStatusChange(status)}
-                      className={`cursor-pointer px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition ${statusFilter === status
-                        ? "bg-brand-blue text-white"
-                        : "bg-white border border-slate-200 text-slate-500 hover:bg-slate-50"
-                        }`}
+                      className={`cursor-pointer px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition ${
+                        statusFilter === status
+                          ? "bg-brand-blue text-white"
+                          : "bg-white border border-slate-200 text-slate-500 hover:bg-slate-50"
+                      }`}
                     >
                       {status === "ALL" ? "Todas" : status}
                     </button>
@@ -536,9 +579,10 @@ const AdminRequestPage = observer(() => {
               <button
                 onClick={() => handleConfirmAction()}
                 className={`cursor-pointer flex-1 py-3 rounded-xl text-white font-bold transition
-                  ${confirmAction === "APPROVE"
-                    ? "bg-emerald-600 hover:bg-emerald-700"
-                    : "bg-red-600 hover:bg-red-700"
+                  ${
+                    confirmAction === "APPROVE"
+                      ? "bg-emerald-600 hover:bg-emerald-700"
+                      : "bg-red-600 hover:bg-red-700"
                   }`}
               >
                 Confirmar
@@ -577,7 +621,6 @@ const AdminRequestPage = observer(() => {
             </div>
 
             <div className="flex gap-3">
-
               <button
                 onClick={() => setIsReportModalOpen(false)}
                 className="cursor-pointer flex-1 py-3 rounded-xl bg-slate-100 font-bold hover:bg-slate-200 transition-all duration-200 ease-out active:scale-95"
