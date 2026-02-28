@@ -11,6 +11,7 @@ import {
   FaCheckCircle,
   FaTimesCircle,
   FaHourglassHalf,
+  FaDownload,
 } from "react-icons/fa";
 
 import Header from "../../commons/header/Header";
@@ -69,6 +70,9 @@ const AdminRequestPage = observer(() => {
     type: ToastType;
     message: string;
   } | null>(null);
+  const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+  const [reportStartDate, setReportStartDate] = useState("");
+  const [reportEndDate, setReportEndDate] = useState("");
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -79,6 +83,13 @@ const AdminRequestPage = observer(() => {
     userIndexStore.fetch();
     eventIndexStore.fetch();
   }, []);
+
+  useEffect(() => {
+    if (!isReportModalOpen) {
+      setReportStartDate("");
+      setReportEndDate("");
+    }
+  }, [isReportModalOpen]);
 
   const openApproveConfirm = (reservation: ReservationDomain) => {
     setConfirmReservation(reservation);
@@ -146,6 +157,73 @@ const AdminRequestPage = observer(() => {
   const handleSearchChange = (value: string) => {
     setSearch(value);
     setCurrentPage(1);
+  };
+
+  const handleDownloadReport = async () => {
+    const startInput = document.querySelector(
+      'input[type="date"]:nth-of-type(1)',
+    ) as HTMLInputElement;
+    const endInput = document.querySelector(
+      'input[type="date"]:nth-of-type(2)',
+    ) as HTMLInputElement;
+
+    const isStartInvalid = !reportStartDate && startInput?.value !== "";
+    const isEndInvalid = !reportEndDate && endInput?.value !== "";
+
+    if (isStartInvalid || isEndInvalid) {
+      setToast({
+        type: "error",
+        message:
+          "Data inválida! Verifique se o dia selecionado existe neste mês.",
+      });
+      return;
+    }
+
+    if (!reportStartDate || !reportEndDate) {
+      setToast({
+        type: "error",
+        message: "Selecione a data inicial e final",
+      });
+      return;
+    }
+
+    const start = new Date(reportStartDate);
+    const end = new Date(reportEndDate);
+
+    if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+      setToast({
+        type: "error",
+        message: "Selecione uma data válida para prosseguir.",
+      });
+      return;
+    }
+
+    if (start > end) {
+      setToast({
+        type: "error",
+        message: "A data inicial não pode ser maior que a data final.",
+      });
+      return;
+    }
+
+    const success = await reservationIndexStore.downloadReport(
+      reportStartDate,
+      reportEndDate,
+    );
+
+    if (success) {
+      setToast({
+        type: "success",
+        message: "Relatório gerado com sucesso",
+      });
+
+      setIsReportModalOpen(false);
+    } else {
+      setToast({
+        type: "error",
+        message: reservationIndexStore.error || "Erro ao gerar relatório",
+      });
+    }
   };
 
   const statusOptions: Array<ReservationStatus | "ALL"> = [
@@ -241,15 +319,25 @@ const AdminRequestPage = observer(() => {
                   ))}
                 </div>
 
-                <div className="relative w-full md:w-80">
-                  <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
-                  <input
-                    type="text"
-                    value={search}
-                    onChange={(e) => handleSearchChange(e.target.value)}
-                    placeholder="Buscar por evento ou usuário..."
-                    className="w-full pl-11 pr-4 py-3 rounded-xl border border-slate-200 text-sm bg-white font-bold outline-none focus:ring-4 focus:ring-brand-blue/10"
-                  />
+                <div className="flex items-center gap-3 w-full md:w-auto">
+                  <button
+                    onClick={() => setIsReportModalOpen(true)}
+                    className="cursor-pointer p-3 rounded-xl bg-brand-blue text-white hover:bg-blue-700 transition shadow-sm flex items-center justify-center"
+                    title="Gerar relatório"
+                  >
+                    <FaDownload size={16} />
+                  </button>
+
+                  <div className="relative w-full md:w-80">
+                    <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+                    <input
+                      type="text"
+                      value={search}
+                      onChange={(e) => handleSearchChange(e.target.value)}
+                      placeholder="Buscar por evento ou usuário..."
+                      className="w-full pl-11 pr-4 py-3 rounded-xl border border-slate-200 text-sm bg-white font-bold outline-none focus:ring-4 focus:ring-brand-blue/10"
+                    />
+                  </div>
                 </div>
               </div>
 
@@ -498,6 +586,55 @@ const AdminRequestPage = observer(() => {
                   }`}
               >
                 Confirmar
+              </button>
+            </div>
+          </div>
+        </Modal>
+        <Modal
+          isOpen={isReportModalOpen}
+          title="Gerar Relatório"
+          onClose={() => setIsReportModalOpen(false)}
+        >
+          <div className="space-y-6">
+            <div>
+              <label className="block text-xs font-bold text-slate-500 uppercase mb-2">
+                Data inicial
+              </label>
+              <input
+                type="date"
+                value={reportStartDate}
+                onChange={(e) => setReportStartDate(e.target.value)}
+                className="w-full p-3 rounded-xl border border-slate-200 font-bold"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-slate-500 uppercase mb-2">
+                Data final
+              </label>
+              <input
+                type="date"
+                value={reportEndDate}
+                onChange={(e) => setReportEndDate(e.target.value)}
+                className="w-full p-3 rounded-xl border border-slate-200 font-bold"
+              />
+            </div>
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => setIsReportModalOpen(false)}
+                className="cursor-pointer flex-1 py-3 rounded-xl bg-slate-100 font-bold hover:bg-slate-200 transition-all duration-200 ease-out active:scale-95"
+              >
+                Cancelar
+              </button>
+
+              <button
+                onClick={handleDownloadReport}
+                className="cursor-pointer flex-1 py-3 rounded-xl bg-brand-blue text-white font-bold hover:bg-blue-700 flex items-center justify-center gap-2 
+      transition-all duration-200 ease-out active:scale-95 hover:shadow-md"
+              >
+                <FaDownload />
+                Download
               </button>
             </div>
           </div>

@@ -74,6 +74,25 @@ class ReservationService {
     return response.data;
   }
 
+  /**
+    * Baixa o relatório de reservas.
+    */
+  async downloadReport(start: string, end: string) {
+    const response = await api.get(
+      `${API_URL}/report/download`,
+      {
+        params: {
+          start,
+          end,
+        },
+        responseType: "blob",
+      }
+    );
+
+    return response.data;
+  }
+
+
 }
 
 const reservationService = new ReservationService();
