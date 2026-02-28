@@ -40,6 +40,14 @@ const ReservationRequestPage = observer(() => {
   const lastStep = isPublic ? 5 : 4;
 
   useEffect(() => {
+    return () => {
+      reservationFormStore.reset();
+      eventFormStore.reset();
+      console.log("Stores resetadas ao sair da página");
+    };
+  }, []);
+
+  useEffect(() => {
     if (bDomain.roomIds.length > 0) {
       const selectedRoomId = bDomain.roomIds[0];
       const selectedSpace = spaceStore.spaces.find(
@@ -92,7 +100,7 @@ const ReservationRequestPage = observer(() => {
         const success = await reservationFormStore.persist(savedEvent.id);
         if (success) {
           showToast("Solicitação enviada com sucesso!", "success");
-          setStep(lastStep + 1); // Vai para a tela de sucesso
+          setStep(lastStep + 1); 
         } else {
           showToast(
             reservationFormStore.error || "Erro ao processar a reserva.",
@@ -185,7 +193,7 @@ const ReservationRequestPage = observer(() => {
               {isPublic && (
                 <>
                   {step === 2 && <MediaStep />}
-                  {step === 3 && <ScheduleStep occupationData={{}} />}
+                  {step === 3 && <ScheduleStep />}
                   {step === 4 && (
                     <LocationStep
                       rooms={spaceStore.spaces}
@@ -198,7 +206,7 @@ const ReservationRequestPage = observer(() => {
 
               {!isPublic && (
                 <>
-                  {step === 2 && <ScheduleStep occupationData={{}} />}
+                  {step === 2 && <ScheduleStep />}
                   {step === 3 && (
                     <LocationStep
                       rooms={spaceStore.spaces}

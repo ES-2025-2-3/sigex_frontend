@@ -27,7 +27,7 @@ api.interceptors.response.use(
     const shouldBypass =
       status === 401 && BYPASS_401_AUTO_LOGOUT.some((p) => url.includes(p));
 
-    if (!shouldBypass && status === 401) {
+    if (!shouldBypass && (status === 401 || status === 403)) {
       localStorage.removeItem("sigex_token");
       localStorage.removeItem("sigex_user_data");
 

@@ -1,11 +1,23 @@
+import { useEffect } from "react";
 import { BrowserRouter } from "react-router-dom";
 import { observer } from "mobx-react-lite"; 
 
 import AppRoutes from "./routes/AppRoutes";
 import { userSessionStore } from "./store/auth/UserSessionStore";
 import ScrollToTop from "./commons/components/ScrollToTop";
+import api from "./services/api";
 
 const App = observer(() => {
+
+  useEffect(() => {
+    const token = localStorage.getItem("sigex_token");
+    
+    if (token) {
+      api.get("/auth/me").catch(() => {
+        console.log("Sessão inválida detectada no carregamento.");
+      });
+    }
+  }, []);
   
   if (userSessionStore.isLoading) {
     return (
