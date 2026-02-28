@@ -8,7 +8,6 @@ import { eventFormStore } from "../../store/event/EventFormStore";
 import { userSessionStore } from "../../store/auth/UserSessionStore";
 import { spaceStore } from "../../store/space/SpaceStore";
 import { equipmentStore } from "../../store/equipment/EquipmentStore";
-import { instituteStore } from "../../store/institute/InstituteStore";
 
 import Header from "../../commons/header/Header";
 import Footer from "../../commons/footer/Footer";
