@@ -105,6 +105,48 @@ class ReservationIndexStore extends IndexStoreBase<ReservationDomain> {
       });
     }
   }
+
+  @action
+  async downloadReport(startDate: string, endDate: string): Promise<boolean> {
+    this.setLoading(true);
+
+    try {
+      const blob = await reservationService.downloadReport(startDate, endDate);
+
+      const url = window.URL.createObjectURL(blob);
+
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "relatorio_reservas.xlsx";
+
+      document.body.appendChild(link);
+      link.click();
+
+      link.remove();
+      window.URL.revokeObjectURL(url);
+
+      runInAction(() => {
+        this.setError(null);
+      });
+
+      return true;
+
+    } catch (error: any) {
+
+      runInAction(() => {
+        this.setError(error?.message ?? "Erro ao baixar relatório");
+      });
+
+      return false;
+
+    } finally {
+
+      runInAction(() => {
+        this.setLoading(false);
+      });
+
+    }
+  }
 }
 
 export const reservationIndexStore = new ReservationIndexStore();
