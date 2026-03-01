@@ -20,7 +20,7 @@ export const mockAdmin = new UserDomain({
   id: "0",
   name: "Administrador do Sistema",
   email: "admin@ufcg.edu.br",
-  type: UserType.ADMIN, // Permanece ADMIN para gerir os usuários
+  type: UserType.ADMIN,  
 });
 
 /**

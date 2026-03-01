@@ -26,11 +26,14 @@ import ConfigurationPage from "../pages/user/UserSettingsPage";
 import EditBookingPage from "../pages/user/EditRequestPage";
 
 import ForgotPasswordEmailPage from "../pages/login/forgotPassword/ForgotPasswordEmailPage";
-import ForgotPasswordCodePage from "../pages/login/forgotPassword/ForgotPasswordCodePage";
 import ForgotPasswordNewPasswordPage from "../pages/login/forgotPassword/ForgotPasswordNewPasswordPage";
 import RegisterSuccessPage from "../pages/register/RegisterSucessPage";
 import RegisterErrorPage from "../pages/register/RegisterErrorPage";
 import LoginErrorPage from "../pages/login/LoginErrorPage";
+import ForgotPasswordValidatePage from "../pages/login/forgotPassword/ForgotPasswordValidatePage";
+import ResetPasswordErrorPage from "../pages/login/forgotPassword/ResetPasswordErrorPage";
+import ResetPasswordSuccessPage from "../pages/login/forgotPassword/ResetPasswordSucessPage";
+import ForgotPasswordEmailSuccessPage from "../pages/login/forgotPassword/ForgotPasswordEmailSucessPage";
 
 const AppRoutes = observer(() => {
   return (
@@ -48,8 +51,11 @@ const AppRoutes = observer(() => {
       <Route path="/cadastro-sucesso" element={<RegisterSuccessPage />} />
       <Route path="/cadastro-erro" element={<RegisterErrorPage />} />
       <Route path="/recuperar-senha" element={<ForgotPasswordEmailPage />} />
-      <Route path="/recuperar-senha/codigo" element={<ForgotPasswordCodePage />} />
+      <Route path="/recuperar-senha/validar/:token" element={<ForgotPasswordValidatePage />} />
+      <Route path="/recuperar-senha/email-enviado" element={<ForgotPasswordEmailSuccessPage />} />
       <Route path="/recuperar-senha/nova-senha" element={<ForgotPasswordNewPasswordPage />} />
+      <Route path="/recuperar-senha/sucesso" element={<ResetPasswordSuccessPage />} />
+      <Route path="/recuperar-senha/erro" element={<ResetPasswordErrorPage />} />
 
       {/* --- PROTEGIDAS: USUÁRIO COMUM (Exige Login) --- */}
       <Route element={<ProtectedRoute />}>

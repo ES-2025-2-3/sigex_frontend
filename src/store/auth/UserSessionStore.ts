@@ -16,6 +16,30 @@ class UserSessionStore {
     return this.currentUser !== null;
   }
 
+  async forgotPassword(email: string) {
+    runInAction(() => (this.isLoading = true));
+    try {
+      await AuthService.forgotPassword(email);
+    } catch (e) {
+      console.error("Erro ao solicitar recuperação:", e);
+      throw e;
+    } finally {
+      runInAction(() => (this.isLoading = false));
+    }
+  }
+
+  async resetPassword(token: string, newPassword: string) {
+    runInAction(() => (this.isLoading = true));
+    try {
+      await AuthService.resetPassword(token, newPassword);
+    } catch (e) {
+      console.error("Erro ao resetar senha:", e);
+      throw e; 
+    } finally {
+      runInAction(() => (this.isLoading = false));
+    }
+  }
+
   async register(registrationData: any) {
     runInAction(() => {
       this.isLoading = true;

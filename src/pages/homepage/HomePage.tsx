@@ -29,19 +29,16 @@ const HomePage = observer(() => {
   }, []);
 
   const featuredEvents = useMemo(() => {
-    // 1. Pega as reservas aprovadas
     const approvedBookings = reservationIndexStore.allBookings.filter(
       (b) => String(b.status).toUpperCase() === "APROVADO",
     );
 
-    // 2. Mapeia cruzando com eventos e espaços (Lógica que você enviou)
     const publicEventsWithData = approvedBookings
       .map((reserva): any => {
         const eventoOriginal = eventIndexStore.allEvents.find(
           (e) => String(e.id) === String(reserva.eventId),
         );
 
-        // Verifica se é público
         const isPublic =
           eventoOriginal?.isPublic ||
           (eventoOriginal as any)?.visibility === "PUBLIC" ||
@@ -58,15 +55,14 @@ const HomePage = observer(() => {
             title: eventoOriginal.title,
             description: eventoOriginal.description,
             imageUrl: eventoOriginal.imageUrl,
-            date: reserva.date, // Informação da reserva
-            roomName: space?.name || "Local a definir", // Informação do espaço
+            date: reserva.date,
+            roomName: space?.name || "Local a definir", 
           };
         }
         return null;
       })
       .filter(Boolean);
 
-    // 3. Retorna apenas os 3 primeiros da lista total (sem filtrar por data de hoje)
     return publicEventsWithData.slice(0, 3);
   }, [
     reservationIndexStore.allBookings.length,
@@ -147,10 +143,10 @@ const HomePage = observer(() => {
                       key={item.id}
                       id={item.id!}
                       titulo={item.title}
-                      data={item.date} // Usa a data da reserva mapeada
+                      data={item.date} 
                       descricao={item.description}
                       imagemUrl={item.imageUrl}
-                      local={item.roomName} // Usa o nome do espaço mapeado
+                      local={item.roomName} 
                       tags={item.tags}
                       onClickDetails={() => handleOpenModal(item.id)}
                     />
